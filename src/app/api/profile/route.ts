@@ -6,10 +6,13 @@ async function uploadCitizenCard(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
   nik: string,
+  email: string,
   file: File,
 ) {
   const extension = file.name.split(".").pop() || "jpg";
-  const filePath = `${nik}/${userId}-${Date.now()}.${extension}`;
+  // Consistency with registration: pending/NIK-EMAIL-TIMESTAMP.ext
+  const safeEmail = email.replace(/[^a-zA-Z0-9]/g, "-");
+  const filePath = `pending/${nik}-${safeEmail}-${Date.now()}.${extension}`;
 
   const { error } = await supabase.storage
     .from("citizen-cards")
@@ -32,44 +35,41 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
+  // Check current verification status - can't update if already verified
+  const { data: profile } = await supabase
+    .from("users")
+    .select("verification_status, email")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.verification_status === "verified") {
+    return NextResponse.json({ error: "Verified profiles cannot be modified." }, { status: 403 });
+  }
+
   const formData = await request.formData();
-  const fullName = String(formData.get("fullName") ?? "").trim();
-  const location = String(formData.get("location") ?? "").trim();
   const citizenCard = formData.get("citizenCard");
   const nik = normalizeNik(String(user.user_metadata.nik ?? ""));
+  const email = profile?.email ?? user.email ?? "";
 
-  if (!fullName) {
-    return NextResponse.json({ error: "Full name is required." }, { status: 400 });
+  if (!(citizenCard instanceof File) || citizenCard.size === 0) {
+    return NextResponse.json({ error: "New citizen card image is required." }, { status: 400 });
   }
 
-  let citizenCardPath: string | undefined;
-  let verificationStatus = "pending_review";
-
-  if (citizenCard instanceof File && citizenCard.size > 0) {
-    try {
-      citizenCardPath = await uploadCitizenCard(supabase, user.id, nik, citizenCard);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Upload failed.";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  } else {
-    const { data: existingProfile } = await supabase
-      .from("users")
-      .select("citizen_card_path, verification_status")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    citizenCardPath = existingProfile?.citizen_card_path ?? undefined;
-    verificationStatus = existingProfile?.verification_status ?? "missing_card";
+  let citizenCardPath: string;
+  try {
+    citizenCardPath = await uploadCitizenCard(supabase, user.id, nik, email, citizenCard);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Upload failed.";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
+  // Only update the citizen card path and status. 
+  // Name, Location, etc. are governance data and stay locked.
   const { error: profileError } = await supabase
     .from("users")
     .update({
-      full_name: fullName,
-      location,
-      citizen_card_path: citizenCardPath ?? null,
-      verification_status: citizenCardPath ? "pending_review" : verificationStatus,
+      citizen_card_path: citizenCardPath,
+      verification_status: "pending_review",
     })
     .eq("id", user.id);
 
@@ -77,16 +77,13 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: profileError.message }, { status: 400 });
   }
 
-  const { error: authError } = await supabase.auth.updateUser({
+  // Also update Auth metadata so the UI stays in sync immediately
+  await supabase.auth.updateUser({
     data: {
-      full_name: fullName,
-      location,
-    },
+      citizen_card_path: citizenCardPath,
+      verification_status: "pending_review",
+    }
   });
-
-  if (authError) {
-    return NextResponse.json({ error: authError.message }, { status: 400 });
-  }
 
   return NextResponse.json({ success: true });
 }

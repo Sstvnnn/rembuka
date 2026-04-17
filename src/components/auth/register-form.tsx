@@ -31,6 +31,7 @@ import { Label } from "@/components/ui/label";
 type RegisterApiResponse = {
   error?: string;
   emailConfirmationRequired?: boolean;
+  email?: string;
 };
 
 export function RegisterForm() {
@@ -100,8 +101,11 @@ export function RegisterForm() {
         return;
       }
 
-      if (payload.emailConfirmationRequired) {
-        setSuccess("Your account has been created. Please check your inbox to confirm your email address.");
+      if (payload.emailConfirmationRequired && payload.email) {
+        setSuccess("Account created! Redirecting to verification...");
+        setTimeout(() => {
+          router.push(`/verify-otp?email=${encodeURIComponent(payload.email!)}`);
+        }, 1000);
         return;
       }
 

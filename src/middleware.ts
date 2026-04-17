@@ -8,26 +8,60 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
-  const isLoginRoute = pathname.startsWith("/login");
-  const isRegisterRoute = pathname.startsWith("/register");
-  const isForgotPasswordRoute = pathname.startsWith("/forgot-password");
-  const isHomeRoute = pathname.startsWith("/home");
-  const isProfileRoute = pathname.startsWith("/profile");
+  
+  // Public routes (auth flow)
+  const isAuthRoute = 
+    pathname.startsWith("/login") || 
+    pathname.startsWith("/register") || 
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/verify-otp") ||
+    pathname.startsWith("/reset-password");
 
-  if ((isHomeRoute || isProfileRoute) && !user) {
+  // Protected routes
+  const isProtectedRoute = 
+    pathname.startsWith("/home") || 
+    pathname.startsWith("/profile");
+
+  const isAdminRoute = pathname.startsWith("/admin");
+
+  // 1. If trying to access protected route but no auth user, go to login
+  if ((isProtectedRoute || isAdminRoute) && !user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if ((isLoginRoute || isRegisterRoute) && user) {
-    return NextResponse.redirect(new URL("/home", request.url));
-  }
+  // 2. If user is authenticated
+  if (user) {
+    // Admin check
+    const isAdmin = user.email === "rembuka.id@gmail.com";
+    if (isAdminRoute && !isAdmin) {
+      return NextResponse.redirect(new URL("/home", request.url));
+    }
+    // A. Check if email is confirmed (Supabase level)
+    if (!user.email_confirmed_at) {
+      if (isProtectedRoute) {
+        return NextResponse.redirect(new URL("/login?message=confirm-email", request.url));
+      }
+    } else {
+      // B. Email is confirmed. Now check if they exist in our 'public.users' table
+      const { data: profile } = await supabase
+        .from("users")
+        .select("id")
+        .eq("id", user.id)
+        .single();
 
-  if ((isHomeRoute || isProfileRoute) && user && !user.email_confirmed_at) {
-    return NextResponse.redirect(new URL("/login?message=confirm-email", request.url));
-  }
+      // If they have an auth session but NO profile in our table, 
+      // they are effectively "not registered" in our app logic.
+      if (!profile && isProtectedRoute) {
+        // Sign them out and send back to register
+        await supabase.auth.signOut();
+        return NextResponse.redirect(new URL("/register?message=incomplete-registration", request.url));
+      }
 
-  if (isForgotPasswordRoute && user) {
-    return NextResponse.redirect(new URL("/home", request.url));
+      // C. If they ARE fully registered, don't let them back into auth pages
+      if (profile && isAuthRoute) {
+        return NextResponse.redirect(new URL("/home", request.url));
+      }
+    }
   }
 
   return response;
@@ -35,6 +69,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

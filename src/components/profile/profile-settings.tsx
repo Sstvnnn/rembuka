@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { Camera, KeyRound, LoaderCircle, Mail, MapPin, ShieldCheck, UserRound } from "lucide-react";
+import { Camera, KeyRound, ShieldCheck, Info, Upload, CheckCircle2, AlertCircle, Clock, XCircle } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { LoadingSpinner } from "@/components/loading-spinner";
@@ -10,13 +10,12 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 type ProfileSettingsProps = {
   email: string;
@@ -27,29 +26,35 @@ type ProfileSettingsProps = {
   citizenCardUrl: string | null;
 };
 
-function statusCopy(status: string) {
-  switch (status) {
-    case "pending_review":
-      return "Citizen card uploaded and waiting for manual review.";
-    case "verified":
-      return "Citizen card reviewed and approved.";
-    case "rejected":
-      return "Citizen card was reviewed but rejected. Upload a clearer image.";
-    default:
-      return "No citizen card uploaded yet.";
+const containerVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      staggerChildren: 0.1
+    }
   }
-}
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: { opacity: 1, scale: 1 }
+};
 
 export function ProfileSettings({
   email,
   nik,
-  fullName: initialFullName,
-  location: initialLocation,
+  fullName,
+  location,
   verificationStatus,
   citizenCardUrl,
 }: ProfileSettingsProps) {
-  const [fullName, setFullName] = useState(initialFullName);
-  const [location, setLocation] = useState(initialLocation);
+  const isVerified = verificationStatus === "verified";
+  const isRejected = verificationStatus === "rejected";
+  const isPending = verificationStatus === "pending_review";
+  
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(null);
   const [profileError, setProfileError] = useState("");
@@ -64,17 +69,14 @@ export function ProfileSettings({
 
   async function onProfileSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isVerified || !profileFile) return;
+
     setProfileError("");
     setProfileSuccess("");
     setProfileLoading(true);
 
     const formData = new FormData();
-    formData.append("fullName", fullName);
-    formData.append("location", location);
-
-    if (profileFile) {
-      formData.append("citizenCard", profileFile);
-    }
+    formData.append("citizenCard", profileFile);
 
     try {
       const response = await fetch("/api/profile", {
@@ -88,8 +90,8 @@ export function ProfileSettings({
         return;
       }
 
-      setProfileSuccess("Profile updated successfully.");
-      window.location.reload();
+      setProfileSuccess("Identity document submitted for review.");
+      setTimeout(() => window.location.reload(), 1500);
     } catch {
       setProfileError("Unable to update profile.");
     } finally {
@@ -98,12 +100,9 @@ export function ProfileSettings({
   }
 
   function handleProfileFileChange(file: File | null) {
+    if (isVerified) return;
     setProfileFile(file);
-
-    if (profilePreviewUrl) {
-      URL.revokeObjectURL(profilePreviewUrl);
-    }
-
+    if (profilePreviewUrl) URL.revokeObjectURL(profilePreviewUrl);
     setProfilePreviewUrl(file ? URL.createObjectURL(file) : null);
   }
 
@@ -112,8 +111,8 @@ export function ProfileSettings({
     setPasswordError("");
     setPasswordSuccess("");
 
-    if (newPassword.length < 8) {
-      setPasswordError("Password must be at least 8 characters long.");
+    if (!/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/.test(newPassword)) {
+      setPasswordError("Requires 8+ chars and alphanumeric.");
       return;
     }
 
@@ -133,7 +132,7 @@ export function ProfileSettings({
         return;
       }
 
-      setPasswordSuccess("Password updated successfully.");
+      setPasswordSuccess("Security credentials updated.");
       setNewPassword("");
       setConfirmPassword("");
     } catch {
@@ -144,240 +143,254 @@ export function ProfileSettings({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-      <div className="space-y-6">
-        <Card className="rounded-[2rem] border border-white/70 bg-white/90 shadow-[0_18px_50px_rgba(63,92,115,0.12)]">
-          <CardHeader>
-            <CardTitle className="text-2xl text-[#243746]">Profile details</CardTitle>
-            <CardDescription>Review and update the account information shown across the platform.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={onProfileSubmit} className="space-y-5">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="full-name">Full name</Label>
-                  <div className="relative">
-                    <UserRound className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#4FB3B3]" />
-                    <Input
-                      id="full-name"
-                      value={fullName}
-                      onChange={(event) => setFullName(event.target.value)}
-                      className="h-11 rounded-2xl pl-10"
-                    />
-                  </div>
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="grid gap-8 lg:grid-cols-[1fr_0.8fr]"
+    >
+      <div className="space-y-8">
+        {/* Status Notification Banner */}
+        <AnimatePresence mode="wait">
+          {isRejected && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="rounded-3xl border border-rose-200 bg-rose-50/50 p-6 flex items-start gap-4"
+            >
+              <div className="size-10 rounded-2xl bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-rose-500/20">
+                <XCircle className="size-6" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-rose-900 uppercase tracking-tight">Identity Rejected</h4>
+                <p className="mt-1 text-xs font-medium text-rose-700 leading-relaxed">
+                  Your submitted document did not meet our verification standards. Please upload a clearer, high-resolution photo of your citizen card to regain access.
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          {isPending && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="rounded-3xl border border-amber-200 bg-amber-50/50 p-6 flex items-start gap-4"
+            >
+              <div className="size-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+                <Clock className="size-6" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-amber-900 uppercase tracking-tight">Verification In Progress</h4>
+                <p className="mt-1 text-xs font-medium text-amber-700 leading-relaxed">
+                  We are currently reviewing your documents. This process usually takes 24-48 hours. You will receive full network access once approved.
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          {isVerified && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="rounded-3xl border border-emerald-200 bg-emerald-50/50 p-6 flex items-start gap-4"
+            >
+              <div className="size-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
+                <CheckCircle2 className="size-6" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-emerald-900 uppercase tracking-tight">System Verified</h4>
+                <p className="mt-1 text-xs font-medium text-emerald-700 leading-relaxed">
+                  Congratulations! Your identity has been verified. You now have full participation rights in the Rembuka Civic Network.
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Identity Details Card */}
+        <motion.div variants={itemVariants}>
+          <Card className="overflow-hidden rounded-[2.5rem] border-white/60 bg-white/40 shadow-2xl backdrop-blur-xl">
+            <CardHeader className="bg-slate-900/5 px-8 py-6">
+              <div className="flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-[#3F5C73] text-white">
+                  <ShieldCheck className="size-5" />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="location">Location</Label>
-                  <div className="relative">
-                    <MapPin className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#F25C7A]" />
-                    <Input
-                      id="location"
-                      value={location}
-                      onChange={(event) => setLocation(event.target.value)}
-                      className="h-11 rounded-2xl pl-10"
-                    />
-                  </div>
+                <CardTitle className="text-xl font-black text-slate-800 tracking-tight uppercase">Registry Profile</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="p-8">
+              <div className="grid gap-8 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Legal Name</p>
+                  <p className="text-base font-bold text-slate-800">{fullName}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registration ID</p>
+                  <p className="text-base font-mono font-bold text-[#4FB3B3]">{nik}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email Access</p>
+                  <p className="text-base font-bold text-slate-800">{email}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Assigned Region</p>
+                  <p className="text-base font-bold text-slate-800">{location}</p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Email</Label>
-                  <div className="relative">
-                    <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#4FB3B3]" />
-                    <Input value={email} disabled className="h-11 rounded-2xl pl-10 opacity-100" />
+        {/* Password Security Card */}
+        <motion.div variants={itemVariants}>
+          <Card className="rounded-[2.5rem] border-white/60 bg-white/40 shadow-xl backdrop-blur-xl">
+            <CardHeader className="px-8 pt-8">
+              <CardTitle className="text-lg font-bold text-slate-800">Account Security</CardTitle>
+            </CardHeader>
+            <CardContent className="px-8 pb-8">
+              <form onSubmit={onPasswordSubmit} className="space-y-6">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold text-slate-500 ml-1">New Password</Label>
+                    <div className="relative">
+                      <KeyRound className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                      <Input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="h-12 rounded-2xl border-slate-200 bg-white/50 pl-11 focus:ring-[#F25C7A]/10"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold text-slate-500 ml-1">Confirm Access</Label>
+                    <div className="relative">
+                      <KeyRound className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                      <Input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="h-12 rounded-2xl border-slate-200 bg-white/50 pl-11 focus:ring-[#F25C7A]/10"
+                        placeholder="••••••••"
+                      />
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Identity number</Label>
-                  <Input value={nik} disabled className="h-11 rounded-2xl font-mono opacity-100" />
-                </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="citizen-card">Replace citizen card</Label>
-                <label
-                  htmlFor="citizen-card"
-                  className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-[#b7c5cf] bg-[#f8fbfc] px-4 py-4 transition hover:border-[#4FB3B3] hover:bg-[#eef8f8]"
-                >
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-[#4FB3B3]/15 text-[#4FB3B3]">
-                    <Camera className="size-5" />
-                  </div>
-                  <div>
-                  <p className="text-sm font-medium text-[#243746]">
-                    {profileFile ? profileFile.name : "Upload a clearer citizen card image"}
-                  </p>
-                  <p className="text-xs text-[#748794]">
-                    Uploading a new image will send the account back to pending review.
-                  </p>
-                </div>
-              </label>
-              <Input
-                id="citizen-card"
-                type="file"
-                accept="image/*"
-                onChange={(event) => handleProfileFileChange(event.target.files?.[0] ?? null)}
-                className="hidden"
-              />
-            </div>
+                <AnimatePresence mode="wait">
+                  {passwordError && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="flex items-center gap-2 text-xs font-bold text-rose-500">
+                      <AlertCircle className="size-3" /> {passwordError}
+                    </motion.div>
+                  )}
+                  {passwordSuccess && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="flex items-center gap-2 text-xs font-bold text-emerald-500">
+                      <CheckCircle2 className="size-3" /> {passwordSuccess}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-              <AnimatePresence mode="wait">
-                {profileError ? (
-                  <motion.div
-                    key={profileError}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    className="rounded-2xl border border-[#f3b3c0] bg-[#fff1f5] px-4 py-3 text-sm text-[#b63d59]"
-                  >
-                    {profileError}
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-
-              <AnimatePresence mode="wait">
-                {profileSuccess ? (
-                  <motion.div
-                    key={profileSuccess}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    className="rounded-2xl border border-[#cde4e4] bg-[#eff9f9] px-4 py-3 text-sm text-[#2d6868]"
-                  >
-                    {profileSuccess}
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-
-              <Button type="submit" disabled={profileLoading} className="h-11 rounded-2xl bg-[#3F5C73] text-white">
-                {profileLoading ? (
-                  <>
-                    <LoadingSpinner className="mr-2" />
-                    Saving profile...
-                  </>
-                ) : (
-                  <>
-                    <LoaderCircle className="mr-2 size-4" />
-                    Save profile
-                  </>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-[2rem] border border-white/70 bg-white/90 shadow-[0_18px_50px_rgba(63,92,115,0.12)]">
-          <CardHeader>
-            <CardTitle className="text-2xl text-[#243746]">Change password</CardTitle>
-            <CardDescription>Update your password.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={onPasswordSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="new-password">New password</Label>
-                <div className="relative">
-                  <KeyRound className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#F25C7A]" />
-                  <Input
-                    id="new-password"
-                    type="password"
-                    value={newPassword}
-                    onChange={(event) => setNewPassword(event.target.value)}
-                    className="h-11 rounded-2xl pl-10"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirm-new-password">Confirm new password</Label>
-                <div className="relative">
-                  <KeyRound className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#F25C7A]" />
-                  <Input
-                    id="confirm-new-password"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(event) => setConfirmPassword(event.target.value)}
-                    className="h-11 rounded-2xl pl-10"
-                  />
-                </div>
-              </div>
-
-              <AnimatePresence mode="wait">
-                {passwordError ? (
-                  <motion.div
-                    key={passwordError}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    className="rounded-2xl border border-[#f3b3c0] bg-[#fff1f5] px-4 py-3 text-sm text-[#b63d59]"
-                  >
-                    {passwordError}
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-
-              <AnimatePresence mode="wait">
-                {passwordSuccess ? (
-                  <motion.div
-                    key={passwordSuccess}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    className="rounded-2xl border border-[#cde4e4] bg-[#eff9f9] px-4 py-3 text-sm text-[#2d6868]"
-                  >
-                    {passwordSuccess}
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-
-              <Button type="submit" disabled={passwordLoading} className="h-11 rounded-2xl bg-[#F25C7A] text-white">
-                {passwordLoading ? (
-                  <>
-                    <LoadingSpinner className="mr-2" />
-                    Updating password...
-                  </>
-                ) : (
-                  <>
-                    <LoaderCircle className="mr-2 size-4" />
-                    Update password
-                  </>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                <Button disabled={passwordLoading} className="h-12 rounded-2xl bg-[#F25C7A] px-10 font-bold text-white shadow-lg shadow-[#F25C7A]/20 hover:scale-[1.02] transition-transform">
+                  {passwordLoading ? <LoadingSpinner /> : "Update Credentials"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
-      <Card className="rounded-[2rem] border border-white/70 bg-white/90 shadow-[0_18px_50px_rgba(63,92,115,0.12)]">
-        <CardHeader>
-          <CardTitle className="text-2xl text-[#243746]">Verification</CardTitle>
-          <CardDescription>{statusCopy(verificationStatus)}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="inline-flex items-center rounded-full border border-[#d8e2e8] bg-[#f8fbfc] px-3 py-2 text-sm font-medium text-[#3F5C73]">
-            <ShieldCheck className="mr-2 size-4" />
-            Status: {verificationStatus}
-          </div>
+      {/* Identity Card Side */}
+      <motion.div variants={itemVariants} className="space-y-8">
+        <Card className="overflow-hidden rounded-[2.5rem] border-white/60 bg-white/40 shadow-2xl backdrop-blur-xl">
+          <CardHeader className="flex flex-row items-center justify-between px-8 py-6 bg-slate-50/50">
+            <CardTitle className="text-lg font-bold text-slate-800">Identity Token</CardTitle>
+            <div className={cn(
+              "rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest border",
+              isVerified ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 
+              isRejected ? "bg-rose-50 text-rose-600 border-rose-200 shadow-sm shadow-rose-500/10" :
+              "bg-amber-50 text-amber-600 border-amber-200 shadow-sm shadow-amber-500/10"
+            )}>
+              {verificationStatus.replace("_", " ")}
+            </div>
+          </CardHeader>
+          <CardContent className="p-8">
+            <div className="group relative aspect-[1.58/1] overflow-hidden rounded-3xl border-2 border-slate-200 bg-slate-100 shadow-inner">
+              {profilePreviewUrl || citizenCardUrl ? (
+                <Image
+                  src={profilePreviewUrl ?? citizenCardUrl ?? ""}
+                  alt="Identity Document"
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  unoptimized
+                />
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center text-slate-300">
+                  <Camera className="size-12 opacity-10" />
+                  <p className="mt-2 text-[10px] font-bold uppercase tracking-widest">No Document Scanned</p>
+                </div>
+              )}
+            </div>
 
-          {profilePreviewUrl || citizenCardUrl ? (
-            <div className="overflow-hidden rounded-[1.5rem] border border-[#d8e2e8] bg-[#f8fbfc]">
-              <Image
-                src={profilePreviewUrl ?? citizenCardUrl ?? ""}
-                alt="Citizen card"
-                width={800}
-                height={520}
-                className="h-auto w-full object-cover"
-                unoptimized
-              />
-            </div>
-          ) : (
-            <div className="rounded-[1.5rem] border border-dashed border-[#d8e2e8] bg-[#f8fbfc] px-4 py-10 text-center text-sm text-[#617580]">
-              No citizen card uploaded yet.
-            </div>
-          )}
-        </CardContent>
-        <CardFooter className="bg-[#f6f8fa] text-xs text-[#617580]">
-          pending_review means the card was uploaded successfully but still needs manual admin verification.
-        </CardFooter>
-      </Card>
-    </div>
+            {!isVerified && (
+              <form onSubmit={onProfileSubmit} className="mt-8 space-y-6">
+                <div className="space-y-4">
+                  <label
+                    htmlFor="citizen-card"
+                    className="flex cursor-pointer flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-slate-200 bg-white/50 py-10 transition-all hover:border-[#4FB3B3] hover:bg-white group"
+                  >
+                    <div className="flex size-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-400 group-hover:bg-[#4FB3B3] group-hover:text-white transition-all shadow-sm">
+                      <Upload className="size-6" />
+                    </div>
+                    <p className="mt-4 text-sm font-bold text-slate-700">
+                      {profileFile ? profileFile.name : isRejected ? "Re-scan Document" : "Scan New Document"}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-400">PNG, JPG up to 10MB</p>
+                  </label>
+                  <input
+                    id="citizen-card"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleProfileFileChange(e.target.files?.[0] ?? null)}
+                    className="hidden"
+                  />
+                </div>
+
+                <AnimatePresence mode="wait">
+                  {profileError && (
+                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-xs font-bold text-rose-500">{profileError}</motion.p>
+                  )}
+                  {profileSuccess && (
+                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-xs font-bold text-emerald-500">{profileSuccess}</motion.p>
+                  )}
+                </AnimatePresence>
+
+                <Button 
+                  type="submit" 
+                  disabled={profileLoading || !profileFile} 
+                  className={cn(
+                    "w-full h-14 rounded-[1.5rem] font-bold text-white shadow-xl transition-transform hover:scale-[1.01]",
+                    isRejected ? "bg-rose-500 shadow-rose-500/20 hover:bg-rose-600" : "bg-[#3F5C73] shadow-[#3F5C73]/20 hover:bg-[#314b60]"
+                  )}
+                >
+                  {profileLoading ? <LoadingSpinner /> : isRejected ? "Submit New Document" : "Submit for Verification"}
+                </Button>
+              </form>
+            )}
+            
+            {isVerified && (
+              <div className="mt-8 rounded-2xl bg-emerald-50/50 p-6 border border-emerald-100 flex items-start gap-4">
+                <div className="size-10 flex items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">
+                  <ShieldCheck className="size-5" />
+                </div>
+                <p className="text-xs font-bold text-emerald-800 leading-relaxed uppercase tracking-tight">
+                  Your identity is secured. Document modification is locked.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }

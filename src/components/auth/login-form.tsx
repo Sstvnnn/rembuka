@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { Eye, EyeOff, IdCard, KeyRound, LoaderCircle, ShieldCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
@@ -32,13 +32,15 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 12 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
 };
 
 type LoginApiResponse = {
   error?: string;
+  email?: string;
+  requiresVerification?: boolean;
 };
 
 export function LoginForm() {
@@ -95,6 +97,14 @@ export function LoginForm() {
       const payload = (await response.json()) as LoginApiResponse;
 
       if (!response.ok) {
+        if (response.status === 403 && payload.requiresVerification && payload.email) {
+          setError(payload.error ?? "Verification required.");
+          setTimeout(() => {
+            router.push(`/verify-otp?email=${encodeURIComponent(payload.email!)}`);
+          }, 1500);
+          return;
+        }
+
         setError(payload.error ?? "Sign in failed.");
         return;
       }

@@ -15,9 +15,10 @@ export async function POST(request: Request) {
     );
   }
 
-  if (password.length < 8) {
+  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
+  if (!passwordRegex.test(password)) {
     return NextResponse.json(
-      { error: "Password must be at least 8 characters long." },
+      { error: "Invalid NIK or password format. Password should be at least 8 characters and alphanumeric." },
       { status: 400 },
     );
   }
@@ -47,6 +48,23 @@ export async function POST(request: Request) {
   });
 
   if (error || !data.user) {
+    if (error?.message?.toLowerCase().includes("confirm your email")) {
+      // Re-send OTP if it's an unconfirmed user
+      await supabase.auth.resend({
+        type: 'signup',
+        email: citizen.email,
+      });
+
+      return NextResponse.json(
+        { 
+          error: "Your email is not verified yet. A new verification code has been sent.", 
+          email: citizen.email,
+          requiresVerification: true 
+        },
+        { status: 403 },
+      );
+    }
+
     return NextResponse.json(
       { error: "Invalid NIK or password. Please try again." },
       { status: 400 },
@@ -55,11 +73,18 @@ export async function POST(request: Request) {
 
   if (!data.user.email_confirmed_at) {
     await supabase.auth.signOut();
+    
+    // Re-send OTP
+    await supabase.auth.resend({
+      type: 'signup',
+      email: citizen.email,
+    });
 
     return NextResponse.json(
       {
-        error:
-          "Please confirm your email first. Check your inbox and click the confirmation link before signing in.",
+        error: "Your email is not verified yet. A new verification code has been sent.",
+        email: citizen.email,
+        requiresVerification: true
       },
       { status: 403 },
     );

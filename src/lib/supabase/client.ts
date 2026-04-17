@@ -6,5 +6,6 @@ import { getSupabaseEnv } from "@/lib/supabase";
 export function createClient() {
   const { url, anonKey } = getSupabaseEnv();
 
-  return createBrowserClient(url, anonKey);
+  // Use non-null assertion because we check these in getSupabaseEnv()
+  return createBrowserClient(url!, anonKey!);
 }

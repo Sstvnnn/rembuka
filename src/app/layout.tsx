@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { AppProviders } from "@/providers/app-providers";
+import { Navbar } from "@/components/shared/navbar";
+import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 const bodyFont = IBM_Plex_Sans({
@@ -26,18 +28,34 @@ export const metadata: Metadata = {
   description: "Civic-tech super app for public discussion and digital musrenbang.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Safely cast user metadata for the Navbar
+  const navbarUser = user ? {
+    email: user.email,
+    user_metadata: {
+      full_name: user.user_metadata.full_name as string | undefined
+    }
+  } : null;
+
   return (
     <html
       lang="en"
       className={`${bodyFont.variable} ${monoFont.variable} ${headingFont.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <AppProviders>{children}</AppProviders>
+      <body className="min-h-full flex flex-col bg-[#f8fafc]">
+        <AppProviders>
+          <Navbar user={navbarUser} />
+          <main className="flex-1">
+            {children}
+          </main>
+        </AppProviders>
       </body>
     </html>
   );

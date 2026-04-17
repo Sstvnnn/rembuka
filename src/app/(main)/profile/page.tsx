@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { ProfileSettings } from "@/components/profile/profile-settings";
 import { getCurrentProfile } from "@/lib/profile";
 
@@ -19,23 +17,15 @@ export default async function ProfilePage() {
   const verificationStatus = profile?.verification_status ?? "missing_card";
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,#f4f8fb_0%,#f8efeb_100%)] px-4 py-6 sm:px-6">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <Link
-          href="/home"
-          className="inline-flex items-center rounded-full border border-[#d9e2e8] bg-white px-4 py-2 text-sm font-medium text-[#3F5C73] shadow-sm transition hover:bg-[#f8fbfc]"
-        >
-          <ArrowLeft className="mr-2 size-4" />
-          Back to home
-        </Link>
-
+    <main className="min-h-screen bg-[radial-gradient(180deg,#f4f8fb_0%,#f8efeb_100%)] px-4 pt-32 pb-12 sm:px-6">
+      <div className="mx-auto max-w-7xl space-y-8">
         <section className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#4FB3B3]">
-            Account Settings
+            Account Management
           </p>
-          <h1 className="font-heading text-4xl font-semibold text-[#243746]">Your profile</h1>
-          <p className="max-w-2xl text-sm leading-6 text-[#617580]">
-            Review your citizen profile, upload or replace your citizen card, and manage your password.
+          <h1 className="font-heading text-4xl font-black text-slate-800 tracking-tight">Your Identity</h1>
+          <p className="max-w-2xl text-sm font-medium leading-relaxed text-slate-500">
+            Review your citizen credentials, maintain your identity documents, and secure your account access.
           </p>
         </section>
 
