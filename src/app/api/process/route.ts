@@ -11,7 +11,9 @@ export async function POST(req: NextRequest) {
 
     const chunks = chunkByPasal(text);
 
-    const chunkSummaries = await summarizeChunks(chunks.slice(0, 5));
+    console.log(chunks.length, "chunks found");
+
+    const chunkSummaries = await summarizeChunks(chunks);
     // limit dulu biar aman
 
     const final = await combineSummaries(chunkSummaries);

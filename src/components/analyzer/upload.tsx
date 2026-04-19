@@ -20,6 +20,7 @@ export default function Upload({ onResult }: any) {
         });
 
         const { text } = await uploadRes.json();
+        console.log(text);
 
         const processRes = await fetch("/api/process", {
             method: "POST",
@@ -27,6 +28,8 @@ export default function Upload({ onResult }: any) {
         });
 
         const data = await processRes.json();
+
+        console.log(data);
 
         onResult(data);
         setLoading(false);

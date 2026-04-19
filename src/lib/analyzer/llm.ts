@@ -43,17 +43,17 @@ export async function summarizeChunks(chunks: string[]) {
                 {
                     role: "user",
                     content: `
-Simplify this legal text into Indonesian.
+                Simplify this legal text into Indonesian.
 
-Return JSON:
-{
-  "summary": "...",
-  "key_points": ["...", "..."]
-}
+                Return JSON:
+                {
+                "summary": "...",
+                "key_points": ["...", "..."]
+                }
 
-TEXT:
-${chunk}
-          `,
+                TEXT:
+                ${chunk}
+                        `,
                 },
             ]);
 
@@ -72,7 +72,7 @@ ${chunk}
             });
         }
 
-        await sleep(800); // penting: hindari rate limit
+        await sleep(800);
     }
 
     return results;
@@ -92,18 +92,18 @@ export async function combineSummaries(chunkSummaries: any[]) {
         {
             role: "user",
             content: `
-Gabungkan ringkasan berikut menjadi satu ringkasan utuh yang mudah dipahami.
+            Gabungkan ringkasan berikut menjadi satu ringkasan utuh yang mudah dipahami.
 
-Return JSON:
-{
-  "final_summary": "...",
-  "key_points": ["...", "..."]
-}
+            Return JSON:
+            {
+            "final_summary": "...",
+            "key_points": ["...", "..."]
+            }
 
-DATA:
-${combinedText}
-      `,
-        },
+            DATA:
+            ${combinedText}
+                `,
+                    },
     ]);
 
     try {

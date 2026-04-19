@@ -21,7 +21,7 @@ export default function Result({ data }: any) {
             <ul>
                 {data.final?.key_points?.map((kp: string, i: number) => (
                     <li key={i}>{kp}</li>
-                ))}
+                ))} 
             </ul>
         </div>
     );
