@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -46,8 +47,10 @@ type LoginApiResponse = {
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [loginType, setLoginType] = useState<"citizen" | "governance">("citizen");
   const [notice, setNotice] = useState("");
   const [nik, setNik] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -67,23 +70,40 @@ export function LoginForm() {
     setNik(event.target.value.replace(/\D/g, "").slice(0, 20));
   }
 
+  function handleTabChange(type: "citizen" | "governance") {
+    setLoginType(type);
+    setNik("");
+    setEmail("");
+    setPassword("");
+    setError("");
+    setNotice("");
+  }
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     setNotice("");
 
-    if (!/^\d{8,20}$/.test(formattedNik)) {
-      setError("Please enter a valid identity number.");
-      return;
-    }
-
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
-      return;
+    if (loginType === "citizen") {
+      if (!/^\d{8,20}$/.test(formattedNik)) {
+        setError("Please enter a valid identity number.");
+        return;
+      }
+      
+      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
+      if (!passwordRegex.test(password)) {
+        setError("Citizens must use at least 8 alphanumeric characters.");
+        return;
+      }
     }
 
     const formData = new FormData();
-    formData.append("nik", formattedNik);
+    formData.append("loginType", loginType);
+    if (loginType === "citizen") {
+      formData.append("nik", formattedNik);
+    } else {
+      formData.append("email", email);
+    }
     formData.append("password", password);
 
     setIsLoading(true);
@@ -125,62 +145,134 @@ export function LoginForm() {
       variants={containerVariants}
       className="w-full max-w-md"
     >
+      <div className="mb-6 flex justify-center p-1 bg-white/50 backdrop-blur rounded-2xl border border-white/70 shadow-sm">
+        <button
+          onClick={() => setLoginType("citizen")}
+          className={cn(
+            "flex-1 py-2.5 text-xs font-bold uppercase tracking-widest rounded-xl transition-all",
+            loginType === "citizen" 
+              ? "bg-[#3F5C73] text-white shadow-lg" 
+              : "text-slate-500 hover:text-slate-700"
+          )}
+        >
+          Citizen
+        </button>
+        <button
+          onClick={() => setLoginType("governance")}
+          className={cn(
+            "flex-1 py-2.5 text-xs font-bold uppercase tracking-widest rounded-xl transition-all",
+            loginType === "governance" 
+              ? "bg-[#F25C7A] text-white shadow-lg" 
+              : "text-slate-500 hover:text-slate-700"
+          )}
+        >
+          Governance
+        </button>
+      </div>
+
       <Card className="overflow-hidden rounded-[2rem] border border-white/70 bg-white/90 shadow-[0_24px_90px_rgba(63,92,115,0.18)] backdrop-blur">
         <CardHeader className="space-y-4 border-b border-[#d7dee5] bg-[linear-gradient(135deg,rgba(79,179,179,0.18),rgba(242,92,122,0.08),rgba(255,255,255,0.95))] pb-6">
           <motion.div variants={itemVariants} className="flex items-center gap-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-[#3F5C73] text-white shadow-[4px_4px_0_rgba(79,179,179,0.35)]">
+            <div className={cn(
+              "flex size-12 items-center justify-center rounded-2xl text-white shadow-[4px_4px_0_rgba(79,179,179,0.35)] transition-colors",
+              loginType === "citizen" ? "bg-[#3F5C73]" : "bg-[#F25C7A]"
+            )}>
               <ShieldCheck className="size-6" />
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4FB3B3]">
-                Sign in
+              <p className={cn(
+                "text-xs font-semibold uppercase tracking-[0.28em] transition-colors",
+                loginType === "citizen" ? "text-[#4FB3B3]" : "text-[#F25C7A]"
+              )}>
+                {loginType} Portal
               </p>
               <CardTitle className="text-2xl font-semibold text-[#243746]">
-                Sign in to Rembuka
+                {loginType === "citizen" ? "Citizen Login" : "Official Login"}
               </CardTitle>
             </div>
           </motion.div>
           <motion.div variants={itemVariants}>
             <CardDescription className="text-sm leading-6 text-[#587080]">
-              Enter your details to continue.
+              {loginType === "citizen" 
+                ? "Access your civic tools using your identity number." 
+                : "Secure portal for government officials and administrators."}
             </CardDescription>
           </motion.div>
         </CardHeader>
 
         <CardContent className="space-y-5 px-6 py-6">
           <motion.form variants={itemVariants} onSubmit={onSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="nik" className="text-[#2e4658]">
-                Identity number
-              </Label>
-              <div className="relative">
-                <IdCard className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#4FB3B3]" />
-                <Input
-                  id="nik"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  placeholder="Enter your identity number"
-                  value={nik}
-                  onChange={onNikChange}
-                  className="h-11 rounded-2xl border-[#c6d0d8] bg-white pl-10 text-[#243746] placeholder:text-[#7f919c] focus-visible:border-[#4FB3B3] focus-visible:ring-[#4FB3B3]/20"
-                />
-              </div>
-            </div>
+            <AnimatePresence mode="wait">
+              {loginType === "citizen" ? (
+                <motion.div
+                  key="citizen-field"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  className="space-y-2"
+                >
+                  <Label htmlFor="nik" className="text-[#2e4658]">
+                    Identity number
+                  </Label>
+                  <div className="relative">
+                    <IdCard className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#4FB3B3]" />
+                    <Input
+                      id="nik"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="Enter your identity number"
+                      value={nik}
+                      onChange={onNikChange}
+                      className="h-11 rounded-2xl border-[#c6d0d8] bg-white pl-10 text-[#243746] placeholder:text-[#7f919c] focus-visible:border-[#4FB3B3] focus-visible:ring-[#4FB3B3]/20"
+                    />
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="gov-field"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  className="space-y-2"
+                >
+                  <Label htmlFor="email" className="text-[#2e4658]">
+                    Official Email
+                  </Label>
+                  <div className="relative">
+                    <IdCard className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#F25C7A]" />
+                    <Input
+                      id="email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="name@rembuka.id"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="h-11 rounded-2xl border-[#c6d0d8] bg-white pl-10 text-[#243746] placeholder:text-[#7f919c] focus-visible:border-[#F25C7A] focus-visible:ring-[#F25C7A]/20"
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-[#2e4658]">
                   Password
                 </Label>
-                <Link
-                  href="/forgot-password"
-                  className="text-xs font-semibold text-[#3F5C73] hover:text-[#2b4254]"
-                >
-                  Forgot password?
-                </Link>
+                {loginType === "citizen" && (
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs font-semibold text-[#3F5C73] hover:text-[#2b4254]"
+                  >
+                    Forgot password?
+                  </Link>
+                )}
               </div>
               <div className="relative">
-                <KeyRound className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#F25C7A]" />
+                <KeyRound className={cn(
+                  "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2",
+                  loginType === "citizen" ? "text-[#F25C7A]" : "text-[#3F5C73]"
+                )} />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -188,7 +280,12 @@ export function LoginForm() {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="h-11 rounded-2xl border-[#c6d0d8] bg-white px-10 text-[#243746] placeholder:text-[#7f919c] focus-visible:border-[#F25C7A] focus-visible:ring-[#F25C7A]/20"
+                  className={cn(
+                    "h-11 rounded-2xl border-[#c6d0d8] bg-white px-10 text-[#243746] placeholder:text-[#7f919c] focus-visible:ring-2",
+                    loginType === "citizen" 
+                      ? "focus-visible:border-[#F25C7A] focus-visible:ring-[#F25C7A]/20" 
+                      : "focus-visible:border-[#3F5C73] focus-visible:ring-[#3F5C73]/20"
+                  )}
                 />
                 <button
                   type="button"
@@ -232,26 +329,31 @@ export function LoginForm() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="h-11 w-full rounded-2xl bg-[#3F5C73] text-base font-semibold text-white shadow-[0_10px_24px_rgba(63,92,115,0.25)] transition hover:-translate-y-0.5 hover:bg-[#314b60]"
+              className={cn(
+                "h-11 w-full rounded-2xl text-base font-semibold text-white shadow-xl transition hover:-translate-y-0.5",
+                loginType === "citizen" ? "bg-[#3F5C73] hover:bg-[#314b60]" : "bg-[#F25C7A] hover:bg-[#d94e6a]"
+              )}
             >
               {isLoading ? (
                 <>
                   <LoadingSpinner className="mr-2" />
-                  Signing in...
+                  Authenticating...
                 </>
               ) : (
                 <>
                   <LoaderCircle className="mr-2 size-4 transition group-hover/button:rotate-180" />
-                  Sign in
+                  Sign in to {loginType} portal
                 </>
               )}
             </Button>
           </motion.form>
         </CardContent>
 
-        <CardFooter className="flex flex-col items-start gap-2 border-t border-[#e2e8ed] bg-[#f6f8fa] px-6 py-4 text-xs text-[#6f808c]">
-          <AuthLinkRow question="No password yet?" href="/register" label="Create your account" />
-        </CardFooter>
+        {loginType === "citizen" && (
+          <CardFooter className="flex flex-col items-start gap-2 border-t border-[#e2e8ed] bg-[#f6f8fa] px-6 py-4 text-xs text-[#6f808c]">
+            <AuthLinkRow question="No password yet?" href="/register" label="Create your account" />
+          </CardFooter>
+        )}
       </Card>
     </motion.div>
   );

@@ -206,7 +206,6 @@ export default function AdminQueuePage() {
         </div>
       </aside>
 
-      {/* Detail View */}
       <main className="flex-1 overflow-y-auto bg-[#f8fafc] p-8 lg:p-12">
         <AnimatePresence mode="wait">
           {selectedUser ? (

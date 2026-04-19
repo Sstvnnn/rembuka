@@ -6,11 +6,22 @@ export async function GET() {
     const authClient = await createClient();
     const { data: { user } } = await authClient.auth.getUser();
 
-    if (user?.email !== "rembuka.id@gmail.com") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const supabase = await createServiceClient();
+
+    // Check if user is an admin in the governance table
+    const { data: govProfile } = await supabase
+      .from("governance")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (govProfile?.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized. Admin role required." }, { status: 403 });
+    }
     
     // Fetch both pending and rejected users
     const { data, error } = await supabase

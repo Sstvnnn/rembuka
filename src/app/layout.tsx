@@ -36,6 +36,16 @@ export default async function RootLayout({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  let isAdmin = false;
+  if (user) {
+    const { data: govProfile } = await supabase
+      .from("governance")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    isAdmin = govProfile?.role === "admin";
+  }
+
   // Safely cast user metadata for the Navbar
   const navbarUser = user ? {
     email: user.email,
@@ -51,7 +61,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[#f8fafc]">
         <AppProviders>
-          <Navbar user={navbarUser} />
+          <Navbar user={navbarUser} isAdmin={isAdmin} />
           <main className="flex-1">
             {children}
           </main>
