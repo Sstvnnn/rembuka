@@ -9,7 +9,9 @@ import {
   Users, 
   LogOut,
   ChevronDown,
-  Bell
+  Bell,
+  MessageSquare,
+  TrendingUp
 } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -22,13 +24,14 @@ interface NavbarProps {
       full_name?: string;
     };
   } | null;
+  isAdmin: boolean;
 }
 
-export function Navbar({ user }: NavbarProps) {
+export function Navbar({ user, isAdmin }: NavbarProps) {
   const pathname = usePathname();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const isAdmin = user?.email === "rembuka.id@gmail.com";
+
   
   const { scrollY } = useScroll();
 
@@ -43,12 +46,16 @@ export function Navbar({ user }: NavbarProps) {
 
   const adminLinks = [
     { name: "Queue", href: "/admin/queue", icon: Users },
-    { name: "Dashboard", href: "/home", icon: LayoutDashboard },
+    { name: "Home", href: "/home", icon: LayoutDashboard },
+    { name: "Proposals", href: "/proposals", icon: MessageSquare },
+    { name: "Budget", href: "/budget", icon: TrendingUp },
     { name: "Identity", href: "/profile", icon: User },
   ];
 
   const userLinks = [
     { name: "Home", href: "/home", icon: LayoutDashboard },
+    { name: "Proposals", href: "/proposals", icon: MessageSquare },
+    { name: "Budget", href: "/budget", icon: TrendingUp },
     { name: "Profile", href: "/profile", icon: User },
   ];
 

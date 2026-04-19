@@ -2,19 +2,27 @@ import { ProfileSettings } from "@/components/profile/profile-settings";
 import { getCurrentProfile } from "@/lib/profile";
 
 export default async function ProfilePage() {
-  const { user, profile, citizenCardUrl } = await getCurrentProfile();
+  const { user, profile, citizenCardUrl, userType, role } = await getCurrentProfile();
+
+  const typedProfile = profile as {
+    full_name?: string;
+    location?: string;
+    email?: string;
+    nik?: string;
+    verification_status?: string;
+  } | null;
 
   const fullName =
-    profile?.full_name ??
+    typedProfile?.full_name ??
     (user.user_metadata.full_name as string | undefined) ??
-    "Verified citizen";
+    (userType === "governance" ? "Governance Official" : "Verified citizen");
   const location =
-    profile?.location ??
+    typedProfile?.location ??
     (user.user_metadata.location as string | undefined) ??
     "Unknown";
-  const email = profile?.email ?? user.email ?? "-";
-  const nik = profile?.nik ?? (user.user_metadata.nik as string | undefined) ?? "-";
-  const verificationStatus = profile?.verification_status ?? "missing_card";
+  const email = typedProfile?.email ?? user.email ?? "-";
+  const nik = typedProfile?.nik ?? (user.user_metadata.nik as string | undefined) ?? "-";
+  const verificationStatus = typedProfile?.verification_status ?? (userType === "governance" ? "verified" : "missing_card");
 
   return (
     <main className="min-h-screen bg-[radial-gradient(180deg,#f4f8fb_0%,#f8efeb_100%)] px-4 pt-32 pb-12 sm:px-6">
@@ -25,7 +33,7 @@ export default async function ProfilePage() {
           </p>
           <h1 className="font-heading text-4xl font-black text-slate-800 tracking-tight">Your Identity</h1>
           <p className="max-w-2xl text-sm font-medium leading-relaxed text-slate-500">
-            Review your citizen credentials, maintain your identity documents, and secure your account access.
+            Review your {userType === "governance" ? "official" : "citizen"} credentials, maintain your account security, and access your profile information.
           </p>
         </section>
 
@@ -36,6 +44,8 @@ export default async function ProfilePage() {
           location={location}
           verificationStatus={verificationStatus}
           citizenCardUrl={citizenCardUrl}
+          userType={userType}
+          role={role}
         />
       </div>
     </main>

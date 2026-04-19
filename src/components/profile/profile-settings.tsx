@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { Camera, KeyRound, ShieldCheck, Info, Upload, CheckCircle2, AlertCircle, Clock, XCircle } from "lucide-react";
+import { Camera, KeyRound, ShieldCheck, Upload, CheckCircle2, AlertCircle, Clock, XCircle } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { LoadingSpinner } from "@/components/loading-spinner";
@@ -24,6 +24,8 @@ type ProfileSettingsProps = {
   location: string;
   verificationStatus: string;
   citizenCardUrl: string | null;
+  userType?: string;
+  role?: string;
 };
 
 const containerVariants = {
@@ -50,10 +52,13 @@ export function ProfileSettings({
   location,
   verificationStatus,
   citizenCardUrl,
+  userType = "citizen",
+  role = "citizen",
 }: ProfileSettingsProps) {
-  const isVerified = verificationStatus === "verified";
-  const isRejected = verificationStatus === "rejected";
-  const isPending = verificationStatus === "pending_review";
+  const isVerified = verificationStatus === "verified" || userType === "governance";
+  const isRejected = verificationStatus === "rejected" && userType !== "governance";
+  const isPending = verificationStatus === "pending_review" && userType !== "governance";
+  const isGovernance = userType === "governance";
   
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(null);
@@ -69,7 +74,7 @@ export function ProfileSettings({
 
   async function onProfileSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isVerified || !profileFile) return;
+    if (isVerified || !profileFile || isGovernance) return;
 
     setProfileError("");
     setProfileSuccess("");
@@ -100,7 +105,7 @@ export function ProfileSettings({
   }
 
   function handleProfileFileChange(file: File | null) {
-    if (isVerified) return;
+    if (isVerified || isGovernance) return;
     setProfileFile(file);
     if (profilePreviewUrl) URL.revokeObjectURL(profilePreviewUrl);
     setProfilePreviewUrl(file ? URL.createObjectURL(file) : null);
@@ -147,7 +152,10 @@ export function ProfileSettings({
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="grid gap-8 lg:grid-cols-[1fr_0.8fr]"
+      className={cn(
+        "grid gap-8",
+        isGovernance ? "lg:grid-cols-1 max-w-4xl" : "lg:grid-cols-[1fr_0.8fr]"
+      )}
     >
       <div className="space-y-8">
         {/* Status Notification Banner */}
@@ -188,7 +196,7 @@ export function ProfileSettings({
             </motion.div>
           )}
 
-          {isVerified && (
+          {isVerified && !isGovernance && (
             <motion.div 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
@@ -205,6 +213,24 @@ export function ProfileSettings({
               </div>
             </motion.div>
           )}
+
+          {isGovernance && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="rounded-3xl border border-[#3F5C73]/20 bg-[#3F5C73]/5 p-6 flex items-start gap-4"
+            >
+              <div className="size-10 rounded-2xl bg-[#3F5C73] text-white flex items-center justify-center shrink-0 shadow-lg">
+                <ShieldCheck className="size-6" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-[#3F5C73] uppercase tracking-tight">Governance Access</h4>
+                <p className="mt-1 text-xs font-medium text-slate-600 leading-relaxed">
+                  You are logged in with administrative privileges as a <span className="font-bold">{role}</span>. Some profile modifications are restricted by network policy.
+                </p>
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Identity Details Card */}
@@ -215,19 +241,28 @@ export function ProfileSettings({
                 <div className="flex size-10 items-center justify-center rounded-xl bg-[#3F5C73] text-white">
                   <ShieldCheck className="size-5" />
                 </div>
-                <CardTitle className="text-xl font-black text-slate-800 tracking-tight uppercase">Registry Profile</CardTitle>
+                <CardTitle className="text-xl font-black text-slate-800 tracking-tight uppercase">
+                  {isGovernance ? "Governance Official Profile" : "Registry Profile"}
+                </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="p-8">
               <div className="grid gap-8 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Legal Name</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Full Name</p>
                   <p className="text-base font-bold text-slate-800">{fullName}</p>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registration ID</p>
-                  <p className="text-base font-mono font-bold text-[#4FB3B3]">{nik}</p>
-                </div>
+                {isGovernance ? (
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Official Role</p>
+                    <p className="text-base font-bold text-[#4FB3B3] uppercase tracking-tight">{role}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registration ID (NIK)</p>
+                    <p className="text-base font-mono font-bold text-[#4FB3B3]">{nik}</p>
+                  </div>
+                )}
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email Access</p>
                   <p className="text-base font-bold text-slate-800">{email}</p>
@@ -300,97 +335,99 @@ export function ProfileSettings({
         </motion.div>
       </div>
 
-      {/* Identity Card Side */}
-      <motion.div variants={itemVariants} className="space-y-8">
-        <Card className="overflow-hidden rounded-[2.5rem] border-white/60 bg-white/40 shadow-2xl backdrop-blur-xl">
-          <CardHeader className="flex flex-row items-center justify-between px-8 py-6 bg-slate-50/50">
-            <CardTitle className="text-lg font-bold text-slate-800">Identity Token</CardTitle>
-            <div className={cn(
-              "rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest border",
-              isVerified ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 
-              isRejected ? "bg-rose-50 text-rose-600 border-rose-200 shadow-sm shadow-rose-500/10" :
-              "bg-amber-50 text-amber-600 border-amber-200 shadow-sm shadow-amber-500/10"
-            )}>
-              {verificationStatus.replace("_", " ")}
-            </div>
-          </CardHeader>
-          <CardContent className="p-8">
-            <div className="group relative aspect-[1.58/1] overflow-hidden rounded-3xl border-2 border-slate-200 bg-slate-100 shadow-inner">
-              {profilePreviewUrl || citizenCardUrl ? (
-                <Image
-                  src={profilePreviewUrl ?? citizenCardUrl ?? ""}
-                  alt="Identity Document"
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  unoptimized
-                />
-              ) : (
-                <div className="flex h-full flex-col items-center justify-center text-slate-300">
-                  <Camera className="size-12 opacity-10" />
-                  <p className="mt-2 text-[10px] font-bold uppercase tracking-widest">No Document Scanned</p>
+      {/* Identity Card Side (Citizen Only) */}
+      {!isGovernance && (
+        <motion.div variants={itemVariants} className="space-y-8">
+          <Card className="overflow-hidden rounded-[2.5rem] border-white/60 bg-white/40 shadow-2xl backdrop-blur-xl">
+            <CardHeader className="flex flex-row items-center justify-between px-8 py-6 bg-slate-50/50">
+              <CardTitle className="text-lg font-bold text-slate-800">Identity Token</CardTitle>
+              <div className={cn(
+                "rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest border",
+                isVerified ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 
+                isRejected ? "bg-rose-50 text-rose-600 border-rose-200 shadow-sm shadow-rose-500/10" :
+                "bg-amber-50 text-amber-600 border-amber-200 shadow-sm shadow-amber-500/10"
+              )}>
+                {verificationStatus.replace("_", " ")}
+              </div>
+            </CardHeader>
+            <CardContent className="p-8">
+              <div className="group relative aspect-[1.58/1] overflow-hidden rounded-3xl border-2 border-slate-200 bg-slate-100 shadow-inner">
+                {profilePreviewUrl || citizenCardUrl ? (
+                  <Image
+                    src={profilePreviewUrl ?? citizenCardUrl ?? ""}
+                    alt="Identity Document"
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="flex h-full flex-col items-center justify-center text-slate-300">
+                    <Camera className="size-12 opacity-10" />
+                    <p className="mt-2 text-[10px] font-bold uppercase tracking-widest">No Document Scanned</p>
+                  </div>
+                )}
+              </div>
+
+              {!isVerified && (
+                <form onSubmit={onProfileSubmit} className="mt-8 space-y-6">
+                  <div className="space-y-4">
+                    <label
+                      htmlFor="citizen-card"
+                      className="flex cursor-pointer flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-slate-200 bg-white/50 py-10 transition-all hover:border-[#4FB3B3] hover:bg-white group"
+                    >
+                      <div className="flex size-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-400 group-hover:bg-[#4FB3B3] group-hover:text-white transition-all shadow-sm">
+                        <Upload className="size-6" />
+                      </div>
+                      <p className="mt-4 text-sm font-bold text-slate-700">
+                        {profileFile ? profileFile.name : isRejected ? "Re-scan Document" : "Scan New Document"}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-400">PNG, JPG up to 10MB</p>
+                    </label>
+                    <input
+                      id="citizen-card"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleProfileFileChange(e.target.files?.[0] ?? null)}
+                      className="hidden"
+                    />
+                  </div>
+
+                  <AnimatePresence mode="wait">
+                    {profileError && (
+                      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-xs font-bold text-rose-500">{profileError}</motion.p>
+                    )}
+                    {profileSuccess && (
+                      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-xs font-bold text-emerald-500">{profileSuccess}</motion.p>
+                    )}
+                  </AnimatePresence>
+
+                  <Button 
+                    type="submit" 
+                    disabled={profileLoading || !profileFile} 
+                    className={cn(
+                      "w-full h-14 rounded-[1.5rem] font-bold text-white shadow-xl transition-transform hover:scale-[1.01]",
+                      isRejected ? "bg-rose-500 shadow-rose-500/20 hover:bg-rose-600" : "bg-[#3F5C73] shadow-[#3F5C73]/20 hover:bg-[#314b60]"
+                    )}
+                  >
+                    {profileLoading ? <LoadingSpinner /> : isRejected ? "Submit New Document" : "Submit for Verification"}
+                  </Button>
+                </form>
+              )}
+              
+              {isVerified && (
+                <div className="mt-8 rounded-2xl bg-emerald-50/50 p-6 border border-emerald-100 flex items-start gap-4">
+                  <div className="size-10 flex items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">
+                    <ShieldCheck className="size-5" />
+                  </div>
+                  <p className="text-xs font-bold text-emerald-800 leading-relaxed uppercase tracking-tight">
+                    Your identity is secured. Document modification is locked.
+                  </p>
                 </div>
               )}
-            </div>
-
-            {!isVerified && (
-              <form onSubmit={onProfileSubmit} className="mt-8 space-y-6">
-                <div className="space-y-4">
-                  <label
-                    htmlFor="citizen-card"
-                    className="flex cursor-pointer flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-slate-200 bg-white/50 py-10 transition-all hover:border-[#4FB3B3] hover:bg-white group"
-                  >
-                    <div className="flex size-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-400 group-hover:bg-[#4FB3B3] group-hover:text-white transition-all shadow-sm">
-                      <Upload className="size-6" />
-                    </div>
-                    <p className="mt-4 text-sm font-bold text-slate-700">
-                      {profileFile ? profileFile.name : isRejected ? "Re-scan Document" : "Scan New Document"}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">PNG, JPG up to 10MB</p>
-                  </label>
-                  <input
-                    id="citizen-card"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleProfileFileChange(e.target.files?.[0] ?? null)}
-                    className="hidden"
-                  />
-                </div>
-
-                <AnimatePresence mode="wait">
-                  {profileError && (
-                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-xs font-bold text-rose-500">{profileError}</motion.p>
-                  )}
-                  {profileSuccess && (
-                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-xs font-bold text-emerald-500">{profileSuccess}</motion.p>
-                  )}
-                </AnimatePresence>
-
-                <Button 
-                  type="submit" 
-                  disabled={profileLoading || !profileFile} 
-                  className={cn(
-                    "w-full h-14 rounded-[1.5rem] font-bold text-white shadow-xl transition-transform hover:scale-[1.01]",
-                    isRejected ? "bg-rose-500 shadow-rose-500/20 hover:bg-rose-600" : "bg-[#3F5C73] shadow-[#3F5C73]/20 hover:bg-[#314b60]"
-                  )}
-                >
-                  {profileLoading ? <LoadingSpinner /> : isRejected ? "Submit New Document" : "Submit for Verification"}
-                </Button>
-              </form>
-            )}
-            
-            {isVerified && (
-              <div className="mt-8 rounded-2xl bg-emerald-50/50 p-6 border border-emerald-100 flex items-start gap-4">
-                <div className="size-10 flex items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20">
-                  <ShieldCheck className="size-5" />
-                </div>
-                <p className="text-xs font-bold text-emerald-800 leading-relaxed uppercase tracking-tight">
-                  Your identity is secured. Document modification is locked.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </motion.div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
     </motion.div>
   );
 }

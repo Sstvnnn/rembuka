@@ -31,34 +31,43 @@ export async function middleware(request: NextRequest) {
 
   // 2. If user is authenticated
   if (user) {
-    // Admin check
-    const isAdmin = user.email === "rembuka.id@gmail.com";
+    // Check if user is in Governance table
+    const { data: govProfile } = await supabase
+      .from("governance")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    const isAdmin = govProfile?.role === "admin";
+    const isGovUser = !!govProfile;
+
+    // Block non-admins from /admin routes
     if (isAdminRoute && !isAdmin) {
       return NextResponse.redirect(new URL("/home", request.url));
     }
+
     // A. Check if email is confirmed (Supabase level)
     if (!user.email_confirmed_at) {
       if (isProtectedRoute) {
         return NextResponse.redirect(new URL("/login?message=confirm-email", request.url));
       }
     } else {
-      // B. Email is confirmed. Now check if they exist in our 'public.users' table
-      const { data: profile } = await supabase
-        .from("users")
-        .select("id")
-        .eq("id", user.id)
-        .single();
+      // B. Check profile for Citizens
+      if (!isGovUser) {
+        const { data: citizenProfile } = await supabase
+          .from("users")
+          .select("id")
+          .eq("id", user.id)
+          .single();
 
-      // If they have an auth session but NO profile in our table, 
-      // they are effectively "not registered" in our app logic.
-      if (!profile && isProtectedRoute) {
-        // Sign them out and send back to register
-        await supabase.auth.signOut();
-        return NextResponse.redirect(new URL("/register?message=incomplete-registration", request.url));
+        if (!citizenProfile && isProtectedRoute) {
+          await supabase.auth.signOut();
+          return NextResponse.redirect(new URL("/register?message=incomplete-registration", request.url));
+        }
       }
 
-      // C. If they ARE fully registered, don't let them back into auth pages
-      if (profile && isAuthRoute) {
+      // C. Don't let authenticated users back into auth pages
+      if (isAuthRoute) {
         return NextResponse.redirect(new URL("/home", request.url));
       }
     }
