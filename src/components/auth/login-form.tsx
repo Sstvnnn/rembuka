@@ -147,7 +147,7 @@ export function LoginForm() {
     >
       <div className="mb-6 flex justify-center p-1 bg-white/50 backdrop-blur rounded-2xl border border-white/70 shadow-sm">
         <button
-          onClick={() => setLoginType("citizen")}
+          onClick={() => handleTabChange("citizen")}
           className={cn(
             "flex-1 py-2.5 text-xs font-bold uppercase tracking-widest rounded-xl transition-all",
             loginType === "citizen" 
@@ -158,7 +158,7 @@ export function LoginForm() {
           Citizen
         </button>
         <button
-          onClick={() => setLoginType("governance")}
+          onClick={() => handleTabChange("governance")}
           className={cn(
             "flex-1 py-2.5 text-xs font-bold uppercase tracking-widest rounded-xl transition-all",
             loginType === "governance" 
@@ -254,49 +254,57 @@ export function LoginForm() {
               )}
             </AnimatePresence>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-[#2e4658]">
-                  Password
-                </Label>
-                {loginType === "citizen" && (
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs font-semibold text-[#3F5C73] hover:text-[#2b4254]"
-                  >
-                    Forgot password?
-                  </Link>
-                )}
-              </div>
-              <div className="relative">
-                <KeyRound className={cn(
-                  "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2",
-                  loginType === "citizen" ? "text-[#F25C7A]" : "text-[#3F5C73]"
-                )} />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  className={cn(
-                    "h-11 rounded-2xl border-[#c6d0d8] bg-white px-10 text-[#243746] placeholder:text-[#7f919c] focus-visible:ring-2",
-                    loginType === "citizen" 
-                      ? "focus-visible:border-[#F25C7A] focus-visible:ring-[#F25C7A]/20" 
-                      : "focus-visible:border-[#3F5C73] focus-visible:ring-[#3F5C73]/20"
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`${loginType}-password-container`}
+                initial={{ opacity: 0, x: loginType === "citizen" ? -10 : 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: loginType === "citizen" ? 10 : -10 }}
+                className="space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-[#2e4658]">
+                    Password
+                  </Label>
+                  {loginType === "citizen" && (
+                    <Link
+                      href="/forgot-password"
+                      className="text-xs font-semibold text-[#3F5C73] hover:text-[#2b4254]"
+                    >
+                      Forgot password?
+                    </Link>
                   )}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((value) => !value)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7f919c] transition hover:text-[#243746]"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                </button>
-              </div>
-            </div>
+                </div>
+                <div className="relative">
+                  <KeyRound className={cn(
+                    "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2",
+                    loginType === "citizen" ? "text-[#F25C7A]" : "text-[#3F5C73]"
+                  )} />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    className={cn(
+                      "h-11 rounded-2xl border-[#c6d0d8] bg-white px-10 text-[#243746] placeholder:text-[#7f919c] focus-visible:ring-2",
+                      loginType === "citizen" 
+                        ? "focus-visible:border-[#F25C7A] focus-visible:ring-[#F25C7A]/20" 
+                        : "focus-visible:border-[#3F5C73] focus-visible:ring-[#3F5C73]/20"
+                    )}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((value) => !value)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7f919c] transition hover:text-[#243746]"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
+                </div>
+              </motion.div>
+            </AnimatePresence>
 
             <AnimatePresence mode="wait">
               {notice ? (

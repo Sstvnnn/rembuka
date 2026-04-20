@@ -31,6 +31,7 @@ export function VerifyOtpForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
   const [isResending, setIsResending] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -150,7 +151,7 @@ export function VerifyOtpForm() {
 
         <CardContent className="space-y-6 px-6 py-8">
           <form onSubmit={onSubmit} className="space-y-6">
-            <div className="relative">
+            <div className="relative group">
               <input
                 ref={inputRef}
                 type="text"
@@ -159,22 +160,28 @@ export function VerifyOtpForm() {
                 maxLength={6}
                 value={otp}
                 onChange={handleOtpChange}
+                onFocus={() => setIsInputFocused(true)}
+                onBlur={() => setIsInputFocused(false)}
                 className="absolute inset-0 z-10 h-full w-full opacity-0 cursor-default"
                 autoFocus
               />
               
-              <div className="grid grid-cols-6 gap-2">
+              <div 
+                className="grid grid-cols-6 gap-2"
+                onClick={() => inputRef.current?.focus()}
+              >
                 {Array.from({ length: 6 }).map((_, index) => {
                   const digit = otp[index];
-                  const isFocused = otp.length === index;
+                  const isCurrentBox = otp.length === index;
                   const isFilled = otp.length > index;
+                  const showCursor = isInputFocused && isCurrentBox;
 
                   return (
                     <div
                       key={index}
                       className={cn(
-                        "relative flex h-14 w-full items-center justify-center rounded-xl border-2 bg-white text-xl font-bold transition-all duration-200",
-                        isFocused 
+                        "relative flex h-14 w-full items-center justify-center rounded-xl border-2 bg-white text-xl font-bold transition-colors duration-100",
+                        isInputFocused && isCurrentBox 
                           ? "border-[#4FB3B3] ring-4 ring-[#4FB3B3]/10 shadow-sm" 
                           : isFilled 
                             ? "border-[#3F5C73] text-[#243746]" 
@@ -182,12 +189,14 @@ export function VerifyOtpForm() {
                       )}
                     >
                       {digit || "•"}
-                      {isFocused && (
+                      {showCursor && (
                         <motion.div
-                          layoutId="cursor"
                           className="absolute h-6 w-0.5 bg-[#4FB3B3]"
+                          initial={{ opacity: 0 }}
                           animate={{ opacity: [1, 0, 1] }}
-                          transition={{ duration: 0.8, repeat: Infinity }}
+                          transition={{ 
+                            opacity: { duration: 0.8, repeat: Infinity, ease: "linear" }
+                          }}
                         />
                       )}
                     </div>

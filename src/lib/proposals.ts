@@ -1,7 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { Proposal } from "@/types/musrenbang";
 
-export async function getProposals(filters?: { status?: string; category?: string }) {
+export async function getProposals(filters?: { 
+  status?: string; 
+  category?: string;
+  userRole?: string;
+  userLocation?: string;
+}) {
   try {
     const supabase = await createClient();
     
@@ -9,6 +14,11 @@ export async function getProposals(filters?: { status?: string; category?: strin
       .from("proposal_rankings")
       .select("*")
       .order("total_points", { ascending: false });
+
+    // Governance (non-admin) can only see proposals from their location
+    if (filters?.userRole === "governance" && filters?.userLocation && filters.userLocation !== "admin") {
+      query = query.eq("location", filters.userLocation);
+    }
 
     if (filters?.status) {
       query = query.eq("status", filters.status);

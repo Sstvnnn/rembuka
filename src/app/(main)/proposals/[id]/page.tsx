@@ -18,15 +18,23 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { GovernanceControls } from "./governance-controls";
 
 export default async function ProposalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const proposal = await getProposalById(id);
-  const { user, userType } = await getCurrentProfile();
+  const { user, userType, profile } = await getCurrentProfile();
 
   if (!proposal) {
     notFound();
+  }
+
+  // Location restriction for non-admin governance
+  if (userType === "governance" && profile?.role !== "admin") {
+    if (proposal.location !== profile?.location) {
+      notFound();
+    }
   }
 
   const isGovernance = userType === "governance";

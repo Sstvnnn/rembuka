@@ -113,14 +113,36 @@ export async function verifyProposalAction(proposalId: string, expiryDate: strin
   if (!user) throw new Error("Unauthorized");
 
   // Check if user is governance
-  const { data: isGov } = await supabase.from("governance").select("id").eq("id", user.id).maybeSingle();
-  if (!isGov) throw new Error("Only governance officials can verify proposals.");
+  const { data: govProfile } = await supabase
+    .from("governance")
+    .select("id, role, location")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!govProfile) throw new Error("Only governance officials can verify proposals.");
+
+  // If not admin, check if location matches
+  if (govProfile.role !== "admin") {
+    const { data: proposal } = await supabase
+      .from("proposals")
+      .select("location")
+      .eq("id", proposalId)
+      .single();
+
+    if (!proposal || proposal.location !== govProfile.location) {
+      throw new Error("You can only verify proposals within your assigned location.");
+    }
+  }
+
+  // Set expiry to the end of the day (23:59:59.999)
+  const endOfDay = new Date(expiryDate);
+  endOfDay.setHours(23, 59, 59, 999);
 
   const { error } = await supabase
     .from("proposals")
     .update({
       status: "voting",
-      expiry_date: expiryDate
+      expiry_date: endOfDay.toISOString()
     })
     .eq("id", proposalId);
 

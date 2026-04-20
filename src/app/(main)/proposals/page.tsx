@@ -21,7 +21,10 @@ export default async function ProposalsPage() {
 
     // Fetch data - error handling is inside the lib functions already (returning [])
     const [fetchedProposals, fetchedVotes] = await Promise.all([
-      getProposals(),
+      getProposals({
+        userRole: userType,
+        userLocation: profileData.profile?.location
+      }),
       getProposalVotes(user.id)
     ]);
 
