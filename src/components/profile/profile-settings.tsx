@@ -170,9 +170,9 @@ export function ProfileSettings({
                 <XCircle className="size-6" />
               </div>
               <div>
-                <h4 className="text-sm font-black text-rose-900 uppercase tracking-tight">Identity Rejected</h4>
+                <h4 className="text-sm font-black text-rose-900 uppercase tracking-tight">Identitas Ditolak</h4>
                 <p className="mt-1 text-xs font-medium text-rose-700 leading-relaxed">
-                  Your submitted document did not meet our verification standards. Please upload a clearer, high-resolution photo of your citizen card to regain access.
+                  Dokumen yang Anda kirimkan tidak memenuhi standar verifikasi kami. Silakan unggah foto kartu identitas yang lebih jelas dan beresolusi tinggi untuk mendapatkan kembali akses.
                 </p>
               </div>
             </motion.div>
@@ -188,9 +188,9 @@ export function ProfileSettings({
                 <Clock className="size-6" />
               </div>
               <div>
-                <h4 className="text-sm font-black text-amber-900 uppercase tracking-tight">Verification In Progress</h4>
+                <h4 className="text-sm font-black text-amber-900 uppercase tracking-tight">Verifikasi Sedang Berlangsung</h4>
                 <p className="mt-1 text-xs font-medium text-amber-700 leading-relaxed">
-                  We are currently reviewing your documents. This process usually takes 24-48 hours. You will receive full network access once approved.
+                  Kami sedang meninjau dokumen Anda. Proses ini biasanya memakan waktu 24-48 jam. Anda akan menerima akses jaringan penuh setelah disetujui.
                 </p>
               </div>
             </motion.div>
@@ -206,9 +206,9 @@ export function ProfileSettings({
                 <CheckCircle2 className="size-6" />
               </div>
               <div>
-                <h4 className="text-sm font-black text-emerald-900 uppercase tracking-tight">System Verified</h4>
+                <h4 className="text-sm font-black text-emerald-900 uppercase tracking-tight">Terverifikasi Sistem</h4>
                 <p className="mt-1 text-xs font-medium text-emerald-700 leading-relaxed">
-                  Congratulations! Your identity has been verified. You now have full participation rights in the Rembuka Civic Network.
+                  Selamat! Identitas Anda telah diverifikasi. Anda sekarang memiliki hak partisipasi penuh dalam Jaringan Kewargaan Rembuka.
                 </p>
               </div>
             </motion.div>
@@ -224,9 +224,9 @@ export function ProfileSettings({
                 <ShieldCheck className="size-6" />
               </div>
               <div>
-                <h4 className="text-sm font-black text-[#3F5C73] uppercase tracking-tight">Governance Access</h4>
+                <h4 className="text-sm font-black text-[#3F5C73] uppercase tracking-tight">Akses Pemerintah</h4>
                 <p className="mt-1 text-xs font-medium text-slate-600 leading-relaxed">
-                  You are logged in with administrative privileges as a <span className="font-bold">{role}</span>. Some profile modifications are restricted by network policy.
+                  Anda masuk dengan hak istimewa administratif sebagai <span className="font-bold">{role}</span>. Beberapa modifikasi profil dibatasi oleh kebijakan jaringan.
                 </p>
               </div>
             </motion.div>
@@ -242,33 +242,33 @@ export function ProfileSettings({
                   <ShieldCheck className="size-5" />
                 </div>
                 <CardTitle className="text-xl font-black text-slate-800 tracking-tight uppercase">
-                  {isGovernance ? "Governance Official Profile" : "Registry Profile"}
+                  {isGovernance ? "Profil Pejabat Pemerintah" : "Profil Registrasi"}
                 </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="p-8">
               <div className="grid gap-8 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Full Name</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nama Lengkap</p>
                   <p className="text-base font-bold text-slate-800">{fullName}</p>
                 </div>
                 {isGovernance ? (
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Official Role</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Peran Resmi</p>
                     <p className="text-base font-bold text-[#4FB3B3] uppercase tracking-tight">{role}</p>
                   </div>
                 ) : (
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registration ID (NIK)</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID Registrasi (NIK)</p>
                     <p className="text-base font-mono font-bold text-[#4FB3B3]">{nik}</p>
                   </div>
                 )}
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email Access</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Akses Email</p>
                   <p className="text-base font-bold text-slate-800">{email}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Assigned Region</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wilayah Tugas</p>
                   <p className="text-base font-bold text-slate-800">{location}</p>
                 </div>
               </div>
@@ -280,13 +280,13 @@ export function ProfileSettings({
         <motion.div variants={itemVariants}>
           <Card className="rounded-[2.5rem] border-white/60 bg-white/40 shadow-xl backdrop-blur-xl">
             <CardHeader className="px-8 pt-8">
-              <CardTitle className="text-lg font-bold text-slate-800">Account Security</CardTitle>
+              <CardTitle className="text-lg font-bold text-slate-800">Keamanan Akun</CardTitle>
             </CardHeader>
             <CardContent className="px-8 pb-8">
               <form onSubmit={onPasswordSubmit} className="space-y-6">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold text-slate-500 ml-1">New Password</Label>
+                    <Label className="text-xs font-bold text-slate-500 ml-1">Kata Sandi Baru</Label>
                     <div className="relative">
                       <KeyRound className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                       <Input
@@ -299,7 +299,7 @@ export function ProfileSettings({
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold text-slate-500 ml-1">Confirm Access</Label>
+                    <Label className="text-xs font-bold text-slate-500 ml-1">Konfirmasi Akses</Label>
                     <div className="relative">
                       <KeyRound className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                       <Input
@@ -327,7 +327,7 @@ export function ProfileSettings({
                 </AnimatePresence>
 
                 <Button disabled={passwordLoading} className="h-12 rounded-2xl bg-[#F25C7A] px-10 font-bold text-white shadow-lg shadow-[#F25C7A]/20 hover:scale-[1.02] transition-transform">
-                  {passwordLoading ? <LoadingSpinner /> : "Update Credentials"}
+                  {passwordLoading ? <LoadingSpinner /> : "Perbarui Kredensial"}
                 </Button>
               </form>
             </CardContent>
@@ -340,14 +340,15 @@ export function ProfileSettings({
         <motion.div variants={itemVariants} className="space-y-8">
           <Card className="overflow-hidden rounded-[2.5rem] border-white/60 bg-white/40 shadow-2xl backdrop-blur-xl">
             <CardHeader className="flex flex-row items-center justify-between px-8 py-6 bg-slate-50/50">
-              <CardTitle className="text-lg font-bold text-slate-800">Identity Token</CardTitle>
+              <CardTitle className="text-lg font-bold text-slate-800">Token Identitas</CardTitle>
               <div className={cn(
                 "rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest border",
                 isVerified ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 
                 isRejected ? "bg-rose-50 text-rose-600 border-rose-200 shadow-sm shadow-rose-500/10" :
                 "bg-amber-50 text-amber-600 border-amber-200 shadow-sm shadow-amber-500/10"
               )}>
-                {verificationStatus.replace("_", " ")}
+                {verificationStatus === "verified" ? "Terverifikasi" : 
+                 verificationStatus === "rejected" ? "Ditolak" : "Menunggu Tinjauan"}
               </div>
             </CardHeader>
             <CardContent className="p-8">
@@ -363,7 +364,7 @@ export function ProfileSettings({
                 ) : (
                   <div className="flex h-full flex-col items-center justify-center text-slate-300">
                     <Camera className="size-12 opacity-10" />
-                    <p className="mt-2 text-[10px] font-bold uppercase tracking-widest">No Document Scanned</p>
+                    <p className="mt-2 text-[10px] font-bold uppercase tracking-widest">Belum Ada Dokumen</p>
                   </div>
                 )}
               </div>
@@ -379,9 +380,9 @@ export function ProfileSettings({
                         <Upload className="size-6" />
                       </div>
                       <p className="mt-4 text-sm font-bold text-slate-700">
-                        {profileFile ? profileFile.name : isRejected ? "Re-scan Document" : "Scan New Document"}
+                        {profileFile ? profileFile.name : isRejected ? "Pindai Ulang Dokumen" : "Pindai Dokumen Baru"}
                       </p>
-                      <p className="mt-1 text-xs text-slate-400">PNG, JPG up to 10MB</p>
+                      <p className="mt-1 text-xs text-slate-400">PNG, JPG hingga 10MB</p>
                     </label>
                     <input
                       id="citizen-card"
@@ -409,7 +410,7 @@ export function ProfileSettings({
                       isRejected ? "bg-rose-500 shadow-rose-500/20 hover:bg-rose-600" : "bg-[#3F5C73] shadow-[#3F5C73]/20 hover:bg-[#314b60]"
                     )}
                   >
-                    {profileLoading ? <LoadingSpinner /> : isRejected ? "Submit New Document" : "Submit for Verification"}
+                    {profileLoading ? <LoadingSpinner /> : isRejected ? "Kirim Dokumen Baru" : "Ajukan untuk Verifikasi"}
                   </Button>
                 </form>
               )}
@@ -420,7 +421,7 @@ export function ProfileSettings({
                     <ShieldCheck className="size-5" />
                   </div>
                   <p className="text-xs font-bold text-emerald-800 leading-relaxed uppercase tracking-tight">
-                    Your identity is secured. Document modification is locked.
+                    Identitas Anda telah aman. Perubahan dokumen dikunci.
                   </p>
                 </div>
               )}

@@ -9,14 +9,28 @@ export async function createProposalAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
+  // Fetch the user's registered location from their profile
+  const { data: profile, error: profileError } = await supabase
+    .from("users")
+    .select("location, verification_status")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError || !profile?.location) {
+    throw new Error("Unable to verify your residential location. Please complete your profile.");
+  }
+
+  if (profile.verification_status !== "verified") {
+    throw new Error("Only verified citizens can submit proposals. Please complete your identity verification first.");
+  }
+
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
   const category = formData.get("category") as string;
-  const location = formData.get("location") as string;
   const estimated_cost = Number(formData.get("estimated_cost"));
   const images = formData.getAll("images") as File[];
 
-  // 1. Insert the main proposal
+  // 1. Insert the main proposal with the verified citizen location
   const { data: proposal, error: pError } = await supabase
     .from("proposals")
     .insert({
@@ -24,7 +38,7 @@ export async function createProposalAction(formData: FormData) {
       title,
       description,
       category,
-      location,
+      location: profile.location,
       estimated_cost,
       status: "pending"
     })

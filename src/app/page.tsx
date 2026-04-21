@@ -14,9 +14,10 @@ import {
   Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Variants } from "framer-motion";
 
 export default function LandingPage() {
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -27,7 +28,7 @@ export default function LandingPage() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
@@ -60,30 +61,30 @@ export default function LandingPage() {
           >
             <motion.div variants={itemVariants} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 border border-slate-200 shadow-sm backdrop-blur-md">
               <Zap className="size-4 text-[#F25C7A]" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">The Future of Civic Engagement</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Masa Depan Partisipasi Publik</span>
             </motion.div>
 
             <motion.h1 
               variants={itemVariants}
               className="font-heading text-6xl md:text-8xl font-black text-slate-900 tracking-tight leading-[0.95]"
             >
-              Voice your <span className="text-transparent bg-clip-text bg-gradient-to-br from-[#3F5C73] via-[#4FB3B3] to-[#3F5C73] animate-gradient-x">vision</span>,<br />
-              shape your city.
+              Suarakan <span className="text-transparent bg-clip-text bg-gradient-to-br from-[#3F5C73] via-[#4FB3B3] to-[#3F5C73] animate-gradient-x">aspirasi</span>,<br />
+              bangun kota Anda.
             </motion.h1>
 
             <motion.p 
               variants={itemVariants}
               className="max-w-2xl text-lg md:text-xl text-slate-500 font-medium leading-relaxed"
             >
-              Rembuka is a digital civic network that bridges the gap between citizens and governance. Propose, discuss, and vote on local development through digital Musrenbang.
+              Rembuka adalah jaringan kewargaan digital yang menghubungkan masyarakat dengan pemerintah. Ajukan, diskusikan, dan tentukan pembangunan daerah melalui Musrenbang digital.
             </motion.p>
 
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button asChild className="h-14 px-8 rounded-2xl bg-[#3F5C73] text-white font-bold text-lg shadow-2xl shadow-[#3F5C73]/20 hover:bg-[#314b60] hover:scale-105 transition-all active:scale-95">
-                <Link href="/register">Get Started <ArrowRight className="ml-2 size-5" /></Link>
+                <Link href="/register">Mulai Sekarang <ArrowRight className="ml-2 size-5" /></Link>
               </Button>
               <Button asChild variant="outline" className="h-14 px-8 rounded-2xl border-slate-200 bg-white/50 backdrop-blur-md text-slate-600 font-bold text-lg hover:bg-white hover:border-[#4FB3B3] transition-all">
-                <Link href="/login">Sign In</Link>
+                <Link href="/login">Masuk</Link>
               </Button>
             </motion.div>
 
@@ -161,7 +162,7 @@ export default function LandingPage() {
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-white/40 backdrop-blur-[2px] z-30">
                  <div className="px-6 py-3 rounded-2xl bg-white shadow-2xl border border-slate-100 text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
                    <ShieldCheck className="size-4 text-[#4FB3B3]" /> 
-                   Launch Interface
+                   Buka Aplikasi
                  </div>
               </div>
             </motion.div>
@@ -177,24 +178,24 @@ export default function LandingPage() {
               <div className="size-12 rounded-2xl bg-[#3F5C73] flex items-center justify-center text-white shadow-lg shadow-[#3F5C73]/20">
                 <MessageSquare className="size-6" />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 tracking-tight">Digital Musrenbang</h3>
-              <p className="text-slate-500 leading-relaxed text-sm">Submit infrastructure or social proposals directly from your neighborhood. No bureaucracy, just results.</p>
+              <h3 className="text-xl font-bold text-slate-800 tracking-tight">Musrenbang Digital</h3>
+              <p className="text-slate-500 leading-relaxed text-sm">Ajukan proposal infrastruktur atau sosial langsung dari lingkungan Anda. Tanpa birokrasi, langsung pada hasil.</p>
             </div>
 
             <div className="space-y-4 p-8 rounded-[2rem] bg-[#f8fafc] border border-slate-100 transition-all hover:shadow-xl hover:-translate-y-1">
               <div className="size-12 rounded-2xl bg-[#4FB3B3] flex items-center justify-center text-white shadow-lg shadow-[#4FB3B3]/20">
                 <TrendingUp className="size-6" />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 tracking-tight">Live Ranking</h3>
-              <p className="text-slate-500 leading-relaxed text-sm">Watch the community's favorites rise. Our transparent scoring system ensures popular needs get prioritized.</p>
+              <h3 className="text-xl font-bold text-slate-800 tracking-tight">Peringkat Langsung</h3>
+              <p className="text-slate-500 leading-relaxed text-sm">Lihat aspirasi masyarakat yang paling didukung. Sistem penilaian transparan kami memastikan prioritas yang tepat.</p>
             </div>
 
             <div className="space-y-4 p-8 rounded-[2rem] bg-[#f8fafc] border border-slate-100 transition-all hover:shadow-xl hover:-translate-y-1">
               <div className="size-12 rounded-2xl bg-[#F25C7A] flex items-center justify-center text-white shadow-lg shadow-[#F25C7A]/20">
                 <Shield className="size-6" />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 tracking-tight">Verified Identity</h3>
-              <p className="text-xl font-bold text-slate-800 tracking-tight">Encrypted NIK verification ensures every vote belongs to a real citizen within the district.</p>
+              <h3 className="text-xl font-bold text-slate-800 tracking-tight">Identitas Terverifikasi</h3>
+              <p className="text-slate-500 leading-relaxed text-sm">Verifikasi NIK terenkripsi memastikan setiap suara berasal dari warga asli dalam wilayah tersebut.</p>
             </div>
           </div>
         </div>
@@ -207,20 +208,20 @@ export default function LandingPage() {
             <div className="absolute top-[-20%] right-[-10%] size-96 bg-[#4FB3B3]/10 rounded-full blur-[100px]" />
             <div className="relative z-10 grid gap-12 md:grid-cols-[1.5fr_1fr] items-center">
               <div className="space-y-6">
-                <h2 className="font-heading text-4xl md:text-5xl font-bold text-white leading-tight">Empowering over <span className="text-[#4FB3B3]">10,000+</span> citizens to decide their future.</h2>
-                <p className="text-slate-400 text-lg leading-relaxed max-w-xl">Join the network today and start contributing to your city's development projects.</p>
+                <h2 className="font-heading text-4xl md:text-5xl font-bold text-white leading-tight">Memberdayakan lebih dari <span className="text-[#4FB3B3]">10,000+</span> warga untuk menentukan masa depan.</h2>
+                <p className="text-slate-400 text-lg leading-relaxed max-w-xl">Bergabunglah hari ini dan mulai berkontribusi dalam proyek pembangunan kota Anda.</p>
                 <div className="flex flex-wrap gap-8 pt-6">
                   <div className="space-y-1">
                     <p className="text-3xl font-black text-white leading-none">4.8k</p>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Proposals Verified</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Proposal Terverifikasi</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-3xl font-black text-white leading-none">92%</p>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Citizen Satisfaction</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Kepuasan Warga</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-3xl font-black text-white leading-none">12.5B</p>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Budget Tracked</p>
+                    <p className="text-3xl font-black text-white leading-none">12.5M</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Anggaran Terlacak</p>
                   </div>
                 </div>
               </div>
@@ -246,15 +247,15 @@ export default function LandingPage() {
             </div>
             <div>
               <h2 className="font-black text-slate-800 tracking-tight uppercase leading-none text-lg">Rembuka</h2>
-              <p className="text-[10px] font-bold text-[#4FB3B3] uppercase tracking-widest leading-none mt-1">Civic Network</p>
+              <p className="text-[10px] font-bold text-[#4FB3B3] uppercase tracking-widest leading-none mt-1">Jaringan Kewargaan</p>
             </div>
           </div>
           <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest">
             <Link href="#" className="hover:text-slate-800 transition-colors">Platform</Link>
-            <Link href="#" className="hover:text-slate-800 transition-colors">Privacy</Link>
-            <Link href="#" className="hover:text-slate-800 transition-colors">Governance</Link>
+            <Link href="#" className="hover:text-slate-800 transition-colors">Privasi</Link>
+            <Link href="#" className="hover:text-slate-800 transition-colors">Pemerintah</Link>
           </div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">© 2026 Rembuka. Build for the people.</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">© 2026 Rembuka. Dibangun untuk masyarakat.</p>
         </div>
       </footer>
     </div>

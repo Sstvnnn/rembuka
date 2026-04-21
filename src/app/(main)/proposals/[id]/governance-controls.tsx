@@ -22,7 +22,7 @@ export function GovernanceControls({ proposalId }: GovernanceControlsProps) {
 
   async function handleVerify() {
     if (!expiryDate) {
-      setError("Please set an expiry date for the voting period.");
+      setError("Harap tentukan tanggal berakhir untuk periode voting.");
       return;
     }
 
@@ -30,9 +30,9 @@ export function GovernanceControls({ proposalId }: GovernanceControlsProps) {
     startTransition(async () => {
       try {
         await verifyProposalAction(proposalId, new Date(expiryDate).toISOString());
-        setSuccess("Proposal verified! Voting is now open.");
+        setSuccess("Proposal terverifikasi! Voting sekarang dibuka.");
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to verify proposal.");
+        setError(err instanceof Error ? err.message : "Gagal memverifikasi proposal.");
       }
     });
   }
@@ -47,17 +47,17 @@ export function GovernanceControls({ proposalId }: GovernanceControlsProps) {
           <div className="flex items-center gap-2">
             <ShieldCheck className="size-5 text-[#4FB3B3]" />
             <CardTitle className="text-sm font-black text-slate-800 uppercase tracking-widest">
-              Governance Action
+              Tindakan Pemerintah
             </CardTitle>
           </div>
         </CardHeader>
         <CardContent className="p-6 space-y-4">
           <p className="text-xs font-medium text-slate-600 leading-relaxed">
-            Review this citizen report. Approving it will move it to the <strong>Voting Stage</strong> where the entire community can participate.
+            Tinjau laporan warga ini. Menyetujuinya akan memindahkannya ke <strong>Tahap Voting</strong> di mana seluruh komunitas dapat berpartisipasi.
           </p>
 
           <div className="space-y-2">
-            <Label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Voting Deadline</Label>
+            <Label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Batas Waktu Voting</Label>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
               <Input
@@ -88,7 +88,7 @@ export function GovernanceControls({ proposalId }: GovernanceControlsProps) {
             disabled={isPending || !!success}
             className="w-full h-11 rounded-xl bg-[#3F5C73] font-bold text-white shadow-lg hover:bg-[#314b60] transition-transform active:scale-95"
           >
-            {isPending ? <LoadingSpinner className="mr-2" /> : "Verify & Open Voting"}
+            {isPending ? <LoadingSpinner className="mr-2" /> : "Verifikasi & Buka Voting"}
           </Button>
         </CardContent>
       </Card>

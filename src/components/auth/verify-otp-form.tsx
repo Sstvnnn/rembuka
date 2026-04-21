@@ -137,15 +137,15 @@ export function VerifyOtpForm() {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4FB3B3]">
-                Verification
+                Verifikasi
               </p>
               <CardTitle className="text-2xl font-semibold text-[#243746]">
-                Enter OTP
+                Masukkan OTP
               </CardTitle>
             </div>
           </div>
           <CardDescription className="text-sm leading-6 text-[#587080]">
-            We&apos;ve sent a 6-digit verification code to <span className="font-semibold text-[#243746]">{email}</span>.
+            Kami telah mengirimkan 6 digit kode verifikasi ke <span className="font-semibold text-[#243746]">{email}</span>.
           </CardDescription>
         </CardHeader>
 
@@ -238,10 +238,10 @@ export function VerifyOtpForm() {
               {isLoading ? (
                 <>
                   <LoadingSpinner className="mr-2" />
-                  Verifying...
+                  Memverifikasi...
                 </>
               ) : (
-                "Verify Account"
+                "Verifikasi Akun"
               )}
             </Button>
           </form>
@@ -249,7 +249,7 @@ export function VerifyOtpForm() {
 
         <CardFooter className="flex flex-col items-center gap-4 border-t border-[#e2e8ed] bg-[#f6f8fa] px-6 py-6 text-sm">
           <div className="flex flex-col items-center gap-2">
-            <p className="text-[#587080]">Didn&apos;t receive the code?</p>
+            <p className="text-[#587080]">Tidak menerima kode?</p>
             <button
               onClick={handleResend}
               disabled={resendCountdown > 0 || isResending}
@@ -266,8 +266,8 @@ export function VerifyOtpForm() {
                 <RotateCcw className="size-4" />
               )}
               {resendCountdown > 0 
-                ? `Resend in ${resendCountdown}s` 
-                : "Resend Code"}
+                ? `Kirim ulang dalam ${resendCountdown}s` 
+                : "Kirim Ulang Kode"}
             </button>
           </div>
           
@@ -275,7 +275,7 @@ export function VerifyOtpForm() {
             onClick={() => router.replace("/register")}
             className="text-xs font-medium text-[#64748b] hover:text-[#3F5C73]"
           >
-            Change email address
+            Ganti alamat email
           </button>
         </CardFooter>
       </Card>

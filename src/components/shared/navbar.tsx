@@ -58,24 +58,22 @@ export function Navbar({ user, isAdmin }: NavbarProps) {
   if (!user && !isLandingPage) return null;
 
   const adminLinks = [
-    { name: "Queue", href: "/admin/queue", icon: Users },
-    { name: "Home", href: "/home", icon: LayoutDashboard },
-    { name: "Proposals", href: "/proposals", icon: MessageSquare },
-    { name: "Budget", href: "/budget", icon: TrendingUp },
-    { name: "Identity", href: "/profile", icon: User },
+    { name: "Antrian", href: "/admin/queue", icon: Users },
+    { name: "Beranda", href: "/home", icon: LayoutDashboard },
+    { name: "Identitas", href: "/profile", icon: User },
   ];
 
   const userLinks = [
-    { name: "Home", href: "/home", icon: LayoutDashboard },
-    { name: "Proposals", href: "/proposals", icon: MessageSquare },
-    { name: "Budget", href: "/budget", icon: TrendingUp },
-    { name: "Profile", href: "/profile", icon: User },
+    { name: "Beranda", href: "/home", icon: LayoutDashboard },
+    { name: "Proposal", href: "/proposals", icon: MessageSquare },
+    { name: "Anggaran", href: "/budget", icon: TrendingUp },
+    { name: "Profil", href: "/profile", icon: User },
   ];
 
   const landingLinks = [
     { name: "Platform", href: "#", icon: Zap },
-    { name: "Governance", href: "#", icon: ShieldCheck },
-    { name: "Community", href: "#", icon: Users },
+    { name: "Pemerintah", href: "#", icon: ShieldCheck },
+    { name: "Komunitas", href: "#", icon: Users },
   ];
 
   const links = !user ? landingLinks : isAdmin ? adminLinks : userLinks;
@@ -120,10 +118,10 @@ export function Navbar({ user, isAdmin }: NavbarProps) {
             {!isScrolled && (
               <p className="text-[10px] font-bold text-[#4FB3B3] uppercase tracking-widest leading-none mt-1">
                 {!user
-                  ? "Civic Network"
+                  ? "Jaringan Kewargaan"
                   : isAdmin
-                    ? "Admin Console"
-                    : "Verified Identity"}
+                    ? "Konsol Admin"
+                    : "Identitas Terverifikasi"}
               </p>
             )}
           </div>
@@ -202,13 +200,13 @@ export function Navbar({ user, isAdmin }: NavbarProps) {
                 variant="ghost"
                 className="text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-[#3F5C73] rounded-xl"
               >
-                <Link href="/login">Sign In</Link>
+                <Link href="/login">Masuk</Link>
               </Button>
               <Button
                 asChild
                 className="bg-[#3F5C73] text-white text-xs font-bold uppercase tracking-widest px-6 rounded-xl shadow-lg shadow-[#3F5C73]/20 hover:bg-[#314b60]"
               >
-                <Link href="/register">Register</Link>
+                <Link href="/register">Daftar</Link>
               </Button>
             </div>
           ) : (
@@ -263,7 +261,7 @@ export function Navbar({ user, isAdmin }: NavbarProps) {
                       >
                         <div className="px-4 py-3 border-b border-slate-50 mb-1">
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1.5">
-                            User Identity
+                            Identitas Pengguna
                           </p>
                           <p className="text-sm font-bold text-slate-800 truncate">
                             {user.user_metadata.full_name}
@@ -275,8 +273,7 @@ export function Navbar({ user, isAdmin }: NavbarProps) {
                           onClick={() => setIsProfileOpen(false)}
                           className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors"
                         >
-                          <User className="size-4 text-slate-400" /> Account
-                          Settings
+                          <User className="size-4 text-slate-400" /> Pengaturan Akun
                         </Link>
 
                         <form action="/signout" method="post">
@@ -284,8 +281,7 @@ export function Navbar({ user, isAdmin }: NavbarProps) {
                             type="submit"
                             className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
                           >
-                            <LogOut className="size-4 text-rose-400" /> Secure
-                            Sign Out
+                            <LogOut className="size-4 text-rose-400" /> Keluar Aman
                           </button>
                         </form>
                       </motion.div>

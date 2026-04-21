@@ -53,13 +53,13 @@ export function ForgotPasswordForm() {
       const payload = (await response.json()) as ForgotPasswordApiResponse;
 
       if (!response.ok) {
-        setError(payload.error ?? "Unable to send the reset email.");
+        setError(payload.error ?? "Tidak dapat mengirim email pengaturan ulang.");
         return;
       }
 
-      setSuccess(payload.message ?? "Reset email sent.");
+      setSuccess(payload.message ?? "Email pengaturan ulang telah dikirim.");
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError("Terjadi kesalahan. Silakan coba lagi.");
     } finally {
       setIsLoading(false);
     }
@@ -70,10 +70,10 @@ export function ForgotPasswordForm() {
       <Card className="overflow-hidden rounded-[2rem] border border-white/70 bg-white/92 shadow-[0_24px_90px_rgba(63,92,115,0.18)] backdrop-blur">
         <CardHeader className="space-y-4 border-b border-[#d7dee5] bg-[linear-gradient(135deg,rgba(79,179,179,0.18),rgba(242,92,122,0.08),rgba(255,255,255,0.95))] pb-6">
           <CardTitle className="text-2xl font-semibold text-[#243746]">
-            Reset password
+            Lupa kata sandi
           </CardTitle>
           <CardDescription className="text-sm leading-6 text-[#587080]">
-            Enter your identity number and we will send a reset link to your registered email.
+            Masukkan nomor identitas Anda dan kami akan mengirimkan tautan pengaturan ulang ke email yang terdaftar.
           </CardDescription>
         </CardHeader>
 
@@ -81,7 +81,7 @@ export function ForgotPasswordForm() {
           <form onSubmit={onSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="nik" className="text-[#2e4658]">
-                Identity number
+                Nomor identitas (NIK)
               </Label>
               <div className="relative">
                 <IdCard className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#4FB3B3]" />
@@ -89,7 +89,7 @@ export function ForgotPasswordForm() {
                   id="nik"
                   value={nik}
                   onChange={onNikChange}
-                  placeholder="Enter your identity number"
+                  placeholder="Masukkan nomor identitas Anda"
                   className="h-11 rounded-2xl border-[#c6d0d8] bg-white pl-10"
                 />
               </div>
@@ -131,12 +131,12 @@ export function ForgotPasswordForm() {
               {isLoading ? (
                 <>
                   <LoadingSpinner className="mr-2" />
-                  Sending email...
+                  Mengirim email...
                 </>
               ) : (
                 <>
                   <LoaderCircle className="mr-2 size-4" />
-                  Send link
+                  Kirim tautan
                 </>
               )}
             </Button>
@@ -144,7 +144,7 @@ export function ForgotPasswordForm() {
         </CardContent>
 
         <CardFooter className="flex flex-col items-start gap-2 border-t border-[#e2e8ed] bg-[#f6f8fa] px-6 py-4 text-xs text-[#6f808c]">
-          <AuthLinkRow question="Remembered your password?" href="/login" label="Sign in" />
+          <AuthLinkRow question="Ingat kata sandi Anda?" href="/login" label="Masuk" />
         </CardFooter>
       </Card>
     </motion.div>

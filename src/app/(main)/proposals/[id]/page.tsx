@@ -20,18 +20,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { GovernanceControls } from "./governance-controls";
+import { CATEGORY_MAPPING, STATUS_MAPPING } from "@/lib/constants/mappings";
 
 export default async function ProposalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const proposal = await getProposalById(id);
-  const { user, userType, profile } = await getCurrentProfile();
+  const { user, userType, profile, role } = await getCurrentProfile();
 
   if (!proposal) {
     notFound();
   }
 
   // Location restriction for non-admin governance
-  if (userType === "governance" && profile?.role !== "admin") {
+  if (userType === "governance" && role !== "admin") {
     if (proposal.location !== profile?.location) {
       notFound();
     }
@@ -56,7 +57,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
       <div className="mx-auto max-w-5xl space-y-8">
         <Button asChild variant="ghost" className="rounded-xl text-slate-500 hover:text-slate-800 -ml-4">
           <Link href="/proposals" className="flex items-center gap-2">
-            <ArrowLeft className="size-4" /> Back to Proposals
+            <ArrowLeft className="size-4" /> Kembali ke Proposal
           </Link>
         </Button>
 
@@ -66,7 +67,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-blue-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-600 border border-blue-100">
-                  {proposal.category}
+                  {CATEGORY_MAPPING[proposal.category] || proposal.category}
                 </span>
                 <span className={ `rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider border ${
                   canVote ? 'bg-amber-50 text-amber-600 border-amber-100' : 
@@ -74,7 +75,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
                   isPending ? 'bg-slate-100 text-slate-500 border-slate-200' :
                   'bg-emerald-50 text-emerald-600 border-emerald-100'
                 }`}>
-                  {isExpired ? "Voting Closed" : proposal.status}
+                  {isExpired ? STATUS_MAPPING["expired"] : (STATUS_MAPPING[proposal.status] || proposal.status)}
                 </span>
               </div>
               <h1 className="font-heading text-4xl font-black text-slate-800 tracking-tight leading-tight">
@@ -119,7 +120,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
 
             {/* Description */}
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-slate-800">Project Overview</h2>
+              <h2 className="text-xl font-bold text-slate-800">Ringkasan Proyek</h2>
               <p className="text-base leading-relaxed text-slate-600 whitespace-pre-wrap">
                 {proposal.description}
               </p>
@@ -136,14 +137,14 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
               <CardContent className="p-8 space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-6">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Current Rank</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Peringkat Saat Ini</p>
                     <div className="flex items-center gap-2">
                       <Trophy className="size-5 text-amber-500" />
-                      <span className="text-2xl font-black text-slate-800">{proposal.total_points ?? 0} <span className="text-sm font-bold text-slate-400">pts</span></span>
+                      <span className="text-2xl font-black text-slate-800">{proposal.total_points ?? 0} <span className="text-sm font-bold text-slate-400">poin</span></span>
                     </div>
                   </div>
                   <div className="text-right space-y-1">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Votes</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Suara</p>
                     <p className="text-lg font-bold text-slate-800">{proposal.total_votes ?? 0}</p>
                   </div>
                 </div>
@@ -155,10 +156,10 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
                         <Clock className="size-5" />
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Voting Period</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Periode Voting</p>
                         <p className={cn("text-sm font-bold", isExpired ? "text-rose-600" : "text-amber-600")}>
-                          {isExpired ? "Ended on " : "Until "}
-                          {new Date(proposal.expiry_date).toLocaleDateString()}
+                          {isExpired ? "Berakhir pada " : "Hingga "}
+                          {new Date(proposal.expiry_date).toLocaleDateString("id-ID")}
                         </p>
                       </div>
                     </div>
@@ -169,7 +170,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
                       <MapPin className="size-5" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Location</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Lokasi</p>
                       <p className="text-sm font-bold text-slate-800">{proposal.location}</p>
                     </div>
                   </div>
@@ -179,8 +180,8 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
                       <Wallet className="size-5" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Estimated Budget</p>
-                      <p className="text-sm font-bold text-[#4FB3B3]">Rp {Number(proposal.estimated_cost).toLocaleString()}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Estimasi Anggaran</p>
+                      <p className="text-sm font-bold text-[#4FB3B3]">Rp {Number(proposal.estimated_cost).toLocaleString("id-ID")}</p>
                     </div>
                   </div>
 
@@ -190,10 +191,10 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
                     </div>
                     <div className="flex-1">
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
-                        {isGovernance ? "Proposed by (Admin View)" : "Reporter Identity"}
+                        {isGovernance ? "Diajukan oleh (Tampilan Admin)" : "Identitas Pelapor"}
                       </p>
                       <p className="text-sm font-bold text-slate-800">
-                        {isGovernance ? (proposal.author_name || 'Anonymous') : (isOwner ? "Me (Private)" : "Verified Citizen")}
+                        {isGovernance ? (proposal.author_name || 'Anonim') : (isOwner ? "Saya (Privat)" : "Warga Terverifikasi")}
                       </p>
                     </div>
                   </div>
@@ -201,11 +202,11 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
 
                 {canVote ? (
                   <Button asChild className="w-full h-14 rounded-2xl bg-[#4FB3B3] font-bold text-slate-900 hover:bg-[#3da3a3] shadow-lg shadow-[#4FB3B3]/20">
-                    <Link href="/proposals">Vote in Main Catalog</Link>
+                    <Link href="/proposals">Berikan Suara di Katalog</Link>
                   </Button>
                 ) : (
                   <div className="flex items-center justify-center p-4 rounded-2xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">
-                    {isPending ? "Verification in Progress" : "Voting is closed"}
+                    {isPending ? "Verifikasi Sedang Berlangsung" : "Voting telah ditutup"}
                   </div>
                 )}
               </CardContent>
@@ -213,10 +214,10 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
 
             {isOwner && (
                <div className="rounded-[2rem] bg-slate-900 p-6 text-white shadow-xl">
-                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Ownership Dashboard</p>
-                 <h4 className="mt-1 font-bold">This is your proposal</h4>
+                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Dasbor Kepemilikan</p>
+                 <h4 className="mt-1 font-bold">Ini adalah proposal Anda</h4>
                  <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-                   As the author, you can track the status. Only governance officials can approve it for public voting.
+                   Sebagai penulis, Anda dapat memantau statusnya. Hanya pejabat pemerintah yang dapat menyetujuinya untuk voting publik.
                  </p>
                </div>
             )}

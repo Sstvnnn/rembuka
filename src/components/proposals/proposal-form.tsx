@@ -29,40 +29,28 @@ import { LoadingSpinner } from "@/components/loading-spinner";
 import Link from "next/link";
 import { createProposalAction } from "@/app/actions/musrenbang";
 import Image from "next/image";
+import { getProvinceFromCity } from "@/lib/constants/locations";
+import { CATEGORY_MAPPING, REVERSE_CATEGORY_MAPPING } from "@/lib/constants/mappings";
 
-const categories = ["Infrastructure", "Education", "Health", "Environment", "Social", "Safety"];
-
-const INDONESIA_LOCATIONS: Record<string, string[]> = {
-  "Banten": ["Tangerang Selatan", "Kota Tangerang", "Serang", "Cilegon"],
-  "DK Jakarta": ["Jakarta Selatan", "Jakarta Pusat", "Jakarta Timur", "Jakarta Barat", "Jakarta Utara"],
-  "Jawa Barat": ["Bandung", "Bogor", "Bekasi", "Depok"],
-  "Jawa Tengah": ["Semarang", "Surakarta", "Magelang", "Salatiga"]
-};
+const categories = Object.values(CATEGORY_MAPPING);
 
 interface ProposalFormProps {
   defaultLocation: string;
+  isVerified: boolean;
 }
 
-export function ProposalForm({ defaultLocation }: ProposalFormProps) {
+export function ProposalForm({ defaultLocation, isVerified }: ProposalFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const initialProvince = useMemo(() => {
-    for (const [province, cities] of Object.entries(INDONESIA_LOCATIONS)) {
-      if (cities.includes(defaultLocation)) return province;
-    }
-    return Object.keys(INDONESIA_LOCATIONS)[0]; 
-  }, [defaultLocation]);
-
-  const [selectedProvince, setSelectedProvince] = useState(initialProvince);
+  const province = useMemo(() => getProvinceFromCity(defaultLocation), [defaultLocation]);
   
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    category: "Infrastructure",
-    location: defaultLocation || INDONESIA_LOCATIONS[initialProvince][0],
+    category: "Infrastruktur",
     estimated_cost: 0
   });
 
@@ -72,12 +60,6 @@ export function ProposalForm({ defaultLocation }: ProposalFormProps) {
   useEffect(() => {
     return () => previews.forEach(url => URL.revokeObjectURL(url));
   }, [previews]);
-
-  const handleProvinceChange = (province: string) => {
-    setSelectedProvince(province);
-    const firstCity = INDONESIA_LOCATIONS[province][0];
-    setFormData(prev => ({ ...prev, location: firstCity }));
-  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -102,7 +84,12 @@ export function ProposalForm({ defaultLocation }: ProposalFormProps) {
     setError("");
     setSuccess("");
 
-    if (!formData.title || !formData.description || !formData.location) {
+    if (!isVerified) {
+      setError("Only verified citizens can submit proposals. Please complete your identity verification first.");
+      return;
+    }
+
+    if (!formData.title || !formData.description) {
       setError("Please fill in all required fields.");
       return;
     }
@@ -110,8 +97,8 @@ export function ProposalForm({ defaultLocation }: ProposalFormProps) {
     const data = new FormData();
     data.append("title", formData.title);
     data.append("description", formData.description);
-    data.append("category", formData.category);
-    data.append("location", formData.location);
+    // Send English key to DB
+    data.append("category", REVERSE_CATEGORY_MAPPING[formData.category] || formData.category);
     data.append("estimated_cost", formData.estimated_cost.toString());
     images.forEach(img => data.append("images", img));
 
@@ -128,10 +115,10 @@ export function ProposalForm({ defaultLocation }: ProposalFormProps) {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <Button asChild variant="ghost" className="rounded-xl text-slate-500 hover:text-slate-800">
           <Link href="/proposals" className="flex items-center gap-2">
-            <ArrowLeft className="size-4" /> Back to Proposals
+            <ArrowLeft className="size-4" /> Kembali ke Proposal
           </Link>
         </Button>
       </div>
@@ -139,55 +126,66 @@ export function ProposalForm({ defaultLocation }: ProposalFormProps) {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="overflow-hidden rounded-[2.5rem] border border-white/70 bg-white/40 shadow-2xl backdrop-blur-xl">
           <CardHeader className="space-y-4 border-b border-slate-100 bg-slate-50/50 p-8">
-            <div className="flex items-center gap-3">
-              <div className="flex size-12 items-center justify-center rounded-2xl bg-[#3F5C73] text-white shadow-xl shadow-[#3F5C73]/20">
-                <FileText className="size-6" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex size-12 items-center justify-center rounded-2xl bg-[#3F5C73] text-white shadow-xl shadow-[#3F5C73]/20">
+                  <FileText className="size-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4FB3B3]">Musrenbang Digital</p>
+                  <CardTitle className="text-2xl font-black text-slate-800 tracking-tight">Proposal Baru</CardTitle>
+                </div>
               </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4FB3B3]">Digital Musrenbang</p>
-                <CardTitle className="text-2xl font-black text-slate-800 tracking-tight">New Proposal</CardTitle>
-              </div>
+              {!isVerified && (
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-50 text-rose-500 border border-rose-100 animate-pulse">
+                  <AlertCircle className="size-3" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Belum Terverifikasi</span>
+                </div>
+              )}
             </div>
           </CardHeader>
 
           <CardContent className="p-8">
             <form onSubmit={onSubmit} className="space-y-6">
+              {!isVerified && (
+                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 flex gap-3">
+                  <AlertCircle className="size-5 text-amber-500 shrink-0" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-amber-800 leading-none">Verifikasi Identitas Diperlukan</p>
+                    <p className="text-xs text-amber-700 leading-relaxed">Akun Anda saat ini belum terverifikasi. Untuk menjaga integritas proses Musrenbang, hanya warga dengan kartu identitas terverifikasi yang dapat mengajukan proposal pembangunan.</p>
+                    <Link href="/profile" className="inline-block mt-2 text-xs font-bold text-[#3F5C73] hover:underline">Selesaikan verifikasi Anda →</Link>
+                  </div>
+                </div>
+              )}
+
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Province</Label>
+                  <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Provinsi</Label>
                   <div className="relative">
                     <Globe className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                    <select
-                      value={selectedProvince}
-                      onChange={(e) => handleProvinceChange(e.target.value)}
-                      className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white/50 pl-11 pr-4 text-sm focus:bg-white appearance-none transition-all"
-                    >
-                      {Object.keys(INDONESIA_LOCATIONS).map(prov => (
-                        <option key={prov} value={prov}>{prov}</option>
-                      ))}
-                    </select>
+                    <Input
+                      value={province}
+                      readOnly
+                      className="h-12 rounded-2xl border-slate-200 bg-slate-100/50 pl-11 text-slate-500 font-medium cursor-default"
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">City / District</Label>
+                  <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Kota / Kabupaten</Label>
                   <div className="relative">
                     <MapPin className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                    <select
-                      value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      className="flex h-12 w-full rounded-2xl border border-slate-200 bg-white/50 pl-11 pr-4 text-sm focus:bg-white appearance-none transition-all"
-                    >
-                      {INDONESIA_LOCATIONS[selectedProvince].map(city => (
-                        <option key={city} value={city}>{city}</option>
-                      ))}
-                    </select>
+                    <Input
+                      value={defaultLocation}
+                      readOnly
+                      className="h-12 rounded-2xl border-slate-200 bg-slate-100/50 pl-11 text-slate-500 font-medium cursor-default"
+                    />
                   </div>
                 </div>
               </div>
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Category</Label>
+                  <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Kategori</Label>
                   <div className="relative">
                     <Tag className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                     <select
@@ -200,14 +198,14 @@ export function ProposalForm({ defaultLocation }: ProposalFormProps) {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Est. Cost (Rp)</Label>
+                  <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Est. Biaya (Rp)</Label>
                   <div className="relative">
                     <Wallet className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                     <Input
                       type="number"
                       value={formData.estimated_cost || ""}
                       onChange={(e) => setFormData({ ...formData, estimated_cost: Number(e.target.value) })}
-                      placeholder="Enter budget"
+                      placeholder="Masukkan anggaran"
                       className="h-12 rounded-2xl border-slate-200 bg-white/50 pl-11"
                     />
                   </div>
@@ -215,20 +213,20 @@ export function ProposalForm({ defaultLocation }: ProposalFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Proposal Title</Label>
+                <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Judul Proposal</Label>
                 <div className="relative">
                   <LayoutDashboard className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                   <Input
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="e.g., Solar Powered Street Lights"
+                    placeholder="Misal: Lampu Jalan Tenaga Surya"
                     className="h-12 rounded-2xl border-slate-200 bg-white/50 pl-11 focus:bg-white transition-all"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Documentation (1-4 Photos)</Label>
+                <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Dokumentasi (1-4 Foto)</Label>
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                   {previews.map((url, i) => (
                     <div key={i} className="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 group">
@@ -245,7 +243,7 @@ export function ProposalForm({ defaultLocation }: ProposalFormProps) {
                   {images.length < 4 && (
                     <label className="flex flex-col items-center justify-center aspect-square rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 cursor-pointer hover:border-[#4FB3B3] hover:bg-white transition-all">
                       <Upload className="size-5 text-slate-400" />
-                      <span className="text-[10px] font-bold text-slate-400 uppercase mt-2">Add Photo</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase mt-2">Tambah Foto</span>
                       <input type="file" accept="image/*" multiple onChange={handleImageChange} className="hidden" />
                     </label>
                   )}
@@ -253,12 +251,12 @@ export function ProposalForm({ defaultLocation }: ProposalFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Description</Label>
+                <Label className="text-xs font-bold text-slate-500 ml-1 uppercase tracking-wider">Deskripsi</Label>
                 <textarea
                   rows={5}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Explain the community benefit..."
+                  placeholder="Jelaskan manfaat bagi komunitas..."
                   className="w-full rounded-2xl border border-slate-200 bg-white/50 p-4 text-sm focus:bg-white focus:outline-none transition-all"
                 />
               </div>
@@ -277,7 +275,7 @@ export function ProposalForm({ defaultLocation }: ProposalFormProps) {
               </AnimatePresence>
 
               <Button disabled={isPending} className="h-14 w-full rounded-2xl bg-[#3F5C73] text-base font-bold text-white shadow-xl hover:bg-[#314b60]">
-                {isPending ? <LoadingSpinner className="mr-2" /> : "Submit Proposal"}
+                {isPending ? <LoadingSpinner className="mr-2" /> : "Ajukan Proposal"}
               </Button>
             </form>
           </CardContent>
