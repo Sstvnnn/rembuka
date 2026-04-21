@@ -23,11 +23,11 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized. Admin role required." }, { status: 403 });
     }
     
-    // Fetch both pending and rejected users
+    // Fetch pending, unverified, verified and rejected users
     const { data, error } = await supabase
       .from("users")
       .select("*")
-      .in("verification_status", ["pending_review", "rejected"])
+      .in("verification_status", ["pending_review", "rejected", "unverified", "verified"])
       .order("created_at", { ascending: true });
 
     if (error) {

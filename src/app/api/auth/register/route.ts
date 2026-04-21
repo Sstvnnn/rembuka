@@ -104,7 +104,7 @@ export async function POST(request: Request) {
           full_name: citizen.full_name,
           location: citizen.location,
           citizen_card_path: citizenCardPath,
-          verification_status: "unverified", // Default state
+          verification_status: "pending_review", // Set to pending review as card is uploaded during registration
         },
       },
     });

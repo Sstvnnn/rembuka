@@ -61,7 +61,7 @@ export function LoginForm() {
   useEffect(() => {
     setNotice(
       searchParams.get("message") === "confirm-email"
-        ? "Please confirm your email before signing in."
+        ? "Silakan konfirmasi email Anda sebelum masuk."
         : "",
     );
   }, [searchParams]);
@@ -86,13 +86,13 @@ export function LoginForm() {
 
     if (loginType === "citizen") {
       if (!/^\d{8,20}$/.test(formattedNik)) {
-        setError("Please enter a valid identity number.");
+        setError("Silakan masukkan nomor identitas yang valid.");
         return;
       }
       
       const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
       if (!passwordRegex.test(password)) {
-        setError("Citizens must use at least 8 alphanumeric characters.");
+        setError("Kata sandi harus terdiri dari minimal 8 karakter alfanumerik.");
         return;
       }
     }
@@ -118,21 +118,21 @@ export function LoginForm() {
 
       if (!response.ok) {
         if (response.status === 403 && payload.requiresVerification && payload.email) {
-          setError(payload.error ?? "Verification required.");
+          setError(payload.error ?? "Verifikasi diperlukan.");
           setTimeout(() => {
             router.push(`/verify-otp?email=${encodeURIComponent(payload.email!)}`);
           }, 1500);
           return;
         }
 
-        setError(payload.error ?? "Sign in failed.");
+        setError(payload.error ?? "Gagal masuk.");
         return;
       }
 
       router.replace("/home");
       router.refresh();
     } catch {
-      setError("Network error. Please try again.");
+      setError("Kesalahan jaringan. Silakan coba lagi.");
     } finally {
       setIsLoading(false);
     }
@@ -147,7 +147,7 @@ export function LoginForm() {
     >
       <div className="mb-6 flex justify-center p-1 bg-white/50 backdrop-blur rounded-2xl border border-white/70 shadow-sm">
         <button
-          onClick={() => setLoginType("citizen")}
+          onClick={() => handleTabChange("citizen")}
           className={cn(
             "flex-1 py-2.5 text-xs font-bold uppercase tracking-widest rounded-xl transition-all",
             loginType === "citizen" 
@@ -155,10 +155,10 @@ export function LoginForm() {
               : "text-slate-500 hover:text-slate-700"
           )}
         >
-          Citizen
+          Warga
         </button>
         <button
-          onClick={() => setLoginType("governance")}
+          onClick={() => handleTabChange("governance")}
           className={cn(
             "flex-1 py-2.5 text-xs font-bold uppercase tracking-widest rounded-xl transition-all",
             loginType === "governance" 
@@ -166,7 +166,7 @@ export function LoginForm() {
               : "text-slate-500 hover:text-slate-700"
           )}
         >
-          Governance
+          Pemerintah
         </button>
       </div>
 
@@ -184,18 +184,18 @@ export function LoginForm() {
                 "text-xs font-semibold uppercase tracking-[0.28em] transition-colors",
                 loginType === "citizen" ? "text-[#4FB3B3]" : "text-[#F25C7A]"
               )}>
-                {loginType} Portal
+                Portal {loginType === "citizen" ? "Warga" : "Pemerintah"}
               </p>
               <CardTitle className="text-2xl font-semibold text-[#243746]">
-                {loginType === "citizen" ? "Citizen Login" : "Official Login"}
+                Masuk {loginType === "citizen" ? "Warga" : "Pejabat"}
               </CardTitle>
             </div>
           </motion.div>
           <motion.div variants={itemVariants}>
             <CardDescription className="text-sm leading-6 text-[#587080]">
               {loginType === "citizen" 
-                ? "Access your civic tools using your identity number." 
-                : "Secure portal for government officials and administrators."}
+                ? "Akses alat kewargaan Anda menggunakan nomor identitas." 
+                : "Portal aman untuk pejabat pemerintah dan administrator."}
             </CardDescription>
           </motion.div>
         </CardHeader>
@@ -212,7 +212,7 @@ export function LoginForm() {
                   className="space-y-2"
                 >
                   <Label htmlFor="nik" className="text-[#2e4658]">
-                    Identity number
+                    Nomor identitas (NIK)
                   </Label>
                   <div className="relative">
                     <IdCard className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#4FB3B3]" />
@@ -220,7 +220,7 @@ export function LoginForm() {
                       id="nik"
                       inputMode="numeric"
                       autoComplete="off"
-                      placeholder="Enter your identity number"
+                      placeholder="Masukkan nomor identitas Anda"
                       value={nik}
                       onChange={onNikChange}
                       className="h-11 rounded-2xl border-[#c6d0d8] bg-white pl-10 text-[#243746] placeholder:text-[#7f919c] focus-visible:border-[#4FB3B3] focus-visible:ring-[#4FB3B3]/20"
@@ -236,7 +236,7 @@ export function LoginForm() {
                   className="space-y-2"
                 >
                   <Label htmlFor="email" className="text-[#2e4658]">
-                    Official Email
+                    Email Resmi
                   </Label>
                   <div className="relative">
                     <IdCard className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#F25C7A]" />
@@ -244,7 +244,7 @@ export function LoginForm() {
                       id="email"
                       type="email"
                       autoComplete="email"
-                      placeholder="name@rembuka.id"
+                      placeholder="nama@rembuka.id"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="h-11 rounded-2xl border-[#c6d0d8] bg-white pl-10 text-[#243746] placeholder:text-[#7f919c] focus-visible:border-[#F25C7A] focus-visible:ring-[#F25C7A]/20"
@@ -254,49 +254,57 @@ export function LoginForm() {
               )}
             </AnimatePresence>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-[#2e4658]">
-                  Password
-                </Label>
-                {loginType === "citizen" && (
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs font-semibold text-[#3F5C73] hover:text-[#2b4254]"
-                  >
-                    Forgot password?
-                  </Link>
-                )}
-              </div>
-              <div className="relative">
-                <KeyRound className={cn(
-                  "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2",
-                  loginType === "citizen" ? "text-[#F25C7A]" : "text-[#3F5C73]"
-                )} />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  className={cn(
-                    "h-11 rounded-2xl border-[#c6d0d8] bg-white px-10 text-[#243746] placeholder:text-[#7f919c] focus-visible:ring-2",
-                    loginType === "citizen" 
-                      ? "focus-visible:border-[#F25C7A] focus-visible:ring-[#F25C7A]/20" 
-                      : "focus-visible:border-[#3F5C73] focus-visible:ring-[#3F5C73]/20"
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`${loginType}-password-container`}
+                initial={{ opacity: 0, x: loginType === "citizen" ? -10 : 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: loginType === "citizen" ? 10 : -10 }}
+                className="space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-[#2e4658]">
+                    Kata Sandi
+                  </Label>
+                  {loginType === "citizen" && (
+                    <Link
+                      href="/forgot-password"
+                      className="text-xs font-semibold text-[#3F5C73] hover:text-[#2b4254]"
+                    >
+                      Lupa kata sandi?
+                    </Link>
                   )}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((value) => !value)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7f919c] transition hover:text-[#243746]"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                </button>
-              </div>
-            </div>
+                </div>
+                <div className="relative">
+                  <KeyRound className={cn(
+                    "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2",
+                    loginType === "citizen" ? "text-[#F25C7A]" : "text-[#3F5C73]"
+                  )} />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="Masukkan kata sandi Anda"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    className={cn(
+                      "h-11 rounded-2xl border-[#c6d0d8] bg-white px-10 text-[#243746] placeholder:text-[#7f919c] focus-visible:ring-2",
+                      loginType === "citizen" 
+                        ? "focus-visible:border-[#F25C7A] focus-visible:ring-[#F25C7A]/20" 
+                        : "focus-visible:border-[#3F5C73] focus-visible:ring-[#3F5C73]/20"
+                    )}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((value) => !value)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7f919c] transition hover:text-[#243746]"
+                    aria-label={showPassword ? "Sembunyikan sandi" : "Tampilkan sandi"}
+                  >
+                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
+                </div>
+              </motion.div>
+            </AnimatePresence>
 
             <AnimatePresence mode="wait">
               {notice ? (
@@ -337,12 +345,12 @@ export function LoginForm() {
               {isLoading ? (
                 <>
                   <LoadingSpinner className="mr-2" />
-                  Authenticating...
+                  Mengautentikasi...
                 </>
               ) : (
                 <>
                   <LoaderCircle className="mr-2 size-4 transition group-hover/button:rotate-180" />
-                  Sign in to {loginType} portal
+                  Masuk ke portal {loginType === "citizen" ? "warga" : "pemerintah"}
                 </>
               )}
             </Button>
@@ -351,7 +359,7 @@ export function LoginForm() {
 
         {loginType === "citizen" && (
           <CardFooter className="flex flex-col items-start gap-2 border-t border-[#e2e8ed] bg-[#f6f8fa] px-6 py-4 text-xs text-[#6f808c]">
-            <AuthLinkRow question="No password yet?" href="/register" label="Create your account" />
+            <AuthLinkRow question="Belum punya akun?" href="/register" label="Daftar akun baru" />
           </CardFooter>
         )}
       </Card>

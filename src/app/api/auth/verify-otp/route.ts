@@ -50,7 +50,7 @@ export async function POST(request: Request) {
         full_name: metadata.full_name,
         location: metadata.location,
         citizen_card_path: metadata.citizen_card_path,
-        verification_status: "unverified", // Default as requested
+        verification_status: "pending_review", // Set to pending review as card is uploaded during registration
       }, { onConflict: 'nik' });
 
     if (profileError) {

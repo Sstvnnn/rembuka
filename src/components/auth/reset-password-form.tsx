@@ -39,12 +39,12 @@ export function ResetPasswordForm() {
     setError("");
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
+      setError("Kata sandi harus terdiri dari minimal 8 karakter.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError("Kata sandi tidak cocok.");
       return;
     }
 
@@ -62,7 +62,7 @@ export function ResetPasswordForm() {
       router.replace("/home");
       router.refresh();
     } catch {
-      setError("Unable to update the password.");
+      setError("Tidak dapat memperbarui kata sandi.");
     } finally {
       setIsLoading(false);
     }
@@ -73,23 +73,23 @@ export function ResetPasswordForm() {
       <Card className="overflow-hidden rounded-[2rem] border border-white/70 bg-white/90 shadow-[0_24px_90px_rgba(63,92,115,0.18)] backdrop-blur">
         <CardHeader className="space-y-4 border-b border-[#d7dee5] bg-[linear-gradient(135deg,rgba(79,179,179,0.18),rgba(242,92,122,0.08),rgba(255,255,255,0.95))] pb-6">
           <CardTitle className="text-2xl font-semibold text-[#243746]">
-            Set a new password
+            Atur kata sandi baru
           </CardTitle>
           <CardDescription className="text-sm leading-6 text-[#587080]">
-            Choose a new password for your citizen account.
+            Pilih kata sandi baru untuk akun warga Anda.
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-5 px-6 py-6">
           {!ready ? (
             <div className="rounded-2xl border border-[#d9e2e8] bg-[#f8fbfc] px-4 py-3 text-sm text-[#617580]">
-              Open this page using the reset link from your email. If the link expired, request a new one.
+              Buka halaman ini menggunakan tautan pengaturan ulang dari email Anda. Jika tautan kadaluarsa, minta yang baru.
             </div>
           ) : (
             <form onSubmit={onSubmit} className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-[#2e4658]">
-                  New password
+                  Kata sandi baru
                 </Label>
                 <div className="relative">
                   <KeyRound className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#F25C7A]" />
@@ -106,7 +106,7 @@ export function ResetPasswordForm() {
 
               <div className="space-y-2">
                 <Label htmlFor="confirm-password" className="text-[#2e4658]">
-                  Confirm new password
+                  Konfirmasi kata sandi baru
                 </Label>
                 <div className="relative">
                   <KeyRound className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#F25C7A]" />
@@ -143,12 +143,12 @@ export function ResetPasswordForm() {
                 {isLoading ? (
                   <>
                     <LoadingSpinner className="mr-2" />
-                    Updating password...
+                    Memperbarui...
                   </>
                 ) : (
                   <>
                     <LoaderCircle className="mr-2 size-4" />
-                    Save new password
+                    Simpan kata sandi baru
                   </>
                 )}
               </Button>
@@ -157,7 +157,7 @@ export function ResetPasswordForm() {
         </CardContent>
 
         <CardFooter className="border-t border-[#e2e8ed] bg-[#f6f8fa] px-6 py-4 text-xs text-[#6f808c]">
-          Make sure this password is unique to your Rembuka account.
+          Pastikan kata sandi ini unik untuk akun Rembuka Anda.
         </CardFooter>
       </Card>
     </motion.div>

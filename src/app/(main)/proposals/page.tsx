@@ -21,7 +21,10 @@ export default async function ProposalsPage() {
 
     // Fetch data - error handling is inside the lib functions already (returning [])
     const [fetchedProposals, fetchedVotes] = await Promise.all([
-      getProposals(),
+      getProposals({
+        userRole: userType,
+        userLocation: profileData.profile?.location
+      }),
       getProposalVotes(user.id)
     ]);
 
@@ -40,13 +43,13 @@ export default async function ProposalsPage() {
             <AlertTriangle className="size-10" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Access Error</h2>
+            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Kesalahan Akses</h2>
             <p className="text-sm text-slate-500 font-medium">
-              We encountered a problem loading the Musrenbang dashboard. Please try again later.
+              Kami mengalami masalah saat memuat dasbor Musrenbang. Silakan coba lagi nanti.
             </p>
           </div>
           <Button asChild className="w-full h-12 rounded-2xl bg-slate-800 font-bold text-white hover:bg-slate-700">
-            <Link href="/home">Return Home</Link>
+            <Link href="/home">Kembali ke Beranda</Link>
           </Button>
         </div>
       </main>
@@ -58,16 +61,16 @@ export default async function ProposalsPage() {
       <div className="mx-auto max-w-7xl space-y-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="space-y-2">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#4FB3B3]">Digital Musrenbang</p>
-            <h1 className="font-heading text-4xl font-black text-slate-800 tracking-tight">Citizen Proposals</h1>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#4FB3B3]">Musrenbang Digital</p>
+            <h1 className="font-heading text-4xl font-black text-slate-800 tracking-tight">Proposal Warga</h1>
             <p className="max-w-xl text-sm font-medium text-slate-500">
-              Voice your community needs. Browse, vote, and track local development projects proposed by fellow citizens.
+              Suarakan kebutuhan komunitas Anda. Telusuri, berikan suara, dan pantau proyek pembangunan lokal yang diajukan oleh sesama warga.
             </p>
           </div>
           
           <Button asChild className="rounded-2xl bg-[#3F5C73] font-bold text-white shadow-xl shadow-[#3F5C73]/20 hover:bg-[#314b60]">
             <Link href="/proposals/submit" className="flex items-center gap-2">
-              <Plus className="size-4" /> Submit Proposal
+              <Plus className="size-4" /> Ajukan Proposal
             </Link>
           </Button>
         </div>

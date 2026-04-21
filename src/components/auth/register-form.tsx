@@ -97,12 +97,12 @@ export function RegisterForm() {
       const payload = (await response.json()) as RegisterApiResponse;
 
       if (!response.ok) {
-        setError(payload.error ?? "Unable to create your account.");
+        setError(payload.error ?? "Tidak dapat membuat akun Anda.");
         return;
       }
 
       if (payload.emailConfirmationRequired && payload.email) {
-        setSuccess("Account created! Redirecting to verification...");
+        setSuccess("Akun berhasil dibuat! Mengalihkan ke verifikasi...");
         setTimeout(() => {
           router.push(`/verify-otp?email=${encodeURIComponent(payload.email!)}`);
         }, 1000);
@@ -112,7 +112,7 @@ export function RegisterForm() {
       router.replace("/home");
       router.refresh();
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError("Terjadi kesalahan. Silakan coba lagi.");
     } finally {
       setIsLoading(false);
     }
@@ -132,15 +132,15 @@ export function RegisterForm() {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4FB3B3]">
-                Create account
+                Daftar Akun
               </p>
               <CardTitle className="text-2xl font-semibold text-[#243746]">
-                Get started
+                Mulai Sekarang
               </CardTitle>
             </div>
           </div>
           <CardDescription className="text-sm leading-6 text-[#587080]">
-            Enter your details to create an account and continue to email confirmation.
+            Lengkapi data diri Anda untuk membuat akun dan melanjutkan ke konfirmasi email.
           </CardDescription>
         </CardHeader>
 
@@ -148,7 +148,7 @@ export function RegisterForm() {
           <form onSubmit={onSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="nik" className="text-[#2e4658]">
-                Identity number
+                Nomor identitas (NIK)
               </Label>
               <div className="relative">
                 <IdCard className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#4FB3B3]" />
@@ -158,7 +158,7 @@ export function RegisterForm() {
                   autoComplete="off"
                   value={nik}
                   onChange={onNikChange}
-                  placeholder="Enter your identity number"
+                  placeholder="Masukkan 16 digit NIK Anda"
                   className="h-11 rounded-2xl border-[#c6d0d8] bg-white pl-10"
                 />
               </div>
@@ -166,7 +166,7 @@ export function RegisterForm() {
 
             <div className="space-y-2">
               <Label htmlFor="citizen-card" className="text-[#2e4658]">
-                Identity card
+                Kartu identitas (KTP)
               </Label>
               <label
                 htmlFor="citizen-card"
@@ -177,10 +177,10 @@ export function RegisterForm() {
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-[#243746]">
-                    {citizenCard ? citizenCard.name : "Upload your identity card image"}
+                    {citizenCard ? citizenCard.name : "Unggah foto kartu identitas Anda"}
                   </p>
                   <p className="text-xs text-[#748794]">
-                    JPG, PNG, or WEBP
+                    Format JPG, PNG, atau WEBP
                   </p>
                 </div>
               </label>
@@ -207,7 +207,7 @@ export function RegisterForm() {
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-[#2e4658]">
-                Password
+                Kata Sandi
               </Label>
               <div className="relative">
                 <KeyRound className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#F25C7A]" />
@@ -217,14 +217,14 @@ export function RegisterForm() {
                   autoComplete="new-password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder="At least 8 characters"
+                  placeholder="Minimal 8 karakter"
                   className="h-11 rounded-2xl border-[#c6d0d8] bg-white px-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((value) => !value)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7f919c] transition hover:text-[#243746]"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? "Sembunyikan sandi" : "Tampilkan sandi"}
                 >
                   {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
@@ -233,7 +233,7 @@ export function RegisterForm() {
 
             <div className="space-y-2">
               <Label htmlFor="confirm-password" className="text-[#2e4658]">
-                Confirm password
+                Konfirmasi Kata Sandi
               </Label>
               <div className="relative">
                 <KeyRound className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#F25C7A]" />
@@ -243,14 +243,14 @@ export function RegisterForm() {
                   autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}
-                  placeholder="Repeat your password"
+                  placeholder="Ulangi kata sandi Anda"
                   className="h-11 rounded-2xl border-[#c6d0d8] bg-white px-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((value) => !value)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7f919c] transition hover:text-[#243746]"
-                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  aria-label={showConfirmPassword ? "Sembunyikan sandi" : "Tampilkan sandi"}
                 >
                   {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
@@ -293,12 +293,12 @@ export function RegisterForm() {
               {isLoading ? (
                 <>
                   <LoadingSpinner className="mr-2" />
-                  Creating account...
+                  Membuat akun...
                 </>
               ) : (
                 <>
                   <LoaderCircle className="mr-2 size-4" />
-                  Continue
+                  Lanjutkan
                 </>
               )}
             </Button>
@@ -306,7 +306,7 @@ export function RegisterForm() {
         </CardContent>
 
         <CardFooter className="flex flex-col items-start gap-2 border-t border-[#e2e8ed] bg-[#f6f8fa] px-6 py-4 text-xs text-[#6f808c]">
-          <AuthLinkRow question="Already have an account?" href="/login" label="Sign in" />
+          <AuthLinkRow question="Sudah punya akun?" href="/login" label="Masuk" />
         </CardFooter>
       </Card>
     </motion.div>

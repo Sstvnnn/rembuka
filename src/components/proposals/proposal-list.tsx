@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { CATEGORY_MAPPING, STATUS_MAPPING } from "@/lib/constants/mappings";
 
 interface ProposalListProps {
   initialProposals: Proposal[];
@@ -41,9 +42,9 @@ export function ProposalList({
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | "mine">("all");
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState("Semua");
 
-  const categories = ["All", "Infrastructure", "Education", "Health", "Environment", "Social", "Safety"];
+  const categories = ["Semua", ...Object.values(CATEGORY_MAPPING)];
 
   const filteredProposals = useMemo(() => {
     let list = Array.isArray(initialProposals) ? initialProposals : [];
@@ -55,7 +56,11 @@ export function ProposalList({
       const description = (p?.description || "").toLowerCase();
       const searchTerm = search.toLowerCase();
       const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
-      const matchesCategory = activeCategory === "All" || p?.category === activeCategory;
+      
+      const dbCategory = p?.category;
+      const displayCategory = CATEGORY_MAPPING[dbCategory] || dbCategory;
+      const matchesCategory = activeCategory === "Semua" || displayCategory === activeCategory;
+      
       return matchesSearch && matchesCategory;
     });
   }, [initialProposals, search, activeCategory, activeTab, currentUserId]);
@@ -89,14 +94,14 @@ export function ProposalList({
       {/* Search & Tabs */}
       <div className="flex flex-col gap-6">
         <div className="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl w-fit">
-          <button onClick={() => setActiveTab("all")} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === "all" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}>All Proposals</button>
-          <button onClick={() => setActiveTab("mine")} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === "mine" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}>My Proposals</button>
+          <button onClick={() => setActiveTab("all")} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === "all" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}>Semua Proposal</button>
+          <button onClick={() => setActiveTab("mine")} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === "mine" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}>Proposal Saya</button>
         </div>
 
         <div className="flex flex-wrap items-center gap-4 bg-white/40 backdrop-blur-md p-4 rounded-3xl border border-white/60">
           <div className="relative flex-1 min-w-[240px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-            <Input placeholder="Search proposals..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-11 h-12 rounded-2xl border-slate-200 bg-white/50 focus:bg-white transition-all" />
+            <Input placeholder="Cari proposal..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-11 h-12 rounded-2xl border-slate-200 bg-white/50 focus:bg-white transition-all" />
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {categories.map(cat => (
@@ -113,14 +118,14 @@ export function ProposalList({
           const proposal = vote ? (initialProposals || []).find(p => p.id === vote.proposal_id) : null;
           return (
             <div key={rank} className={cn("p-4 rounded-3xl border transition-all", proposal ? "bg-white/80 border-[#4FB3B3]/20 shadow-sm" : "bg-slate-50/50 border-dashed border-slate-200")}>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">My Favorite #{rank}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Favorit Saya #{rank}</p>
               {proposal ? (
                 <div className="flex items-center gap-3">
                   <div className="size-8 rounded-xl bg-[#4FB3B3] flex items-center justify-center text-white font-black text-xs">{rank}</div>
-                  <p className="text-xs font-bold text-slate-800 truncate">{proposal.title || "Untitled"}</p>
+                  <p className="text-xs font-bold text-slate-800 truncate">{proposal.title || "Tanpa Judul"}</p>
                 </div>
               ) : (
-                <p className="text-xs font-medium text-slate-400 italic">No selection made</p>
+                <p className="text-xs font-medium text-slate-400 italic">Belum ada pilihan</p>
               )}
             </div>
           );
@@ -156,7 +161,7 @@ export function ProposalList({
                     </div>
                   )}
                   <div className="absolute top-4 left-4">
-                    <span className="rounded-full bg-black/40 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">{proposal?.category || "General"}</span>
+                    <span className="rounded-full bg-black/40 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">{CATEGORY_MAPPING[proposal?.category] || proposal?.category || "Umum"}</span>
                   </div>
                   <div className="absolute top-4 right-4 flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 shadow-sm">
                     <Trophy className="size-3 text-amber-500" />
@@ -175,13 +180,14 @@ export function ProposalList({
                       proposal?.status === "pending" ? "bg-slate-100 text-slate-500 border-slate-200" :
                       "bg-emerald-50 text-emerald-600 border-emerald-100"
                     )}>
-                      {isExpired ? "Voting Closed" : proposal?.status}
+                      {isExpired ? STATUS_MAPPING["expired"] : 
+                       STATUS_MAPPING[proposal?.status] || proposal?.status}
                     </div>
                     {proposal?.expiry_date && !isExpired && (
                       <div className="flex items-center gap-1 text-slate-400">
                         <Clock className="size-2.5" />
                         <span className="text-[8px] font-bold uppercase tracking-tighter">
-                          Expires {new Date(proposal.expiry_date).toLocaleDateString()}
+                          Berakhir {new Date(proposal.expiry_date).toLocaleDateString("id-ID")}
                         </span>
                       </div>
                     )}
@@ -197,7 +203,7 @@ export function ProposalList({
                   <div className="mt-8 pt-6 border-t border-slate-100/50">
                     {isVotingOpen ? (
                       <div className="space-y-4">
-                        <p className="text-[10px] font-bold text-[#4FB3B3] uppercase tracking-[0.2em] text-center">Assign Priority Rank</p>
+                        <p className="text-[10px] font-bold text-[#4FB3B3] uppercase tracking-[0.2em] text-center">Tentukan Prioritas</p>
                         <div className="flex gap-2">
                           {[1, 2, 3].map((rank) => {
                             const isThisRank = userVote?.rank === rank;
@@ -210,7 +216,7 @@ export function ProposalList({
                       </div>
                     ) : (
                       <div className="flex items-center justify-center p-3 rounded-2xl bg-slate-50 border border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        {proposal?.status === 'pending' ? 'Verification Stage' : 'Voting Disabled'}
+                        {proposal?.status === 'pending' ? 'Tahap Verifikasi' : 'Voting Dinonaktifkan'}
                       </div>
                     )}
                   </div>
@@ -218,8 +224,8 @@ export function ProposalList({
                   <div className="mt-auto pt-6 flex items-center gap-3">
                     <div className="size-8 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600">{isGovernance ? (proposal?.author_name || "U").charAt(0) : <User className="size-3" />}</div>
                     <div className="flex-1">
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">{isGovernance ? "Proposed by" : "Citizen Report"}</p>
-                      <p className="text-[11px] font-bold text-slate-700">{isGovernance ? (proposal?.author_name || 'Anonymous') : (proposal.author_id === currentUserId ? "Me (Private)" : "Verified Citizen")}</p>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">{isGovernance ? "Diajukan oleh" : "Laporan Warga"}</p>
+                      <p className="text-[11px] font-bold text-slate-700">{isGovernance ? (proposal?.author_name || 'Anonim') : (proposal.author_id === currentUserId ? "Saya (Privat)" : "Warga Terverifikasi")}</p>
                     </div>
                     <Link href={`/proposals/${proposal.id}`} className="size-8 rounded-full border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-white transition-all"><ChevronRight className="size-4" /></Link>
                   </div>

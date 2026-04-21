@@ -31,6 +31,7 @@ export function VerifyOtpForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
   const [isResending, setIsResending] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -136,21 +137,21 @@ export function VerifyOtpForm() {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4FB3B3]">
-                Verification
+                Verifikasi
               </p>
               <CardTitle className="text-2xl font-semibold text-[#243746]">
-                Enter OTP
+                Masukkan OTP
               </CardTitle>
             </div>
           </div>
           <CardDescription className="text-sm leading-6 text-[#587080]">
-            We&apos;ve sent a 6-digit verification code to <span className="font-semibold text-[#243746]">{email}</span>.
+            Kami telah mengirimkan 6 digit kode verifikasi ke <span className="font-semibold text-[#243746]">{email}</span>.
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6 px-6 py-8">
           <form onSubmit={onSubmit} className="space-y-6">
-            <div className="relative">
+            <div className="relative group">
               <input
                 ref={inputRef}
                 type="text"
@@ -159,22 +160,28 @@ export function VerifyOtpForm() {
                 maxLength={6}
                 value={otp}
                 onChange={handleOtpChange}
+                onFocus={() => setIsInputFocused(true)}
+                onBlur={() => setIsInputFocused(false)}
                 className="absolute inset-0 z-10 h-full w-full opacity-0 cursor-default"
                 autoFocus
               />
               
-              <div className="grid grid-cols-6 gap-2">
+              <div 
+                className="grid grid-cols-6 gap-2"
+                onClick={() => inputRef.current?.focus()}
+              >
                 {Array.from({ length: 6 }).map((_, index) => {
                   const digit = otp[index];
-                  const isFocused = otp.length === index;
+                  const isCurrentBox = otp.length === index;
                   const isFilled = otp.length > index;
+                  const showCursor = isInputFocused && isCurrentBox;
 
                   return (
                     <div
                       key={index}
                       className={cn(
-                        "relative flex h-14 w-full items-center justify-center rounded-xl border-2 bg-white text-xl font-bold transition-all duration-200",
-                        isFocused 
+                        "relative flex h-14 w-full items-center justify-center rounded-xl border-2 bg-white text-xl font-bold transition-colors duration-100",
+                        isInputFocused && isCurrentBox 
                           ? "border-[#4FB3B3] ring-4 ring-[#4FB3B3]/10 shadow-sm" 
                           : isFilled 
                             ? "border-[#3F5C73] text-[#243746]" 
@@ -182,12 +189,14 @@ export function VerifyOtpForm() {
                       )}
                     >
                       {digit || "•"}
-                      {isFocused && (
+                      {showCursor && (
                         <motion.div
-                          layoutId="cursor"
                           className="absolute h-6 w-0.5 bg-[#4FB3B3]"
+                          initial={{ opacity: 0 }}
                           animate={{ opacity: [1, 0, 1] }}
-                          transition={{ duration: 0.8, repeat: Infinity }}
+                          transition={{ 
+                            opacity: { duration: 0.8, repeat: Infinity, ease: "linear" }
+                          }}
                         />
                       )}
                     </div>
@@ -229,10 +238,10 @@ export function VerifyOtpForm() {
               {isLoading ? (
                 <>
                   <LoadingSpinner className="mr-2" />
-                  Verifying...
+                  Memverifikasi...
                 </>
               ) : (
-                "Verify Account"
+                "Verifikasi Akun"
               )}
             </Button>
           </form>
@@ -240,7 +249,7 @@ export function VerifyOtpForm() {
 
         <CardFooter className="flex flex-col items-center gap-4 border-t border-[#e2e8ed] bg-[#f6f8fa] px-6 py-6 text-sm">
           <div className="flex flex-col items-center gap-2">
-            <p className="text-[#587080]">Didn&apos;t receive the code?</p>
+            <p className="text-[#587080]">Tidak menerima kode?</p>
             <button
               onClick={handleResend}
               disabled={resendCountdown > 0 || isResending}
@@ -257,8 +266,8 @@ export function VerifyOtpForm() {
                 <RotateCcw className="size-4" />
               )}
               {resendCountdown > 0 
-                ? `Resend in ${resendCountdown}s` 
-                : "Resend Code"}
+                ? `Kirim ulang dalam ${resendCountdown}s` 
+                : "Kirim Ulang Kode"}
             </button>
           </div>
           
@@ -266,7 +275,7 @@ export function VerifyOtpForm() {
             onClick={() => router.replace("/register")}
             className="text-xs font-medium text-[#64748b] hover:text-[#3F5C73]"
           >
-            Change email address
+            Ganti alamat email
           </button>
         </CardFooter>
       </Card>
