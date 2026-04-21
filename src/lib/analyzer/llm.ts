@@ -12,7 +12,7 @@ async function callLLM(messages: any) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            model: "openai/gpt-4o-mini",
+            model: "openai/gpt-oss-120b:free",
             messages,
             temperature: 0.3,
         }),
@@ -103,7 +103,7 @@ export async function combineSummaries(chunkSummaries: any[]) {
             DATA:
             ${combinedText}
                 `,
-                    },
+        },
     ]);
 
     try {
