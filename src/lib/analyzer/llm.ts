@@ -1,7 +1,5 @@
 import { extractText, getDocumentProxy } from "unpdf";
 
-// --- Interfaces ---
-
 export interface PasalChunk {
     title: string;
     content: string;
@@ -18,17 +16,12 @@ export interface FinalSummary {
     key_points: string[];
 }
 
-// --- Helpers ---
-
 const API_KEY = process.env.OPENROUTER_API_KEY!;
 
 function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/**
- * Membersihkan output LLM dari markdown code blocks agar bisa di-parse JSON
- */
 function cleanJsonResponse(text: string): string {
     return text.replace(/```json|```/g, "").trim();
 }
@@ -41,10 +34,10 @@ async function callLLM(messages: any) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            model: "openai/gpt-oss-120b:free", // Atau model lain yang tersedia di OpenRouter
+            model: "openai/gpt-oss-120b:free",
             messages,
             temperature: 0.3,
-            response_format: { type: "json_object" }, // Memaksa output JSON jika didukung model
+            response_format: { type: "json_object" },
         }),
     });
 
@@ -66,10 +59,6 @@ export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
     return text;
 }
 
-/**
- * Membagi teks berdasarkan Pasal.
- * Regex ini mencari "Pasal" yang diawali baris baru, titik, atau titik dua
- */
 export function chunkByPasal(text: string): PasalChunk[] {
     const pasalRegex =
         /(?:\r?\n|\. |: | {2,}|^)\s*(Pasal\s+(?:[0-9]+[A-Z]*|[IVX]+))\b/g;

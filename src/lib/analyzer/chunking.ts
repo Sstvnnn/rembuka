@@ -6,13 +6,6 @@ export interface PasalChunk {
 export function chunkByPasal(text: string): PasalChunk[] {
     if (!text) return [];
 
-    /**
-     * REGEX IMPROVED:
-     * 1. (?:\r?\n|\. |: | {2,}|^): Mencari Pasal yang diawali newline,
-     * titik (akhir kalimat), titik dua, dua spasi, atau awal dokumen.
-     * 2. \s*(Pasal\s+(?:[0-9]+[A-Z]*|[IVX]+)): Menangkap "Pasal 1" atau "Pasal I".
-     * 3. \b: Memastikan batas kata.
-     */
     const pasalRegex =
         /(?:\r?\n|\. |: | {2,}|^)\s*(Pasal\s+(?:[0-9]+[A-Z]*|[IVX]+))\b/g;
 
@@ -32,10 +25,6 @@ export function chunkByPasal(text: string): PasalChunk[] {
         const title = parts[i].trim();
         const content = parts[i + 1] ? parts[i + 1].trim() : "";
 
-        // Validasi Sederhana:
-        // Header Pasal biasanya diikuti oleh teks yang panjang.
-        // Jika content sangat pendek (misal hanya referensi),
-        // Anda bisa menggabungkannya kembali, tapi untuk chunking dasar ini sudah cukup.
         chunks.push({ title, content });
     }
     console.log(`Found ${chunks.length} Pasal chunks.`);
