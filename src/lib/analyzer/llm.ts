@@ -1,8 +1,37 @@
+import { extractText, getDocumentProxy } from "unpdf";
+
+// --- Interfaces ---
+
+export interface PasalChunk {
+    title: string;
+    content: string;
+}
+
+export interface SummarizedPasal {
+    title: string;
+    summary: string;
+    key_points: string[];
+}
+
+export interface FinalSummary {
+    final_summary: string;
+    key_points: string[];
+}
+
+// --- Helpers ---
+
+const API_KEY = process.env.OPENROUTER_API_KEY!;
+
 function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const API_KEY = process.env.OPENROUTER_API_KEY!;
+/**
+ * Membersihkan output LLM dari markdown code blocks agar bisa di-parse JSON
+ */
+function cleanJsonResponse(text: string): string {
+    return text.replace(/```json|```/g, "").trim();
+}
 
 async function callLLM(messages: any) {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -12,9 +41,10 @@ async function callLLM(messages: any) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            model: "openai/gpt-oss-120b:free",
+            model: "openai/gpt-oss-120b:free", // Atau model lain yang tersedia di OpenRouter
             messages,
             temperature: 0.3,
+            response_format: { type: "json_object" }, // Memaksa output JSON jika didukung model
         }),
     });
 
@@ -27,88 +57,125 @@ async function callLLM(messages: any) {
     return data.choices?.[0]?.message?.content;
 }
 
-export async function summarizeChunks(chunks: string[]) {
-    const results: any[] = [];
+// --- Core Functions ---
 
-    for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i];
+export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
+    const uint8Array = new Uint8Array(buffer);
+    const pdf = await getDocumentProxy(uint8Array);
+    const { text } = await extractText(pdf, { mergePages: true });
+    return text;
+}
 
+/**
+ * Membagi teks berdasarkan Pasal.
+ * Regex ini mencari "Pasal" yang diawali baris baru, titik, atau titik dua
+ */
+export function chunkByPasal(text: string): PasalChunk[] {
+    const pasalRegex =
+        /(?:\r?\n|\. |: | {2,}|^)\s*(Pasal\s+(?:[0-9]+[A-Z]*|[IVX]+))\b/g;
+    const parts = text.split(pasalRegex);
+    const chunks: PasalChunk[] = [];
+
+    // Bagian 0 biasanya Judul/Menimbang/Mengingat
+    if (parts[0]?.trim()) {
+        chunks.push({ title: "Pembukaan/Judul", content: parts[0].trim() });
+    }
+
+    for (let i = 1; i < parts.length; i += 2) {
+        const title = parts[i].trim();
+        const content = parts[i + 1] ? parts[i + 1].trim() : "";
+        if (content) chunks.push({ title, content });
+    }
+
+    return chunks;
+}
+
+export async function summarizeChunks(
+    chunks: PasalChunk[],
+): Promise<SummarizedPasal[]> {
+    const results: SummarizedPasal[] = [];
+
+    for (const chunk of chunks) {
         try {
-            const content = await callLLM([
+            const rawResponse = await callLLM([
                 {
                     role: "system",
                     content:
-                        "You are a legal text simplifier. Output JSON only.",
+                        "You are a legal text simplifier. Always respond in valid JSON format.",
                 },
                 {
                     role: "user",
-                    content: `
-                Simplify this legal text into Indonesian.
+                    content: `Sederhanakan teks hukum berikut dalam bahasa Indonesia.
+                    Judul: ${chunk.title}
+                    Teks: ${chunk.content}
 
-                Return JSON:
-                {
-                "summary": "...",
-                "key_points": ["...", "..."]
-                }
-
-                TEXT:
-                ${chunk}
-                        `,
+                    Format JSON:
+                    {
+                        "summary": "penjelasan singkat",
+                        "key_points": ["poin 1", "poin 2"]
+                    }`,
                 },
             ]);
 
-            let parsed;
-            try {
-                parsed = JSON.parse(content);
-            } catch {
-                parsed = { summary: content, key_points: [] };
-            }
+            const cleanJson = cleanJsonResponse(rawResponse);
+            const parsed = JSON.parse(cleanJson);
 
-            results.push(parsed);
-        } catch (e) {
             results.push({
-                summary: "Error processing chunk",
+                title: chunk.title,
+                summary: parsed.summary,
+                key_points: parsed.key_points,
+            });
+        } catch (e) {
+            console.error(`Error processing ${chunk.title}:`, e);
+            results.push({
+                title: chunk.title,
+                summary: "Gagal memproses bagian ini.",
                 key_points: [],
             });
         }
 
-        await sleep(800);
+        await sleep(800); // Rate limiting
     }
 
     return results;
 }
 
-export async function combineSummaries(chunkSummaries: any[]) {
+export async function combineSummaries(
+    chunkSummaries: SummarizedPasal[],
+): Promise<FinalSummary> {
     const combinedText = chunkSummaries
-        .map((c, i) => `Chunk ${i + 1}: ${c.summary}`)
+        .map((c) => `[${c.title}]: ${c.summary}`)
         .join("\n");
 
-    const content = await callLLM([
-        {
-            role: "system",
-            content:
-                "You combine multiple summaries into one coherent summary.",
-        },
-        {
-            role: "user",
-            content: `
-            Gabungkan ringkasan berikut menjadi satu ringkasan utuh yang mudah dipahami.
-
-            Return JSON:
-            {
-            "final_summary": "...",
-            "key_points": ["...", "..."]
-            }
-
-            DATA:
-            ${combinedText}
-                `,
-        },
-    ]);
-
     try {
-        return JSON.parse(content);
-    } catch {
-        return { final_summary: content, key_points: [] };
+        const rawResponse = await callLLM([
+            {
+                role: "system",
+                content:
+                    "You combine multiple summaries into one coherent summary. Output JSON only.",
+            },
+            {
+                role: "user",
+                content: `Gabungkan ringkasan pasal-pasal berikut menjadi satu kesimpulan utuh yang mudah dipahami oleh masyarakat awam.
+                
+                DATA:
+                ${combinedText}
+
+                Format JSON:
+                {
+                    "final_summary": "...",
+                    "key_points": ["...", "..."]
+                }`,
+            },
+        ]);
+
+        const cleanJson = cleanJsonResponse(rawResponse);
+        return JSON.parse(cleanJson);
+    } catch (e) {
+        console.error("Error in combineSummaries:", e);
+        return {
+            final_summary: "Gagal menggabungkan ringkasan.",
+            key_points: [],
+        };
     }
 }

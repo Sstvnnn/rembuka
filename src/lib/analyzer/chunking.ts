@@ -1,13 +1,46 @@
-export function chunkByPasal(text: string, maxWords = 2000): string[] {
+export interface PasalChunk {
+    title: string;
+    content: string;
+}
+
+export function chunkByPasal(text: string): PasalChunk[] {
     if (!text) return [];
 
-    const normalized = normalizeText(text);
+    /**
+     * REGEX IMPROVED:
+     * 1. (?:\r?\n|\. |: | {2,}|^): Mencari Pasal yang diawali newline,
+     * titik (akhir kalimat), titik dua, dua spasi, atau awal dokumen.
+     * 2. \s*(Pasal\s+(?:[0-9]+[A-Z]*|[IVX]+)): Menangkap "Pasal 1" atau "Pasal I".
+     * 3. \b: Memastikan batas kata.
+     */
+    const pasalRegex =
+        /(?:\r?\n|\. |: | {2,}|^)\s*(Pasal\s+(?:[0-9]+[A-Z]*|[IVX]+))\b/g;
 
-    const rawChunks = normalized.split(/(?=^Pasal\s+\d+)/gm);
+    // Gunakan split dengan regex
+    const parts = text.split(pasalRegex);
+    const chunks: PasalChunk[] = [];
 
-    const validChunks = rawChunks.filter((chunk) => isValidPasalHeader(chunk));
+    // Bagian pertama biasanya adalah Judul/Pembukaan
+    if (parts[0] && parts[0].trim().length > 0) {
+        chunks.push({
+            title: "Pembukaan / Judul Peraturan",
+            content: parts[0].trim(),
+        });
+    }
 
-    return validChunks.flatMap((chunk) => splitLongChunk(chunk, maxWords));
+    for (let i = 1; i < parts.length; i += 2) {
+        const title = parts[i].trim();
+        const content = parts[i + 1] ? parts[i + 1].trim() : "";
+
+        // Validasi Sederhana:
+        // Header Pasal biasanya diikuti oleh teks yang panjang.
+        // Jika content sangat pendek (misal hanya referensi),
+        // Anda bisa menggabungkannya kembali, tapi untuk chunking dasar ini sudah cukup.
+        chunks.push({ title, content });
+    }
+    console.log(`Found ${chunks.length} Pasal chunks.`);
+    console.log(chunks);
+    return chunks;
 }
 
 function isValidPasalHeader(chunk: string): boolean {

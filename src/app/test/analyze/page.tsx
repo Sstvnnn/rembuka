@@ -5,13 +5,15 @@ import Upload from "@/components/analyzer/upload";
 import { useState } from "react";
 
 export default function AnalyzePageTest() {
-    const [data, setData] = useState(null);
+    const [analysisResult, setAnalysisResult] = useState(null);
 
     return (
-        <div className="p-50">
-            <h1>AI Simplifier</h1>
-            <Upload onResult={setData} />
-            <Result data={data} />
-        </div>
+        <main className="p-20">
+            {!analysisResult ? (
+                <Upload onResult={(res) => setAnalysisResult(res)} />
+            ) : (
+                <Result data={analysisResult} />
+            )}
+        </main>
     );
 }
