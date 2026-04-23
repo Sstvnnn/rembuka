@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { BudgetItem, UserTaxProfile } from "@/types/musrenbang";
 
-export async function getBudgetItems(year: number = 2024) {
+export async function getBudgetItems(year: number = 2025) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("budget_items")

@@ -10,8 +10,7 @@ import {
   Shield, 
   Zap,
   Globe,
-  CheckCircle2,
-  Users
+  CheckCircle2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Variants } from "framer-motion";
@@ -76,7 +75,7 @@ export default function LandingPage() {
               variants={itemVariants}
               className="max-w-2xl text-lg md:text-xl text-slate-500 font-medium leading-relaxed"
             >
-              Rembuka adalah jaringan kewargaan digital yang menghubungkan masyarakat dengan pemerintah. Ajukan, diskusikan, dan tentukan pembangunan daerah melalui Musrenbang digital.
+              Rembuka adalah jaringan kewargaan digital yang menghubungkan masyarakat dengan pemerintah. Ajukan, diskusikan, dan tentukan pembangunan daerah melalui Ruang Aspirasi Daerah dan Ruang Wacana Publik.
             </motion.p>
 
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -178,7 +177,7 @@ export default function LandingPage() {
               <div className="size-12 rounded-2xl bg-[#3F5C73] flex items-center justify-center text-white shadow-lg shadow-[#3F5C73]/20">
                 <MessageSquare className="size-6" />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 tracking-tight">Musrenbang Digital</h3>
+              <h3 className="text-xl font-bold text-slate-800 tracking-tight">Ruang Aspirasi Daerah</h3>
               <p className="text-slate-500 leading-relaxed text-sm">Ajukan proposal infrastruktur atau sosial langsung dari lingkungan Anda. Tanpa birokrasi, langsung pada hasil.</p>
             </div>
 
@@ -261,3 +260,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+

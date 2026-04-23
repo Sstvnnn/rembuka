@@ -25,7 +25,7 @@ const headingFont = Fraunces({
 
 export const metadata: Metadata = {
   title: "Rembuka",
-  description: "Civic-tech super app for public discussion and digital musrenbang.",
+  description: "Civic-tech super app for Ruang Aspirasi Daerah and Ruang Wacana Publik.",
 };
 
 export default async function RootLayout({
@@ -70,3 +70,4 @@ export default async function RootLayout({
     </html>
   );
 }
+

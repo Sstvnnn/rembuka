@@ -222,19 +222,19 @@ export function HomeClient({ user, profile, userType = "citizen", role = "citize
         {/* Feature Grid */}
         <section className="grid gap-6 md:grid-cols-3">
           <ActionCard 
-            title={isGovernance ? "Manajemen Antrian" : "Voting Kebijakan"} 
+            title={isGovernance ? "Manajemen Antrian" : "Ruang Wacana Publik"} 
             description={isGovernance 
               ? "Tinjau dan proses permintaan verifikasi identitas warga yang masuk."
-              : "Berikan suara terverifikasi Anda pada kebijakan daerah mendatang dan pengaruhi pembangunan komunitas."}
+              : "Ikuti ruang diskusi publik terstruktur untuk membaca, menimbang, dan memetakan wacana kebijakan daerah."}
             icon={isGovernance ? ShieldCheck : Vote}
-            href={isGovernance ? "/admin/queue" : "/voting"}
+            href={isGovernance ? "/admin/queue" : "/proposals"}
             color={isGovernance ? "bg-slate-700" : "bg-indigo-500"}
           />
           <ActionCard 
-            title={isGovernance ? "Pengawasan Proposal" : "Proposal Publik"} 
+            title={isGovernance ? "Pengawasan Proposal" : "Ruang Aspirasi Daerah"} 
             description={isGovernance
               ? "Pantau dan moderasi proposal komunitas yang diajukan oleh warga terverifikasi."
-              : "Ajukan dan jelajahi proposal pembangunan infrastruktur dan sosial yang terstruktur."}
+              : "Ajukan dan jelajahi aspirasi pembangunan wilayah berdasarkan jadwal resmi pemerintah daerah."}
             icon={MapPin}
             href="/proposals"
             color="bg-emerald-500"
@@ -245,7 +245,7 @@ export function HomeClient({ user, profile, userType = "citizen", role = "citize
               ? "Akses data partisipasi komprehensif dan metrik pertumbuhan sistem."
               : "Visualisasikan data partisipasi dan kemajuan pembangunan di distrik lokal Anda."}
             icon={TrendingUp}
-            href="/analytics"
+            href="/budget"
             color="bg-amber-500"
           />
         </section>
@@ -259,3 +259,5 @@ export function HomeClient({ user, profile, userType = "citizen", role = "citize
     </main>
   );
 }
+
+

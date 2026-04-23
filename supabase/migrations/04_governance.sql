@@ -14,4 +14,7 @@ create policy "Governance profiles are viewable by everyone" on public.governanc
 create policy "Governance users can update own profile" on public.governance
   for update to authenticated using (auth.uid() = id);
 
-insert into public.governance (id, full_name, role, location) values ('', 'admin', 'admin', 'admin');
+-- Seed governance users only after the matching auth.users record exists.
+-- Example:
+-- insert into public.governance (id, full_name, role, location)
+-- values ('<auth-user-uuid>', 'Admin Wilayah', 'admin', 'admin');

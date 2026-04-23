@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { BudgetItem, UserTaxProfile } from "@/types/musrenbang";
+import { CATEGORY_MAPPING } from "@/lib/constants/mappings";
 
 const COLORS = [
   "#3F5C73", // Primary
@@ -55,7 +56,9 @@ export function BudgetVisualizer({ budgetItems, initialTaxProfile }: BudgetVisua
   const categoryData = useMemo(() => {
     const categories: Record<string, number> = {};
     budgetItems.forEach(item => {
-      categories[item.category] = (categories[item.category] || 0) + Number(item.amount);
+      // Use display name for grouping to match hero section logic
+      const displayName = CATEGORY_MAPPING[item.category] || item.category;
+      categories[displayName] = (categories[displayName] || 0) + Number(item.amount);
     });
     return Object.entries(categories).map(([name, value]) => ({
       name,
@@ -63,6 +66,11 @@ export function BudgetVisualizer({ budgetItems, initialTaxProfile }: BudgetVisua
       contribution: hasTaxProfile ? (taxPaid * (value / totalBudget)) : 0
     }));
   }, [budgetItems, taxPaid, totalBudget, hasTaxProfile]);
+
+  const getContributionForCategory = (categoryKey: string) => {
+    const item = categoryData.find(c => c.name === (CATEGORY_MAPPING[categoryKey] || categoryKey));
+    return item ? item.contribution : 0;
+  };
 
   const formatIDR = (val: number) => 
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(val);
@@ -88,21 +96,21 @@ export function BudgetVisualizer({ budgetItems, initialTaxProfile }: BudgetVisua
               </h2>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-300">
                 Berdasarkan estimasi pajak tahunan Anda sebesar <span className="text-white font-bold">{formatIDR(taxPaid)}</span>, 
-                kami memetakan secara tepat bagaimana uang Anda mendanai anggaran regional tahun 2026.
+                kami memetakan secara tepat bagaimana uang Anda mendanai anggaran regional tahun 2025.
               </p>
               
               <div className="mt-12 grid grid-cols-2 gap-8 sm:grid-cols-3">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Jalan & Transportasi</p>
-                  <p className="text-xl font-bold text-white">{formatIDR(taxPaid * (5000000000/totalBudget))}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Infrastruktur</p>
+                  <p className="text-xl font-bold text-white">{formatIDR(getContributionForCategory("Infrastructure"))}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pendidikan Publik</p>
-                  <p className="text-xl font-bold text-white">{formatIDR(taxPaid * (2500000000/totalBudget))}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pendidikan</p>
+                  <p className="text-xl font-bold text-white">{formatIDR(getContributionForCategory("Education"))}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Layanan Kesehatan</p>
-                  <p className="text-xl font-bold text-white">{formatIDR(taxPaid * (4000000000/totalBudget))}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kesehatan</p>
+                  <p className="text-xl font-bold text-white">{formatIDR(getContributionForCategory("Health"))}</p>
                 </div>
               </div>
             </div>

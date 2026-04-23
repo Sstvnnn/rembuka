@@ -27,17 +27,6 @@ create table if not exists public.proposal_votes (
   unique (user_id, proposal_id)
 );
 
-create table if not exists public.budget_items (
-  id uuid primary key default gen_random_uuid(),
-  title text not null,
-  amount numeric not null,
-  category text not null,
-  description text,
-  fiscal_year integer not null default extract(year from now()),
-  is_active boolean default true,
-  created_at timestamptz not null default timezone('utc', now())
-);
-
 create table if not exists public.user_tax_profiles (
   user_id uuid primary key references public.users(id) on delete cascade,
   annual_income numeric default 0,
@@ -47,7 +36,6 @@ create table if not exists public.user_tax_profiles (
 
 alter table public.proposals enable row level security;
 alter table public.proposal_votes enable row level security;
-alter table public.budget_items enable row level security;
 alter table public.user_tax_profiles enable row level security;
 
 -- policies for proposals
@@ -73,10 +61,6 @@ create policy "Users can change their votes" on public.proposal_votes
 
 create policy "Users can remove their votes" on public.proposal_votes
   for delete to authenticated using (auth.uid() = user_id);
-
--- policies for budget
-create policy "Budget items are viewable by everyone" on public.budget_items
-  for select using (true);
 
 -- policies for tax
 create policy "Users can view own tax profile" on public.user_tax_profiles
@@ -133,21 +117,12 @@ group by p.id;
 grant select on public.proposal_rankings to authenticated;
 grant select on public.proposal_rankings to anon;
 
-create policy "Users can view other users names" on public.users
-  for select using (true);dont fo
+-- create policy "Users can view other users names" on public.users
+--   for select using (true);
 
-INSERT INTO public.budget_items (title, amount, category, description, fiscal_year)
-VALUES
-  ('Regional Road Maintenance', 5000000000, 'Infrastructure', 'Repair and maintenance of primary and secondary roads across the district.', 2024),
-  ('Public School Digitalization', 2500000000, 'Education', 'Providing laptops and high-speed internet to 50 local schools.', 2024),
-  ('Healthcare Subsidy Program', 4000000000, 'Health', 'Funding for local clinics and medicine subsidies for low-income families.', 2024),
-  ('Waste Management System', 1500000000, 'Environment', 'Modernizing garbage collection and recycling facilities.', 2024),
-  ('Community Sports Centers', 1000000000, 'Social', 'Construction of multipurpose sports courts in three sub-districts.', 2024),
-  ('Emergency Response Unit', 800000000, 'Safety', 'Procurement of new ambulances and fire safety equipment.', 2024);
+-- Add user tax profile seed rows only after the referenced public.users row exists.
 
-INSERT INTO public.user_tax_profiles (user_id, annual_income, estimated_tax_paid) VALUES ('2386c15f-f80c-46a9-8857-c7f7c9523f71',60000000, 300000) ON CONFLICT (user_id) DO UPDATE SET annual_income = EXCLUDED.annual_income, estimated_tax_paid = EXCLUDED.estimated_tax_paid, last_updated = now();
-
-ALTER TABLE public.proposals DROP COLUMN IF EXISTS image_url;
+-- ALTER TABLE public.proposals DROP COLUMN IF EXISTS image_url;
 
 ALTER TABLE public.proposals ADD COLUMN IF NOT EXISTS language text DEFAULT 'id';
 
