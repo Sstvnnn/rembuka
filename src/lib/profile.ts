@@ -10,7 +10,7 @@ export async function getCurrentProfile() {
   // 1. Try fetching Governance profile first (higher precedence)
   const { data: govProfile } = await supabase
     .from("governance")
-    .select("id, full_name, role, location, created_at")
+    .select("id, full_name, role, position, location, created_at")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -23,6 +23,7 @@ export async function getCurrentProfile() {
       },
       userType: "governance",
       role: govProfile.role,
+      position: govProfile.position,
       citizenCardUrl: null,
     };
   }
@@ -59,6 +60,7 @@ export async function getCurrentProfile() {
     profile,
     userType,
     role: "citizen",
+    position: null,
     citizenCardUrl,
   };
 }

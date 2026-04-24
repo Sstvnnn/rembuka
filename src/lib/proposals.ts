@@ -41,11 +41,12 @@ export async function getRelevantProposalPeriod(location: string) {
       return activeQuery.data as ProposalPeriod;
     }
 
+    // If no active session, look for the NEXT upcoming one
     const upcomingQuery = await supabase
       .from("proposal_periods")
       .select("*")
       .eq("location", location)
-      .gte("proposal_start_at", now)
+      .gt("proposal_start_at", now)
       .order("proposal_start_at", { ascending: true })
       .limit(1)
       .maybeSingle();
@@ -54,6 +55,7 @@ export async function getRelevantProposalPeriod(location: string) {
       return upcomingQuery.data as ProposalPeriod;
     }
 
+    // Default to the most recently ended session so the page isn't empty
     const latestQuery = await supabase
       .from("proposal_periods")
       .select("*")
@@ -66,6 +68,50 @@ export async function getRelevantProposalPeriod(location: string) {
     return (latestQuery.data ?? null) as ProposalPeriod | null;
   } catch (err) {
     console.error("Unexpected error in getRelevantProposalPeriod:", err);
+    return null;
+  }
+}
+
+export async function getProposalPeriods(location: string) {
+  if (!location) {
+    return [];
+  }
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("proposal_periods")
+      .select("*")
+      .eq("location", location)
+      .order("proposal_start_at", { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return (data || []) as ProposalPeriod[];
+  } catch (err) {
+    console.error("Error fetching proposal periods:", err);
+    return [];
+  }
+}
+
+export async function getProposalPeriodById(id: string) {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("proposal_periods")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return data as ProposalPeriod | null;
+  } catch (err) {
+    console.error("Error fetching proposal period by id:", err);
     return null;
   }
 }

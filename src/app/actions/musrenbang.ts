@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 type GovernanceProfile = {
   id: string;
   role: string;
+  position: string;
   location: string;
 };
 
@@ -42,7 +43,7 @@ async function getGovernanceProfile(userId: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("governance")
-    .select("id, role, location")
+    .select("id, role, position, location")
     .eq("id", userId)
     .maybeSingle();
 

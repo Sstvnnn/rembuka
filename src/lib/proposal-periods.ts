@@ -54,13 +54,24 @@ export function formatPeriodDateTime(value?: string | null) {
     return "-";
   }
 
-  return new Date(value).toLocaleString("id-ID", {
+  const date = new Date(value);
+  
+  const datePart = date.toLocaleDateString("id-ID", {
     day: "numeric",
-    month: "long",
+    month: "short",
     year: "numeric",
+  });
+
+  const timePart = date.toLocaleTimeString("id-ID", {
     hour: "2-digit",
     minute: "2-digit",
-  });
+  }).replace(".", ":");
+
+  return `${datePart} • ${timePart}`;
+}
+
+export function isPhaseActive(phase: ProposalPhase) {
+  return phase === "proposal" || phase === "voting" || phase === "review";
 }
 
 export function getProposalPhaseLabel(phase: ProposalPhase) {

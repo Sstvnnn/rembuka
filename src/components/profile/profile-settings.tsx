@@ -26,6 +26,7 @@ type ProfileSettingsProps = {
   citizenCardUrl: string | null;
   userType?: string;
   role?: string;
+  position?: string | null;
 };
 
 const containerVariants = {
@@ -54,11 +55,13 @@ export function ProfileSettings({
   citizenCardUrl,
   userType = "citizen",
   role = "citizen",
+  position,
 }: ProfileSettingsProps) {
   const isVerified = verificationStatus === "verified" || userType === "governance";
   const isRejected = verificationStatus === "rejected" && userType !== "governance";
   const isPending = verificationStatus === "pending_review" && userType !== "governance";
   const isGovernance = userType === "governance";
+  const governanceTitle = position ?? role;
   
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [profilePreviewUrl, setProfilePreviewUrl] = useState<string | null>(null);
@@ -226,7 +229,7 @@ export function ProfileSettings({
               <div>
                 <h4 className="text-sm font-black text-[#3F5C73] uppercase tracking-tight">Akses Pemerintah</h4>
                 <p className="mt-1 text-xs font-medium text-slate-600 leading-relaxed">
-                  Anda masuk dengan hak istimewa administratif sebagai <span className="font-bold">{role}</span>. Beberapa modifikasi profil dibatasi oleh kebijakan jaringan.
+                  Anda masuk dengan hak istimewa administratif sebagai <span className="font-bold">{governanceTitle}</span>. Beberapa modifikasi profil dibatasi oleh kebijakan jaringan.
                 </p>
               </div>
             </motion.div>
@@ -255,7 +258,7 @@ export function ProfileSettings({
                 {isGovernance ? (
                   <div className="space-y-1">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Peran Resmi</p>
-                    <p className="text-base font-bold text-[#4FB3B3] uppercase tracking-tight">{role}</p>
+                    <p className="text-base font-bold text-[#4FB3B3] uppercase tracking-tight">{governanceTitle}</p>
                   </div>
                 ) : (
                   <div className="space-y-1">

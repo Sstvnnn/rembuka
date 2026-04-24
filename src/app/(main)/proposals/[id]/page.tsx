@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { GovernanceControls } from "./governance-controls";
+import { PhaseCountdown } from "@/components/proposals/phase-countdown";
+import { PeriodTimeline } from "@/components/proposals/period-timeline";
 import { getCurrentProfile } from "@/lib/profile";
 import { formatPeriodDateTime, getProposalPhase, getProposalPhaseLabel } from "@/lib/proposal-periods";
 import { getProposalById } from "@/lib/proposals";
@@ -41,10 +43,12 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
       }
     : null;
 
+  const relevantPeriod = await getRelevantProposalPeriod(proposal.location);
+  const isHistorical = period?.id !== relevantPeriod?.id;
   const currentPhase = getProposalPhase(period);
   const isGovernance = userType === "governance" && role === "governance";
   const isOwner = proposal.author_id === user.id;
-  const canVote = userType === "citizen" && proposal.status === "approved" && currentPhase === "voting";
+  const canVote = userType === "citizen" && proposal.status === "approved" && currentPhase === "voting" && !isHistorical;
 
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
   const getImageUrl = (path: string) => `${baseUrl}/storage/v1/object/public/proposal-attachments/${path}`;
@@ -116,6 +120,8 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
           <div className="space-y-6">
             {isGovernance && proposal.status === "pending" ? <GovernanceControls proposalId={proposal.id} /> : null}
 
+            {period && !isHistorical ? <PhaseCountdown period={period} /> : null}
+
             <Card className="rounded-[2.5rem] border-white/60 bg-white/40 shadow-xl backdrop-blur-xl">
               <CardContent className="space-y-6 p-8">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-6">
@@ -133,35 +139,7 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
                 </div>
 
                 {period ? (
-                  <div className="grid gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex size-10 items-center justify-center rounded-xl bg-slate-50 text-slate-400">
-                        <CalendarRange className="size-5" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Fase Wilayah</p>
-                        <p className="text-sm font-bold text-slate-800">{getProposalPhaseLabel(currentPhase)}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex size-10 items-center justify-center rounded-xl bg-slate-50 text-slate-400">
-                        <Clock className="size-5" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Masa Pengajuan</p>
-                        <p className="text-sm font-bold text-slate-800">{formatPeriodDateTime(period.proposal_start_at)} - {formatPeriodDateTime(period.proposal_end_at)}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex size-10 items-center justify-center rounded-xl bg-slate-50 text-slate-400">
-                        <Clock className="size-5" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Masa Voting</p>
-                        <p className="text-sm font-bold text-slate-800">{formatPeriodDateTime(period.voting_start_at)} - {formatPeriodDateTime(period.voting_end_at)}</p>
-                      </div>
-                    </div>
-                  </div>
+                  <PeriodTimeline period={period} className="border-b border-slate-100 pb-6" />
                 ) : null}
 
                 <div className="flex items-center gap-4">
@@ -200,7 +178,11 @@ export default async function ProposalDetailPage({ params }: { params: Promise<{
                   </Button>
                 ) : (
                   <div className="flex items-center justify-center rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center text-xs font-bold uppercase tracking-widest text-slate-400">
-                    {proposal.status === "approved" ? `Fase saat ini: ${getProposalPhaseLabel(currentPhase)}` : "Menunggu keputusan pemerintah wilayah"}
+                    {isHistorical 
+                      ? "Arsip sesi wilayah telah berakhir"
+                      : proposal.status === "approved" 
+                        ? `Fase saat ini: ${getProposalPhaseLabel(currentPhase)}` 
+                        : "Menunggu keputusan pemerintah wilayah"}
                   </div>
                 )}
               </CardContent>

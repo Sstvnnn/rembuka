@@ -1,16 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
-import { Plus, AlertTriangle, Trophy } from "lucide-react";
+import { Plus, AlertTriangle, Trophy, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProposalList } from "@/components/proposals/proposal-list";
 import { ProposalPeriodManager } from "@/components/proposals/proposal-period-manager";
+import { PhaseCountdown } from "@/components/proposals/phase-countdown";
+import { PeriodTimeline } from "@/components/proposals/period-timeline";
+import { PeriodSelector } from "@/components/proposals/period-selector";
 import { getCurrentProfile } from "@/lib/profile";
 import { getProposalPhase, getProposalPhaseLabel } from "@/lib/proposal-periods";
-import { getProposals, getProposalVotes, getRelevantProposalPeriod, getTopRankedProposals } from "@/lib/proposals";
+import { getProposals, getProposalVotes, getRelevantProposalPeriod, getTopRankedProposals, getProposalPeriods, getProposalPeriodById } from "@/lib/proposals";
 import { Proposal } from "@/types/musrenbang";
 
-export default async function ProposalsPage() {
+export default async function ProposalsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ periodId?: string }>;
+}) {
   try {
+    const { periodId: selectedPeriodId } = await searchParams;
     const profileData = await getCurrentProfile();
     const user = profileData.user;
     const userType = profileData.userType;
@@ -36,7 +44,16 @@ export default async function ProposalsPage() {
       );
     }
 
-    const period = await getRelevantProposalPeriod(location);
+    const [relevantPeriod, allPeriods] = await Promise.all([
+      getRelevantProposalPeriod(location),
+      getProposalPeriods(location),
+    ]);
+
+    const period = selectedPeriodId 
+      ? (allPeriods.find(p => p.id === selectedPeriodId) || await getProposalPeriodById(selectedPeriodId))
+      : relevantPeriod;
+
+    const isHistorical = period?.id !== relevantPeriod?.id;
     const currentPhase = getProposalPhase(period);
     const pageTitle =
       currentPhase === "proposal"
@@ -66,32 +83,71 @@ export default async function ProposalsPage() {
       topProposals = fetchedTop;
     }
 
+    const isWaitingForNewSession = !period && allPeriods.length > 0;
+
     return (
       <main className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,rgba(79,179,179,0.1),transparent_50%),#f8fafc] px-4 pb-12 pt-32 sm:px-8">
         <div className="mx-auto max-w-7xl space-y-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="space-y-2">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#4FB3B3]">Ruang Aspirasi Daerah</p>
+              <div className="flex items-center gap-3">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#4FB3B3]">Ruang Aspirasi Daerah</p>
+                {isHistorical && (
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">Arsip Historis</span>
+                )}
+                {isWaitingForNewSession && (
+                  <span className="rounded-full bg-amber-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-600">Menunggu Jadwal Baru</span>
+                )}
+              </div>
               <h1 className="font-heading text-4xl font-black tracking-tight text-slate-800">{pageTitle}</h1>
               <p className="max-w-2xl text-sm font-medium text-slate-500">
                 {currentPhase === "voting"
                   ? "Masa pengajuan telah ditutup. Warga sekarang memilih tiga proposal terbaik yang sudah disetujui pemerintah wilayah."
-                  : "Warga mengajukan satu aspirasi dalam jadwal wilayah yang aktif. Pemerintah wilayah meninjau proposal, lalu warga memilih tiga prioritas terbaik saat sesi voting dibuka."}
+                  : isWaitingForNewSession
+                    ? "Sesi sebelumnya telah berakhir. Silakan pilih riwayat sesi melalui menu dropdown untuk melihat hasil pemenang sebelumnya."
+                    : "Warga mengajukan satu aspirasi dalam jadwal wilayah yang aktif. Pemerintah wilayah meninjau proposal, lalu warga memilih tiga prioritas terbaik saat sesi voting dibuka."}
               </p>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Fase aktif: {getProposalPhaseLabel(currentPhase)}</p>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+                {period ? `Fase aktif: ${getProposalPhaseLabel(currentPhase)}` : "Tidak ada sesi aktif di wilayah ini"}
+              </p>
             </div>
 
-            {userType === "citizen" && currentPhase === "proposal" ? (
-              <Button asChild className="rounded-2xl bg-[#3F5C73] font-bold text-white shadow-xl shadow-[#3F5C73]/20 hover:bg-[#314b60]">
-                <Link href="/proposals/submit" className="flex items-center gap-2">
-                  <Plus className="size-4" /> Ajukan Aspirasi
-                </Link>
-              </Button>
-            ) : null}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <History className="hidden" /> {/* pre-warm icon if needed */}
+              <PeriodSelector 
+                periods={allPeriods} 
+                currentPeriodId={period?.id} 
+                activePeriodId={relevantPeriod?.id}
+              />
+              
+              {!isHistorical && !isWaitingForNewSession && userType === "citizen" && currentPhase === "proposal" ? (
+                <Button asChild className="h-12 rounded-2xl bg-[#3F5C73] px-6 font-bold text-white shadow-xl shadow-[#3F5C73]/20 hover:bg-[#314b60]">
+                  <Link href="/proposals/submit" className="flex items-center gap-2">
+                    <Plus className="size-4" /> Ajukan Aspirasi
+                  </Link>
+                </Button>
+              ) : null}
+            </div>
           </div>
 
-          {userType === "governance" && role !== "admin" ? (
+          {isWaitingForNewSession && (
+            <div className="rounded-[2.5rem] border border-dashed border-slate-200 bg-white/50 p-12 text-center">
+              <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                <History className="size-8" />
+              </div>
+              <h3 className="mt-6 text-xl font-bold text-slate-800">Sesi Wilayah Selesai</h3>
+              <p className="mx-auto mt-2 max-w-sm text-sm text-slate-500">Sesi saat ini telah berakhir. Anda dapat melihat hasil pemenang dan proposal sesi sebelumnya menggunakan tombol riwayat di atas.</p>
+            </div>
+          )}
+
+          {!isHistorical && userType === "governance" && role !== "admin" ? (
             <ProposalPeriodManager location={location} currentPeriod={period} currentPhase={currentPhase} />
+          ) : null}
+
+          {topProposals.length > 0 && period ? (
+            <div className="mb-8 rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-xl">
+               <PeriodTimeline period={period} />
+            </div>
           ) : null}
 
           {topProposals.length > 0 ? (
@@ -117,6 +173,8 @@ export default async function ProposalsPage() {
             </section>
           ) : null}
 
+          {period && !isHistorical ? <PhaseCountdown period={period} /> : null}
+
           <ProposalList
             initialProposals={proposals}
             userVotes={userVotes}
@@ -124,6 +182,7 @@ export default async function ProposalsPage() {
             currentUserId={user.id}
             currentPhase={currentPhase}
             activePeriod={period}
+            isHistorical={isHistorical}
           />
         </div>
       </main>

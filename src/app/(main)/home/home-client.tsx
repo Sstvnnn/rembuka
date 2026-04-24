@@ -103,25 +103,30 @@ interface HomeClientProps {
     location?: string;
     verification_status?: string;
     role?: string;
+    position?: string;
   } | null;
   userType?: string;
   role?: string;
+  position?: string | null;
 }
 
-export function HomeClient({ user, profile, userType = "citizen", role = "citizen" }: HomeClientProps) {
+export function HomeClient({ user, profile, userType = "citizen", role = "citizen", position }: HomeClientProps) {
   const isGovernance = userType === "governance";
   const typedProfile = profile as {
     full_name?: string;
     location?: string;
     verification_status?: string;
     nik?: string;
+    position?: string;
   } | null;
   const fullName = typedProfile?.full_name ?? user.user_metadata.full_name ?? (isGovernance ? "Pejabat" : "Warga");
   const nik = typedProfile?.nik ?? user.user_metadata.nik ?? "-";
   const location = typedProfile?.location ?? user.user_metadata.location ?? "Tidak Diketahui";
   const verificationStatusKey = typedProfile?.verification_status || "";
   const isVerified = isGovernance || verificationStatusKey === "verified";
-  const currentRole = ROLE_MAPPING[role || "citizen"] || "Warga";
+  const currentRole = isGovernance 
+    ? (position ?? typedProfile?.position ?? (ROLE_MAPPING[role || "citizen"] || "Pemerintah")) 
+    : (ROLE_MAPPING[role || "citizen"] || "Warga");
 
   return (
     <main className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,rgba(79,179,179,0.15),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(242,92,122,0.1),transparent_50%),#f8fafc] px-4 pt-32 pb-12 sm:px-8">

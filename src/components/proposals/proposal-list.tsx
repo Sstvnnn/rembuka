@@ -21,18 +21,27 @@ interface ProposalListProps {
   currentUserId: string;
   currentPhase: ProposalPhase;
   activePeriod: ProposalPeriod | null;
+  isHistorical?: boolean;
 }
 
-export function ProposalList({ initialProposals = [], userVotes = [], userType, currentUserId, currentPhase, activePeriod }: ProposalListProps) {
+export function ProposalList({ 
+  initialProposals = [], 
+  userVotes = [], 
+  userType, 
+  currentUserId, 
+  currentPhase, 
+  activePeriod,
+  isHistorical = false
+}: ProposalListProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<"all" | "mine">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "mine" | "approved" | "rejected">("all");
   const [activeCategory, setActiveCategory] = useState("Semua");
 
   const categories = ["Semua", ...Object.values(CATEGORY_MAPPING)];
   const isCitizen = userType === "citizen";
-  const canVote = isCitizen && currentPhase === "voting";
+  const canVote = isCitizen && currentPhase === "voting" && !isHistorical;
   const phaseBannerClass =
     currentPhase === "proposal"
       ? "border-emerald-100 bg-emerald-50"
@@ -43,8 +52,12 @@ export function ProposalList({ initialProposals = [], userVotes = [], userType, 
   const filteredProposals = useMemo(() => {
     let list = Array.isArray(initialProposals) ? initialProposals : [];
 
-    if (isCitizen && activeTab === "mine") {
+    if (activeTab === "mine") {
       list = list.filter((proposal) => proposal.author_id === currentUserId);
+    } else if (activeTab === "approved") {
+      list = list.filter((proposal) => proposal.status === "approved");
+    } else if (activeTab === "rejected") {
+      list = list.filter((proposal) => proposal.status === "rejected");
     }
 
     return list.filter((proposal) => {
@@ -119,6 +132,10 @@ export function ProposalList({ initialProposals = [], userVotes = [], userType, 
   }
 
   function getVoteMessage(proposal: Proposal) {
+    if (isHistorical) {
+      return "Arsip sesi wilayah telah berakhir";
+    }
+
     if (proposal.status !== "approved") {
       return proposal.status === "rejected" ? "Proposal ditolak pemerintah wilayah" : "Menunggu tinjauan pemerintah wilayah";
     }
@@ -167,12 +184,49 @@ export function ProposalList({ initialProposals = [], userVotes = [], userType, 
       </div>
 
       <div className="flex flex-col gap-6">
-        {isCitizen ? (
-          <div className="flex w-fit items-center gap-2 rounded-2xl bg-slate-100 p-1.5">
-            <button onClick={() => setActiveTab("all")} className={cn("rounded-xl px-6 py-2.5 text-xs font-black uppercase tracking-widest transition-all", activeTab === "all" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}>Semua Aspirasi</button>
-            <button onClick={() => setActiveTab("mine")} className={cn("rounded-xl px-6 py-2.5 text-xs font-black uppercase tracking-widest transition-all", activeTab === "mine" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}>Aspirasi Saya</button>
-          </div>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-slate-100 p-1.5 w-fit">
+          <button 
+            onClick={() => setActiveTab("all")} 
+            className={cn(
+              "rounded-xl px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all", 
+              activeTab === "all" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+            )}
+          >
+            Semua
+          </button>
+          
+          <button 
+            onClick={() => setActiveTab("approved")} 
+            className={cn(
+              "rounded-xl px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all", 
+              activeTab === "approved" ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20" : "text-slate-500 hover:text-slate-700"
+            )}
+          >
+            Disetujui
+          </button>
+
+          <button 
+            onClick={() => setActiveTab("rejected")} 
+            className={cn(
+              "rounded-xl px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all", 
+              activeTab === "rejected" ? "bg-rose-500 text-white shadow-md shadow-rose-500/20" : "text-slate-500 hover:text-slate-700"
+            )}
+          >
+            Ditolak
+          </button>
+
+          {isCitizen && (
+            <button 
+              onClick={() => setActiveTab("mine")} 
+              className={cn(
+                "rounded-xl px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all border-l border-slate-200 ml-1 pl-6", 
+                activeTab === "mine" ? "bg-white text-[#3F5C73] shadow-sm" : "text-slate-500 hover:text-slate-700"
+              )}
+            >
+              Aspirasi Saya
+            </button>
+          )}
+        </div>
 
         <div className="flex flex-wrap items-center gap-4 rounded-3xl border border-white/60 bg-white/40 p-4 backdrop-blur-md">
           <div className="relative min-w-[240px] flex-1">

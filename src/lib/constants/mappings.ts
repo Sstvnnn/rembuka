@@ -24,7 +24,6 @@ export const ROLE_MAPPING: Record<string, string> = {
   admin: "Administrator",
   governance: "Pemerintah",
   citizen: "Warga",
-  mayor: "Walikota",
 };
 
 export const VERIFICATION_STATUS_MAPPING: Record<string, string> = {

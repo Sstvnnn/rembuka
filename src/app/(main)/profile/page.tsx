@@ -2,7 +2,7 @@ import { ProfileSettings } from "@/components/profile/profile-settings";
 import { getCurrentProfile } from "@/lib/profile";
 
 export default async function ProfilePage() {
-  const { user, profile, citizenCardUrl, userType, role } = await getCurrentProfile();
+  const { user, profile, citizenCardUrl, userType, role, position } = await getCurrentProfile();
 
   const typedProfile = profile as {
     full_name?: string;
@@ -46,6 +46,7 @@ export default async function ProfilePage() {
           citizenCardUrl={citizenCardUrl}
           userType={userType}
           role={role}
+          position={position}
         />
       </div>
     </main>
