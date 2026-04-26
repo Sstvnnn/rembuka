@@ -1,26 +1,14 @@
 import type { Metadata } from "next";
-import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import { AppProviders } from "@/providers/app-providers";
 import { Navbar } from "@/components/shared/navbar";
 import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
-const bodyFont = IBM_Plex_Sans({
-  variable: "--font-body",
+const inter = Inter({
+  variable: "--font-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-});
-
-const monoFont = IBM_Plex_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
-
-const headingFont = Fraunces({
-  variable: "--font-heading",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -57,7 +45,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bodyFont.variable} ${monoFont.variable} ${headingFont.variable} h-full antialiased`}
+      className={`${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#f8fafc]">
         <AppProviders>
