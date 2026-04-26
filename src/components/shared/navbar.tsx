@@ -58,15 +58,9 @@ export function Navbar({ user, isAdmin }: NavbarProps) {
     pathname === "/reset-password";
   const isLandingPage = pathname === "/";
 
+  if (isAdmin) return null;
   if (isAuthPage) return null;
   if (!user && !isLandingPage) return null;
-
-  const adminLinks = [
-    { name: "Antrian", href: "/admin/queue", icon: Users },
-    { name: "Tracker", href: "/admin/tracker", icon: FileCheck },
-    { name: "Beranda", href: "/home", icon: LayoutDashboard },
-    { name: "Identitas", href: "/profile", icon: User },
-  ];
 
   const userLinks = [
     { name: "Proposal", href: "/proposals", icon: MessageSquare },
@@ -82,7 +76,7 @@ export function Navbar({ user, isAdmin }: NavbarProps) {
     { name: "Komunitas", href: "#", icon: Users },
   ];
 
-  const links = !user ? landingLinks : isAdmin ? adminLinks : userLinks;
+  const links = !user ? landingLinks : userLinks;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-500 pointer-events-none">
@@ -96,7 +90,7 @@ export function Navbar({ user, isAdmin }: NavbarProps) {
       >
         {/* Brand */}
         <Link
-          href={!user ? "/" : isAdmin ? "/admin/queue" : "/home"}
+          href={!user ? "/" : "/home"}
           className="flex items-center"
         >
           <div className="flex gap-3">

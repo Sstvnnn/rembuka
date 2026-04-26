@@ -6,7 +6,16 @@ import { updateStatusAndLog } from "@/app/actions/tracker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Settings2, Landmark, Construction } from "lucide-react";
+import {
+  Eye,
+  Landmark,
+  Construction,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  MapPin,
+} from "lucide-react";
 import {
   LEGISLATION_STATUS,
   PROPOSAL_STATUS,
@@ -36,6 +45,26 @@ export default function AdminTrackerClient({
   const proposalData = initialData.filter(
     (item) => item.item_type === "PROPOSAL",
   );
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  const filterAndPaginate = (data: TrackerItem[]) => {
+    const filtered = data.filter((item) => {
+      const q = searchQuery.toLowerCase();
+      return item.title.toLowerCase().includes(q);
+    });
+    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+    const paginated = filtered.slice(
+      (currentPage - 1) * ITEMS_PER_PAGE,
+      currentPage * ITEMS_PER_PAGE,
+    );
+    return { paginated, totalPages, totalCount: filtered.length };
+  };
+
+  const legResult = filterAndPaginate(legislationData);
+  const propResult = filterAndPaginate(proposalData);
 
   const handleStatusChange = (
     id: string,
@@ -102,18 +131,21 @@ export default function AdminTrackerClient({
                 </p>
               </td>
               <td className="p-4">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
+                    <Calendar className="size-3.5 opacity-70" />
+                    {new Date(item.created_at).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </div>
                   {item.location && (
-                    <Badge
-                      variant="outline"
-                      className="w-fit text-[10px] border-emerald-200 text-emerald-700 bg-emerald-50"
-                    >
-                      📍 {item.location}
-                    </Badge>
+                    <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full w-fit border border-emerald-100">
+                      <MapPin className="size-3 opacity-70" />
+                      {item.location}
+                    </div>
                   )}
-                  <Badge variant="secondary" className="w-fit text-[10px]">
-                    {item.item_type}
-                  </Badge>
                 </div>
               </td>
               <td className="p-4">
@@ -122,7 +154,7 @@ export default function AdminTrackerClient({
                 </span>
               </td>
               <td className="p-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-25">
                   {/* SELECT STATUS */}
                   <select
                     className="text-xs p-2 border rounded-lg bg-white focus:ring-2 focus:ring-primary outline-none disabled:opacity-50 font-medium"
@@ -188,31 +220,86 @@ export default function AdminTrackerClient({
     </div>
   );
 
+  const PaginationControls = ({ totalPages }: { totalPages: number }) => {
+    if (totalPages <= 1) return null;
+    return (
+      <div className="flex items-center justify-between pt-4">
+        <span className="text-sm text-slate-500 font-medium">
+          Halaman {currentPage} dari {totalPages}
+        </span>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="h-8 w-8 p-0 rounded-lg"
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="h-8 w-8 p-0 rounded-lg"
+          >
+            <ChevronRight className="size-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <Tabs defaultValue="legislation" className="w-full">
-      <TabsList className="grid w-full grid-cols-2 max-w-[400px] mb-8 p-1 bg-slate-100 rounded-xl">
-        <TabsTrigger
-          value="legislation"
-          className="rounded-lg gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"
-        >
-          <Landmark className="size-4" /> Kebijakan
-        </TabsTrigger>
-        <TabsTrigger
-          value="proposal"
-          className="rounded-lg gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"
-        >
-          <Construction className="size-4" /> Pembangunan
-        </TabsTrigger>
-      </TabsList>
+    <Tabs
+      defaultValue="legislation"
+      onValueChange={() => {
+        setSearchQuery("");
+        setCurrentPage(1);
+      }}
+      className="w-full"
+    >
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <TabsList className="grid w-full sm:w-[400px] grid-cols-2 p-1 bg-slate-100 rounded-xl">
+          <TabsTrigger
+            value="legislation"
+            className="rounded-lg gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"
+          >
+            <Landmark className="size-4" /> Kebijakan
+          </TabsTrigger>
+          <TabsTrigger
+            value="proposal"
+            className="rounded-lg gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"
+          >
+            <Construction className="size-4" /> Pembangunan
+          </TabsTrigger>
+        </TabsList>
+
+        <div className="relative w-full sm:w-80">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Cari judul..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+          />
+        </div>
+      </div>
 
       <TabsContent value="legislation" className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-700">
             Draf Kebijakan Nasional (RUU)
           </h2>
-          <Badge>{legislationData.length} Item</Badge>
+          <Badge>{legResult.totalCount} Item</Badge>
         </div>
-        <TrackerTable data={legislationData} />
+        <TrackerTable data={legResult.paginated} />
+        <PaginationControls totalPages={legResult.totalPages} />
       </TabsContent>
 
       <TabsContent value="proposal" className="space-y-4">
@@ -220,9 +307,10 @@ export default function AdminTrackerClient({
           <h2 className="text-lg font-bold text-slate-700">
             Usulan Pembangunan Daerah
           </h2>
-          <Badge>{proposalData.length} Item</Badge>
+          <Badge>{propResult.totalCount} Item</Badge>
         </div>
-        <TrackerTable data={proposalData} />
+        <TrackerTable data={propResult.paginated} />
+        <PaginationControls totalPages={propResult.totalPages} />
       </TabsContent>
     </Tabs>
   );
