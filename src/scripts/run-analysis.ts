@@ -1,4 +1,5 @@
-import { runAnalysis } from "../lib/polis/index";
+import "dotenv/config";
+import { runAnalysis } from "../lib/polis";
 
 async function main() {
     const result = await runAnalysis();

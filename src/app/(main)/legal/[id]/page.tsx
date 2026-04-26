@@ -144,6 +144,14 @@ export default function LegalDetailPage() {
                     >
                         View Original Document
                     </Button>
+                    <Button
+                        onClick={() =>
+                            router.push(`/legal/${legalId}/analysis`)
+                        }
+                        className="hover:cursor-pointer mb-4 hover:bg-gray-700"
+                    >
+                        View Analysis Summary
+                    </Button>
 
                     <div className="space-y-3">
                         {statements.map((s) => {

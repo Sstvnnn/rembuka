@@ -1,16 +1,28 @@
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "../supabase/server";
 
-const supabase = createClient();
+export async function fetchVotes(legalAnalysisId: string) {
+    const supabase = createClient();
 
-export async function fetchVotes() {
-    const { data, error } = await supabase
+    const { data, error } = await (
+        await supabase
+    )
         .from("polis_votes")
-        .select("user_id, statement_id, value");
+        .select(
+            `
+      user_id,
+      value,
+      statement_id,
+      polis_statements!inner (
+        legal_analysis_id
+      )
+    `,
+        )
+        .eq("polis_statements.legal_analysis_id", legalAnalysisId);
 
     if (error) {
-        console.error("Fetch error:", error);
+        console.error("Fetch votes error:", error);
         return [];
     }
 
-    return data || [];
+    return data;
 }

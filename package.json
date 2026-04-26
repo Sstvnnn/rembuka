@@ -7,7 +7,7 @@
         "build": "next build",
         "start": "next start",
         "lint": "eslint",
-        "analysis": "ts-node src/scripts/run-analysis.ts"
+        "analysis": "tsx src/scripts/run-analysis.ts"
     },
     "dependencies": {
         "@supabase/ssr": "^0.10.2",
@@ -15,8 +15,10 @@
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "date-fns": "^4.1.0",
+        "dotenv": "^17.4.2",
         "framer-motion": "^12.38.0",
         "lucide-react": "^1.8.0",
+        "ml-kmeans": "^7.0.0",
         "ml-pca": "^4.1.1",
         "next": "16.2.4",
         "pdf-parse": "^2.4.5",
@@ -38,6 +40,7 @@
         "eslint-config-next": "16.2.4",
         "tailwindcss": "^4",
         "ts-node": "^10.9.2",
+        "tsx": "^4.21.0",
         "typescript": "^5.9.3"
     }
 }
