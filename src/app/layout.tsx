@@ -13,7 +13,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Rembuka",
-  description: "Civic-tech super app for Ruang Aspirasi Daerah and Ruang Wacana Publik.",
+  description:
+    "Civic-tech super app for Ruang Aspirasi Daerah and Ruang Wacana Publik.",
 };
 
 export default async function RootLayout({
@@ -22,7 +23,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   let isAdmin = false;
   if (user) {
@@ -35,27 +38,23 @@ export default async function RootLayout({
   }
 
   // Safely cast user metadata for the Navbar
-  const navbarUser = user ? {
-    email: user.email,
-    user_metadata: {
-      full_name: user.user_metadata.full_name as string | undefined
-    }
-  } : null;
+  const navbarUser = user
+    ? {
+        email: user.email,
+        user_metadata: {
+          full_name: user.user_metadata.full_name as string | undefined,
+        },
+      }
+    : null;
 
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-[#f8fafc]">
         <AppProviders>
           <Navbar user={navbarUser} isAdmin={isAdmin} />
-          <main className="flex-1">
-            {children}
-          </main>
+          <main className="flex-1">{children}</main>
         </AppProviders>
       </body>
     </html>
   );
 }
-
