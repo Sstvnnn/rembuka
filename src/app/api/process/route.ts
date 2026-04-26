@@ -23,9 +23,8 @@ export async function POST(req: Request) {
         const supabase = await createServiceClient();
 
         const { data: mainData, error: mainError } = await supabase
-            .from("legal_analyses")
+            .from("legal_analysis")
             .insert({
-                user_id: user.id,
                 file_name: fileName || "Dokumen Tanpa Nama",
                 final_summary: final.final_summary,
                 final_key_points: final.key_points,

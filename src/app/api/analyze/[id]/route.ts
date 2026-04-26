@@ -9,7 +9,7 @@ export async function GET(
     const id = params.id;
 
     const { data, error } = await supabase
-        .from("legal_analyses")
+        .from("legal_analysis")
         .select(
             `
             *,
