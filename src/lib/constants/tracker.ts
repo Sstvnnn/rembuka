@@ -7,11 +7,9 @@ export const LEGISLATION_STATUS = {
 } as const;
 
 export const PROPOSAL_STATUS = {
-  SUBMITTED: "SUBMITTED",
-  UNDER_REVIEW: "UNDER_REVIEW",
-  VOTING_PHASE: "VOTING_PHASE",
-  BUDGETING: "BUDGETING",
-  COMPLETED: "COMPLETED",
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
 } as const;
 
 export type LegislationStatus = keyof typeof LEGISLATION_STATUS;
@@ -24,9 +22,7 @@ export const STATUS_LABELS: Record<string, string> = {
   [LEGISLATION_STATUS.REVISED]: "Direvisi",
   [LEGISLATION_STATUS.NO_REVISION]: "Tidak Ada Revisi",
 
-  [PROPOSAL_STATUS.SUBMITTED]: "Usulan Masuk",
-  [PROPOSAL_STATUS.UNDER_REVIEW]: "Sedang Ditinjau",
-  [PROPOSAL_STATUS.VOTING_PHASE]: "Masa Voting",
-  [PROPOSAL_STATUS.BUDGETING]: "Masuk Anggaran",
-  [PROPOSAL_STATUS.COMPLETED]: "Selesai Dibangun",
+  [PROPOSAL_STATUS.PENDING]: "Menunggu Tinjauan",
+  [PROPOSAL_STATUS.APPROVED]: "Disetujui",
+  [PROPOSAL_STATUS.REJECTED]: "Ditolak",
 };

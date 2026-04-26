@@ -16,6 +16,7 @@ import {
   Zap,
   Book,
   FileCheck,
+  History,
 } from "lucide-react";
 import {
   motion,
@@ -62,6 +63,7 @@ export function Navbar({ user, isAdmin }: NavbarProps) {
 
   const adminLinks = [
     { name: "Antrian", href: "/admin/queue", icon: Users },
+    { name: "Tracker", href: "/admin/tracker", icon: FileCheck },
     { name: "Beranda", href: "/home", icon: LayoutDashboard },
     { name: "Identitas", href: "/profile", icon: User },
   ];
@@ -71,6 +73,7 @@ export function Navbar({ user, isAdmin }: NavbarProps) {
     { name: "Anggaran", href: "/budget", icon: TrendingUp },
     { name: "Legal", href: "/legal", icon: Book },
     { name: "Track", href: "/tracker", icon: FileCheck },
+    { name: "Riwayat", href: "/transparency", icon: History },
   ];
 
   const landingLinks = [

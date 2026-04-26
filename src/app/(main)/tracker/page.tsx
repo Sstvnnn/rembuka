@@ -40,9 +40,11 @@ export default async function TrackPage() {
   }
 
   return (
-    <main className="container mx-auto pt-28 pb-8 space-y-6 min-h-screen">
+    <main className="container mx-auto px-5 pt-28 pb-8 space-y-6 min-h-screen">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Board Tracker</h1>
+        <h1 className="text-3xl font-bold mt-5 tracking-tight">
+          Board Tracker
+        </h1>
         <p className="text-muted-foreground mt-2">
           Lacak seluruh proses kebijakan publik dan aspirasi daerah secara
           real-time.

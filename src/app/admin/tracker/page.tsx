@@ -13,7 +13,7 @@ export default async function AdminTrackerPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto pt-28 pb-8 space-y-6 min-h-screen">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">
           Manajemen Board Tracker

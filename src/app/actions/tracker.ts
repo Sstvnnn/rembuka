@@ -61,7 +61,7 @@ export async function updateStatusAndLog(
   type: "LEGISLATION" | "PROPOSAL",
   newStatus: string,
   previousStatus: string,
-  adminId: string,
+  adminId: string | null,
   notes?: string,
 ) {
   const supabase = await createClient();
@@ -95,6 +95,7 @@ export async function updateStatusAndLog(
   if (logError) return { error: logError.message };
 
   revalidatePath("/track");
+  revalidatePath("/admin/tracker");
 
   return { success: true };
 }

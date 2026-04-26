@@ -1,0 +1,523 @@
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import {
+  MapPin,
+  ShieldCheck,
+  UserRound,
+  Vote,
+  ArrowRight,
+  TrendingUp,
+  MessageSquare,
+  LucideIcon,
+  Activity,
+  Landmark,
+  Sparkles,
+  FileText,
+  PieChart,
+  Trophy,
+  Users,
+  Bell,
+  Search,
+  ChevronDown,
+  CheckCircle2,
+  Star,
+} from "lucide-react";
+import { motion, type Variants } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import {
+  ROLE_MAPPING,
+  VERIFICATION_STATUS_MAPPING,
+} from "@/lib/constants/mappings";
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: "easeOut" },
+  },
+};
+
+// ─── Stat Card (row of 4 below hero) ────────────────────────────────────────
+interface StatCardProps {
+  label: string;
+  value: string;
+  sub: string;
+  icon: LucideIcon;
+  trend?: string;
+  active?: boolean;
+}
+
+function StatCard({
+  label,
+  value,
+  sub,
+  icon: Icon,
+  trend,
+  active,
+}: StatCardProps) {
+  return (
+    <motion.div
+      variants={itemVariants}
+      className="flex items-start gap-4 rounded-2xl bg-white border border-slate-100 shadow-sm p-5 hover:shadow-md transition-shadow"
+    >
+      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+        <Icon className="size-5" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
+          {label}
+        </p>
+        <p className="text-2xl font-black text-slate-800 tracking-tight leading-tight">
+          {value}
+        </p>
+        <p className="text-[11px] text-slate-400 mt-0.5">{sub}</p>
+        {trend && (
+          <p className="mt-1 text-[11px] font-semibold text-emerald-500">
+            ↑ {trend}
+          </p>
+        )}
+        {active && (
+          <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
+            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Aktif
+          </span>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Aspirasi Card ───────────────────────────────────────────────────────────
+interface AspirasiCardProps {
+  title: string;
+  desc: string;
+  icon: LucideIcon;
+  cta: string;
+  href: string;
+  accent: string;
+  illustrationBg?: string;
+}
+
+function AspirasiCard({
+  title,
+  desc,
+  icon: Icon,
+  cta,
+  href,
+  accent,
+  illustrationBg,
+}: AspirasiCardProps) {
+  return (
+    <motion.div
+      variants={itemVariants}
+      whileHover={{ y: -3 }}
+      className="relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm hover:shadow-lg transition-all p-6"
+    >
+      <div
+        className={cn(
+          "flex size-12 items-center justify-center rounded-xl mb-4",
+          accent,
+        )}
+      >
+        <Icon className="size-5 text-white" />
+      </div>
+      <h4 className="font-bold text-slate-800 text-base">{title}</h4>
+      <p className="mt-1.5 text-sm text-slate-500 leading-relaxed flex-grow">
+        {desc}
+      </p>
+      <Link
+        href={href}
+        className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:gap-3 transition-all"
+      >
+        {cta} <ArrowRight className="size-4" />
+      </Link>
+    </motion.div>
+  );
+}
+
+// ─── Tracker Row ─────────────────────────────────────────────────────────────
+interface TrackerRowProps {
+  image: string;
+  title: string;
+  category: string;
+  progress: number;
+  status: string;
+}
+
+function TrackerRow({
+  image,
+  title,
+  category,
+  progress,
+  status,
+}: TrackerRowProps) {
+  return (
+    <div className="flex items-center gap-4 py-3 border-b border-slate-50 last:border-0">
+      <div className="size-12 rounded-xl overflow-hidden bg-slate-100 shrink-0">
+        <img src={image} alt={title} className="w-full h-full object-cover" />
+      </div>
+      <div className="flex-grow min-w-0">
+        <p className="text-sm font-bold text-slate-800 truncate">{title}</p>
+        <p className="text-[11px] text-slate-400">{category}</p>
+        <div className="mt-1.5 h-1.5 w-full rounded-full bg-slate-100">
+          <div
+            className="h-full rounded-full bg-blue-500 transition-all"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+      <div className="shrink-0 flex flex-col items-end gap-1">
+        <span className="text-xs font-black text-slate-600">{progress}%</span>
+        <span className="inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
+          {status}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Props ──────────────────────────────────────────────────────────────
+interface HomeClientProps {
+  user: {
+    user_metadata: {
+      full_name?: string;
+      nik?: string;
+      location?: string;
+    };
+  };
+  profile: {
+    full_name?: string;
+    nik?: string;
+    location?: string;
+    verification_status?: string;
+    role?: string;
+    position?: string;
+  } | null;
+  userType?: string;
+  role?: string;
+  position?: string | null;
+}
+
+export function HomeClient({
+  user,
+  profile,
+  userType = "citizen",
+  role = "citizen",
+  position,
+}: HomeClientProps) {
+  const isGovernance = userType === "governance";
+  const typedProfile = profile as {
+    full_name?: string;
+    location?: string;
+    verification_status?: string;
+    nik?: string;
+    position?: string;
+  } | null;
+
+  const fullName =
+    typedProfile?.full_name ??
+    user.user_metadata.full_name ??
+    (isGovernance ? "Pejabat" : "Warga");
+  const location =
+    typedProfile?.location ?? user.user_metadata.location ?? "Nasional";
+  const verificationStatusKey = typedProfile?.verification_status || "";
+
+  const currentRole = isGovernance
+    ? (position ??
+      typedProfile?.position ??
+      ROLE_MAPPING[role || "citizen"] ??
+      "Pemerintah")
+    : (ROLE_MAPPING[role || "citizen"] ?? "Warga");
+
+  const trackerItems: TrackerRowProps[] = [
+    {
+      image: "/tracker/taman.jpg",
+      title: "Revitalisasi Taman Kota",
+      category: "Perencanaan",
+      progress: 60,
+      status: "On Going",
+    },
+    {
+      image: "/tracker/jalan.jpg",
+      title: "Perbaikan Jalan Lingkungan",
+      category: "Pelaksanaan",
+      progress: 40,
+      status: "On Going",
+    },
+    {
+      image: "/tracker/puskesmas.jpg",
+      title: "Pembangunan Puskesmas Baru",
+      category: "Pengadaan",
+      progress: 20,
+      status: "On Going",
+    },
+    {
+      image: "/tracker/bus.jpg",
+      title: "Pengadaan Bus Sekolah",
+      category: "Perencanaan",
+      progress: 10,
+      status: "On Going",
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#F4F6FA] pt-10 font-sans">
+      <main className="pt-16">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8"
+        >
+          {/* ── HERO BANNER ─────────────────────────────────────────────── */}
+          <motion.section
+            variants={itemVariants}
+            className="relative flex flex-col justify-end overflow-hidden rounded-3xl bg-cover bg-center bg-no-repeat text-white"
+            style={{
+              minHeight: 600,
+              backgroundImage: "url('/header-section.png')",
+            }}
+          >
+            <div className="relative z-10 flex flex-wrap gap-3 p-8 md:pb-25 md:pl-13">
+              <Button
+                asChild
+                className="bg-white text-blue-700 font-bold rounded-full h-10 px-6 shadow-lg transition-transform hover:scale-105"
+              >
+                <Link href="/legal">Pantau Kebijakan →</Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="border-white/40 bg-white/10 text-white font-bold rounded-full h-10 px-6 backdrop-blur-sm transition-transform hover:scale-105"
+              >
+                <Link href="/proposals">↗ Ajukan Pembangunan</Link>
+              </Button>
+            </div>
+          </motion.section>
+
+          {/* ── STAT CARDS ROW ──────────────────────────────────────────── */}
+          <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+              label="Opini Aktif"
+              value="128"
+              sub="pernyataan"
+              icon={MessageSquare}
+              trend="12% dari kemarin"
+            />
+            <StatCard
+              label="Usulan Proyek"
+              value="56"
+              sub="usulan"
+              icon={Vote}
+              trend="8% dari kemarin"
+            />
+            <StatCard
+              label="Partisipasi Kamu"
+              value="78"
+              sub="aksi partisipasi"
+              icon={Users}
+              active
+            />
+            <StatCard
+              label="Topik Aktif"
+              value="16"
+              sub="topik dibahas"
+              icon={Activity}
+              trend="10% dari kemarin"
+            />
+          </section>
+
+          {/* ── AI TEXT SIMPLIFIER ──────────────────────────────────────── */}
+          <motion.section
+            variants={itemVariants}
+            className="rounded-3xl bg-white border border-slate-100 shadow-sm p-7"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-base font-black text-slate-800">
+                AI Text Simplifier
+              </h2>
+            </div>
+            <p className="text-sm text-slate-500 mb-6">
+              Pahami peraturan atau RUU yang kompleks dengan lebih mudah.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-6 items-start">
+              {/* Upload box */}
+              <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-8 text-center hover:border-blue-300 hover:bg-blue-50/30 transition-colors cursor-pointer">
+                <div className="size-12 rounded-xl bg-slate-100 flex items-center justify-center">
+                  <FileText className="size-6 text-slate-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-600">
+                    Unggah dokumen atau tempel teks di sini
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    PDF, DOCX, TXT maksimal 10MB
+                  </p>
+                </div>
+                <button className="rounded-xl bg-blue-600 text-white text-sm font-bold px-5 py-2.5 hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200">
+                  Pilih Dokumen
+                </button>
+              </div>
+
+              {/* Result preview */}
+              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5">
+                <div className="flex gap-3 mb-4 border-b border-slate-200 pb-3">
+                  <button className="text-sm font-bold text-blue-600 border-b-2 border-blue-600 pb-1">
+                    Ringkasan Sederhana
+                  </button>
+                  <button className="text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors">
+                    Teks Asli
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-400 mb-3">
+                  AI merangkum poin penting untuk Anda.
+                </p>
+                <ul className="space-y-2">
+                  {[
+                    "Meningkatkan kualitas layanan kesehatan masyarakat.",
+                    "Memperkuat fasilitas kesehatan di daerah terpencil.",
+                    "Meningkatkan kesejahteraan tenaga medis.",
+                    "Memastikan ketersediaan obat yang terjangkau.",
+                  ].map((point) => (
+                    <li
+                      key={point}
+                      className="flex items-start gap-2 text-sm text-slate-600"
+                    >
+                      <span className="mt-1 size-1.5 rounded-full bg-blue-400 shrink-0" />
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-4 flex items-center gap-1.5 text-[10px] text-slate-400">
+                  <CheckCircle2 className="size-3.5 text-emerald-500" />
+                  Ringkasan dibuat oleh AI, periksa kembali untuk detail
+                  lengkap.
+                </p>
+              </div>
+            </div>
+          </motion.section>
+
+          {/* ── ASPIRASI DAERAH ─────────────────────────────────────────── */}
+          <motion.section variants={itemVariants}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-black text-slate-800">
+                  Aspirasi Daerah
+                </h2>
+                <p className="text-sm text-slate-500">
+                  Sampaikan aspirasi dan ikut tentukan prioritas pembangunan
+                  daerahmu.
+                </p>
+              </div>
+              <Link
+                href="/proposals"
+                className="text-sm font-bold text-blue-600 flex items-center gap-1 hover:gap-2 transition-all"
+              >
+                Lihat semua fitur Aspirasi <ArrowRight className="size-4" />
+              </Link>
+            </div>
+            <div className="grid md:grid-cols-3 gap-5">
+              <AspirasiCard
+                title="Citizen Report"
+                desc="Laporkan masalah atau usulan ide pembangunan di daerah Anda."
+                icon={FileText}
+                cta="Buat Laporan"
+                href="/proposals/new"
+                accent="bg-blue-500"
+              />
+              <AspirasiCard
+                title="Budget Visualizer"
+                desc="Lihat kontribusi pajak Anda dan bagaimana dana digunakan untuk pembangunan daerah."
+                icon={PieChart}
+                cta="Lihat Sekarang"
+                href="/budget"
+                accent="bg-emerald-500"
+              />
+              <AspirasiCard
+                title="Pilih 3 Favorit"
+                desc="Pilih 3 proyek favorit Anda dengan sistem bobot (3-2-1 poin)."
+                icon={Trophy}
+                cta="Lihat Katalog"
+                href="/proposals"
+                accent="bg-amber-500"
+              />
+            </div>
+          </motion.section>
+
+          {/* ── TRUST FOOTER ────────────────────────────────────────────── */}
+          <motion.section
+            variants={itemVariants}
+            className="grid md:grid-cols-3 gap-5"
+          >
+            {[
+              {
+                icon: ShieldCheck,
+                title: "Data Anda Aman",
+                desc: "Kami menggunakan enkripsi dan verifikasi KTP untuk memastikan partisipasi yang autentik.",
+                color: "bg-blue-50 text-blue-600",
+              },
+              {
+                icon: MapPin,
+                title: "Lokasi Anda",
+                desc: `${location}, Jawa Barat`,
+                sub: "Ubah Lokasi",
+                color: "bg-emerald-50 text-emerald-600",
+              },
+              {
+                icon: Users,
+                title: "Partisipasi Nyata",
+                desc: "Bersama warga lainnya, Anda telah berkontribusi untuk perubahan positif.",
+                color: "bg-amber-50 text-amber-600",
+              },
+            ].map(({ icon: Icon, title, desc, sub, color }) => (
+              <div
+                key={title}
+                className="flex items-start gap-4 rounded-2xl bg-white border border-slate-100 shadow-sm p-6"
+              >
+                <div
+                  className={cn(
+                    "size-10 rounded-xl flex items-center justify-center shrink-0",
+                    color,
+                  )}
+                >
+                  <Icon className="size-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-800 text-sm">{title}</p>
+                  <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+                    {desc}
+                  </p>
+                  {sub && (
+                    <button className="mt-1 text-xs font-bold text-blue-600 hover:underline">
+                      {sub}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </motion.section>
+
+          {/* Footer */}
+          <motion.footer variants={itemVariants} className=" text-center">
+            <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-400">
+              Rembuka &copy; 2026
+            </p>
+          </motion.footer>
+        </motion.div>
+      </main>
+    </div>
+  );
+}
