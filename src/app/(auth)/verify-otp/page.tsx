@@ -4,18 +4,21 @@ import { VerifyOtpForm } from "@/components/auth/verify-otp-form";
 import { LoadingSpinner } from "@/components/loading-spinner";
 
 export const metadata = {
-  title: "Verify your account",
-  description: "Enter the code sent to your email to continue.",
+  title: "Verifikasi Akun | Rembuka",
+  description:
+    "Masukkan kode OTP yang dikirim ke email Anda untuk melanjutkan.",
 };
 
 export default function VerifyOtpPage() {
   return (
-    <AuthShell
-      badge="Verification"
-      title="Verify your account"
-      description="Enter the code sent to your email to complete your registration."
-    >
-      <Suspense fallback={<LoadingSpinner />}>
+    <AuthShell>
+      <Suspense
+        fallback={
+          <div className="flex justify-center py-10">
+            <LoadingSpinner />
+          </div>
+        }
+      >
         <VerifyOtpForm />
       </Suspense>
     </AuthShell>

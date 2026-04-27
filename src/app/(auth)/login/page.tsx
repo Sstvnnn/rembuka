@@ -14,11 +14,7 @@ export default async function LoginPage() {
   }
 
   return (
-    <AuthShell
-      badge="Rembuka"
-      title="Welcome back"
-      description="Sign in to continue to your account."
-    >
+    <AuthShell>
       <LoginForm />
     </AuthShell>
   );

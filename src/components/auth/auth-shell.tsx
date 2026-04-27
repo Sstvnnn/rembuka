@@ -1,50 +1,83 @@
+"use client";
+
 import type { ReactNode } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 
 type AuthShellProps = {
-  badge: string;
-  title: string;
-  description: string;
   children: ReactNode;
 };
 
-export function AuthShell({ badge, title, description, children }: AuthShellProps) {
+export function AuthShell({ children }: AuthShellProps) {
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(79,179,179,0.24),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(242,92,122,0.16),transparent_26%),linear-gradient(135deg,#eef4f7_0%,#f8eeea_48%,#f7fafc_100%)] px-4 py-10">
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(63,92,115,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(63,92,115,0.05)_1px,transparent_1px)] bg-[size:32px_32px]" />
-      <div className="pointer-events-none absolute left-[-8rem] top-[-5rem] h-56 w-56 rounded-full bg-[#4FB3B3]/20 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-[-8rem] right-[-5rem] h-64 w-64 rounded-full bg-[#F25C7A]/12 blur-3xl" />
-
-      <section className="relative z-10 grid w-full max-w-6xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-        <div className="space-y-6 text-[#243746]">
-          <span className="inline-flex items-center rounded-full border border-[#aac3d1] bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#3F5C73] shadow-sm backdrop-blur">
-            {badge}
-          </span>
-          <div className="space-y-4">
-            <h1 className="max-w-2xl font-heading text-4xl leading-tight font-semibold sm:text-5xl">
-              {title}
-            </h1>
-            <p className="max-w-xl text-base leading-7 text-[#587080] sm:text-lg">
-              {description}
-            </p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-[1.75rem] border border-white/70 bg-white/80 p-5 shadow-[0_18px_40px_rgba(63,92,115,0.08)] backdrop-blur">
-              <p className="text-sm font-semibold">Secure access</p>
-              <p className="mt-2 text-sm leading-6 text-[#6c7f8a]">
-                Sign in with your registered account and continue where you left off.
-              </p>
-            </div>
-            <div className="rounded-[1.75rem] border border-white/70 bg-white/80 p-5 shadow-[0_18px_40px_rgba(63,92,115,0.08)] backdrop-blur">
-              <p className="text-sm font-semibold">Account recovery</p>
-              <p className="mt-2 text-sm leading-6 text-[#6c7f8a]">
-                Email confirmation and password reset are available whenever needed.
-              </p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#F6F5F2] text-[#1A1F2B] font-sans flex flex-col md:flex-row selection:bg-[#11538C]/20 overflow-hidden">
+      {/* Sisi Kiri - Panel Branding (Biru) */}
+      <motion.div
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="hidden md:flex md:w-[45%] lg:w-1/2 bg-[#11538C] p-10 lg:p-20 flex-col justify-between text-white relative"
+      >
+        {/* Dekorasi Latar Belakang Subtil */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute -top-32 -left-32 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-64 h-64 bg-[#0c3e6b]/50 rounded-full blur-2xl"></div>
         </div>
 
-        {children}
-      </section>
-    </main>
+        <div className="relative z-10 flex flex-col h-full">
+          {/* GRUP ATAS: Logo & Headline dirapatkan */}
+          <div className="flex flex-col">
+            <Link href="/" className="block mb-8 md:mb-10">
+              <Image
+                src="/logoV2.png"
+                alt="Rembuka Logo"
+                width={300}
+                height={100}
+                // Ukuran logo yang lebih berwibawa
+                className="w-48 md:w-56 lg:w-64 h-auto object-contain brightness-0 invert"
+                priority
+              />
+            </Link>
+
+            <h1 className="font-heading text-5xl lg:text-7xl font-bold leading-[1.1] tracking-tight">
+              Opini Jadi Data, <br />
+              <span className="text-white/70 italic">
+                Kebijakan Jadi Nyata.
+              </span>
+            </h1>
+          </div>
+
+          {/* FOOTER: Tetap di paling bawah */}
+          <div className="mt-auto pt-10">
+            <p className="text-sm text-white/50 font-medium tracking-wide">
+              © 2026 Rembuka.
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Sisi Kanan - Kontainer Form */}
+      <div className="flex-1 flex flex-col justify-center items-center p-8 md:p-16 lg:p-24 relative">
+        {/* Tombol Kembali (Mobile & Desktop) */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="absolute top-8 left-8 md:right-12 md:left-auto z-20"
+        >
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#11538C] transition-colors"
+          >
+            <ArrowLeft className="size-4 md:hidden" />
+            <span className="hidden md:inline-block">Kembali ke Beranda</span>
+          </Link>
+        </motion.div>
+
+        <div className="w-full max-w-[420px]">{children}</div>
+      </div>
+    </div>
   );
 }

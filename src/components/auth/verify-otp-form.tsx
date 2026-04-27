@@ -1,30 +1,31 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  CheckCircle2,
-  KeyRound,
-  RotateCcw,
-} from "lucide-react";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
+import { CheckCircle2, RotateCcw, ArrowRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { cn } from "@/lib/utils";
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
 
 export function VerifyOtpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
-  
+
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -32,7 +33,7 @@ export function VerifyOtpForm() {
   const [resendCountdown, setResendCountdown] = useState(0);
   const [isResending, setIsResending] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
-  
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -43,7 +44,10 @@ export function VerifyOtpForm() {
 
   useEffect(() => {
     if (resendCountdown > 0) {
-      const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+      const timer = setTimeout(
+        () => setResendCountdown(resendCountdown - 1),
+        1000,
+      );
       return () => clearTimeout(timer);
     }
   }, [resendCountdown]);
@@ -54,7 +58,7 @@ export function VerifyOtpForm() {
     setSuccess("");
 
     if (otp.length !== 6) {
-      setError("Please enter the 6-digit code.");
+      setError("Silakan masukkan 6 digit kode.");
       return;
     }
 
@@ -70,18 +74,18 @@ export function VerifyOtpForm() {
       const payload = await response.json();
 
       if (!response.ok) {
-        setError(payload.error ?? "Invalid or expired code.");
+        setError(payload.error ?? "Kode tidak valid atau kadaluarsa.");
         return;
       }
 
-      setSuccess("Your account has been verified successfully!");
-      
+      setSuccess("Akun Anda berhasil diverifikasi!");
+
       setTimeout(() => {
         router.replace("/home");
         router.refresh();
       }, 1500);
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError("Terjadi kesalahan. Silakan coba lagi.");
     } finally {
       setIsLoading(false);
     }
@@ -92,7 +96,7 @@ export function VerifyOtpForm() {
 
     setIsResending(true);
     setError("");
-    
+
     try {
       const response = await fetch("/api/auth/resend-otp", {
         method: "POST",
@@ -102,16 +106,16 @@ export function VerifyOtpForm() {
 
       if (!response.ok) {
         const payload = await response.json();
-        setError(payload.error ?? "Failed to resend code.");
+        setError(payload.error ?? "Gagal mengirim ulang kode.");
         return;
       }
 
-      setSuccess("A new code has been sent to your email.");
+      setSuccess("Kode baru telah dikirim ke email Anda.");
       setResendCountdown(60);
-      
+
       setTimeout(() => setSuccess(""), 5000);
     } catch {
-      setError("Failed to resend code. Please try again.");
+      setError("Gagal mengirim ulang kode. Silakan coba lagi.");
     } finally {
       setIsResending(false);
     }
@@ -125,160 +129,166 @@ export function VerifyOtpForm() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-md"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="w-full"
     >
-      <Card className="overflow-hidden rounded-[2rem] border border-white/70 bg-white/92 shadow-[0_24px_90px_rgba(63,92,115,0.18)] backdrop-blur">
-        <CardHeader className="space-y-4 border-b border-[#d7dee5] bg-[linear-gradient(135deg,rgba(79,179,179,0.18),rgba(242,92,122,0.08),rgba(255,255,255,0.95))] pb-6">
-          <div className="flex items-center gap-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-[#3F5C73] text-white shadow-[4px_4px_0_rgba(79,179,179,0.35)]">
-              <KeyRound className="size-6" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4FB3B3]">
-                Verifikasi
-              </p>
-              <CardTitle className="text-2xl font-semibold text-[#243746]">
-                Masukkan OTP
-              </CardTitle>
-            </div>
-          </div>
-          <CardDescription className="text-sm leading-6 text-[#587080]">
-            Kami telah mengirimkan 6 digit kode verifikasi ke <span className="font-semibold text-[#243746]">{email}</span>.
-          </CardDescription>
-        </CardHeader>
+      {/* Header Form */}
+      <motion.div variants={itemVariants} className="mb-10">
+        <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">
+          Verifikasi Identitas
+        </p>
+        <h2 className="font-heading text-4xl md:text-5xl font-bold text-[#1A1F2B] mb-4">
+          Masukkan Kode
+        </h2>
+        <p className="text-slate-600 text-base leading-relaxed">
+          Kami telah mengirimkan 6 digit kode OTP ke <br />
+          <span className="font-bold text-[#11538C]">{email}</span>
+        </p>
+      </motion.div>
 
-        <CardContent className="space-y-6 px-6 py-8">
-          <form onSubmit={onSubmit} className="space-y-6">
-            <div className="relative group">
-              <input
-                ref={inputRef}
-                type="text"
-                inputMode="numeric"
-                pattern="\d{6}"
-                maxLength={6}
-                value={otp}
-                onChange={handleOtpChange}
-                onFocus={() => setIsInputFocused(true)}
-                onBlur={() => setIsInputFocused(false)}
-                className="absolute inset-0 z-10 h-full w-full opacity-0 cursor-default"
-                autoFocus
-              />
-              
-              <div 
-                className="grid grid-cols-6 gap-2"
-                onClick={() => inputRef.current?.focus()}
-              >
-                {Array.from({ length: 6 }).map((_, index) => {
-                  const digit = otp[index];
-                  const isCurrentBox = otp.length === index;
-                  const isFilled = otp.length > index;
-                  const showCursor = isInputFocused && isCurrentBox;
+      {/* Form Area */}
+      <motion.form
+        variants={itemVariants}
+        onSubmit={onSubmit}
+        className="space-y-8"
+      >
+        {/* Custom 6-Digit Input */}
+        <div className="relative group">
+          <input
+            ref={inputRef}
+            type="text"
+            inputMode="numeric"
+            pattern="\d{6}"
+            maxLength={6}
+            value={otp}
+            onChange={handleOtpChange}
+            onFocus={() => setIsInputFocused(true)}
+            onBlur={() => setIsInputFocused(false)}
+            className="absolute inset-0 z-10 h-full w-full opacity-0 cursor-default"
+            autoFocus
+          />
 
-                  return (
-                    <div
-                      key={index}
-                      className={cn(
-                        "relative flex h-14 w-full items-center justify-center rounded-xl border-2 bg-white text-xl font-bold transition-colors duration-100",
-                        isInputFocused && isCurrentBox 
-                          ? "border-[#4FB3B3] ring-4 ring-[#4FB3B3]/10 shadow-sm" 
-                          : isFilled 
-                            ? "border-[#3F5C73] text-[#243746]" 
-                            : "border-[#e2e8f0] text-[#cbd5e1]"
-                      )}
-                    >
-                      {digit || "•"}
-                      {showCursor && (
-                        <motion.div
-                          className="absolute h-6 w-0.5 bg-[#4FB3B3]"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: [1, 0, 1] }}
-                          transition={{ 
-                            opacity: { duration: 0.8, repeat: Infinity, ease: "linear" }
-                          }}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <AnimatePresence mode="wait">
-              {error ? (
-                <motion.div
-                  key="error"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="rounded-2xl border border-[#f3b3c0] bg-[#fff1f5] px-4 py-3 text-sm text-[#b63d59]"
-                >
-                  {error}
-                </motion.div>
-              ) : success ? (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="rounded-2xl border border-[#cde4e4] bg-[#eff9f9] px-4 py-3 text-sm text-[#2d6868] flex items-center gap-2"
-                >
-                  <CheckCircle2 className="size-4" />
-                  {success}
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-
-            <Button
-              type="submit"
-              disabled={isLoading || otp.length !== 6 || !!success}
-              className="h-12 w-full rounded-2xl bg-[#3F5C73] text-base font-semibold text-white shadow-[0_10px_24px_rgba(63,92,115,0.25)] transition-all hover:-translate-y-0.5 hover:bg-[#314b60] active:scale-[0.98]"
-            >
-              {isLoading ? (
-                <>
-                  <LoadingSpinner className="mr-2" />
-                  Memverifikasi...
-                </>
-              ) : (
-                "Verifikasi Akun"
-              )}
-            </Button>
-          </form>
-        </CardContent>
-
-        <CardFooter className="flex flex-col items-center gap-4 border-t border-[#e2e8ed] bg-[#f6f8fa] px-6 py-6 text-sm">
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-[#587080]">Tidak menerima kode?</p>
-            <button
-              onClick={handleResend}
-              disabled={resendCountdown > 0 || isResending}
-              className={cn(
-                "flex items-center gap-2 font-semibold transition-colors",
-                resendCountdown > 0 || isResending
-                  ? "text-[#a0aec0] cursor-not-allowed"
-                  : "text-[#3F5C73] hover:text-[#4FB3B3]"
-              )}
-            >
-              {isResending ? (
-                <LoadingSpinner className="size-3" />
-              ) : (
-                <RotateCcw className="size-4" />
-              )}
-              {resendCountdown > 0 
-                ? `Kirim ulang dalam ${resendCountdown}s` 
-                : "Kirim Ulang Kode"}
-            </button>
-          </div>
-          
-          <button 
-            onClick={() => router.replace("/register")}
-            className="text-xs font-medium text-[#64748b] hover:text-[#3F5C73]"
+          <div
+            className="grid grid-cols-6 gap-2"
+            onClick={() => inputRef.current?.focus()}
           >
-            Ganti alamat email
+            {Array.from({ length: 6 }).map((_, index) => {
+              const digit = otp[index];
+              const isCurrentBox = otp.length === index;
+              const isFilled = otp.length > index;
+              const showCursor = isInputFocused && isCurrentBox;
+
+              return (
+                <div
+                  key={index}
+                  className={cn(
+                    "relative flex h-14 md:h-16 w-full items-center justify-center rounded-xl border bg-white text-xl md:text-2xl font-bold transition-all duration-200",
+                    isInputFocused && isCurrentBox
+                      ? "border-[#11538C] ring-4 ring-[#11538C]/10 shadow-sm"
+                      : isFilled
+                        ? "border-slate-400 text-[#1A1F2B]"
+                        : "border-slate-200 text-slate-300",
+                  )}
+                >
+                  {digit || "•"}
+                  {showCursor && (
+                    <motion.div
+                      className="absolute h-6 md:h-8 w-[2px] bg-[#11538C]"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: [1, 0, 1] }}
+                      transition={{
+                        opacity: {
+                          duration: 0.8,
+                          repeat: Infinity,
+                          ease: "linear",
+                        },
+                      }}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Alerts */}
+        <AnimatePresence mode="wait">
+          {error ? (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="rounded-lg bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700 border border-rose-100"
+            >
+              {error}
+            </motion.div>
+          ) : success ? (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="rounded-lg bg-teal-50 px-4 py-3 text-sm font-medium text-teal-700 border border-teal-100 flex items-center gap-2"
+            >
+              <CheckCircle2 className="size-4 shrink-0" />
+              <span>{success}</span>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
+        <Button
+          type="submit"
+          disabled={isLoading || otp.length !== 6 || !!success}
+          className="h-12 w-full rounded-lg text-sm font-bold tracking-wide text-white transition-all bg-[#0c3e6b] hover:bg-[#082a4a] hover:shadow-lg shadow-[#11538C]/20 disabled:opacity-50 disabled:hover:scale-100"
+        >
+          {isLoading ? (
+            <LoadingSpinner />
+          ) : (
+            <>
+              Verifikasi Akun <ArrowRight className="ml-2 size-4" />
+            </>
+          )}
+        </Button>
+      </motion.form>
+
+      {/* Footer Actions */}
+      <motion.div
+        variants={itemVariants}
+        className="mt-8 flex flex-col items-center gap-4 border-t border-slate-100 pt-6"
+      >
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-slate-500">Tidak menerima kode?</span>
+          <button
+            onClick={handleResend}
+            disabled={resendCountdown > 0 || isResending}
+            className={cn(
+              "flex items-center gap-1.5 font-bold transition-colors",
+              resendCountdown > 0 || isResending
+                ? "text-slate-400 cursor-not-allowed"
+                : "text-[#11538C] hover:text-[#0c3e6b]",
+            )}
+          >
+            {isResending ? (
+              <LoadingSpinner className="size-3" />
+            ) : (
+              <RotateCcw className="size-3" />
+            )}
+            {resendCountdown > 0
+              ? `Kirim ulang (${resendCountdown}s)`
+              : "Kirim Ulang"}
           </button>
-        </CardFooter>
-      </Card>
+        </div>
+
+        <button
+          onClick={() => router.replace("/register")}
+          className="text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          Ganti alamat email pendaftaran
+        </button>
+      </motion.div>
     </motion.div>
   );
 }

@@ -171,9 +171,6 @@ export default function LandingPage() {
             <div className="size-10 rounded-full bg-white border border-green-600/20 flex items-center justify-center text-green-700 mb-6">
               <Network className="size-5" />
             </div>
-            <div className="inline-block px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold tracking-widest uppercase rounded-full mb-4">
-              Peta Konsensus
-            </div>
             <h3 className="text-xl font-bold font-heading text-[#1A1F2B] mb-3">
               Musyawarah Berbasis Data
             </h3>
@@ -191,9 +188,6 @@ export default function LandingPage() {
             <div className="size-10 rounded-full bg-white border border-[#11538C]/20 flex items-center justify-center text-[#11538C] mb-6">
               <MapPin className="size-5" />
             </div>
-            <div className="inline-block px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold tracking-widest uppercase rounded-full mb-4">
-              Usulan Warga
-            </div>
             <h3 className="text-xl font-bold font-heading text-[#1A1F2B] mb-3">
               Prioritas Anggaran Kolektif
             </h3>
@@ -210,9 +204,6 @@ export default function LandingPage() {
           >
             <div className="size-10 rounded-full bg-white border border-orange-400/20 flex items-center justify-center text-orange-700 mb-6">
               <PieChart className="size-5" />
-            </div>
-            <div className="inline-block px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold tracking-widest uppercase rounded-full mb-4">
-              Transparansi
             </div>
             <h3 className="text-xl font-bold font-heading text-[#1A1F2B] mb-3">
               Visualisasi Alokasi Anggaran
@@ -245,7 +236,7 @@ export default function LandingPage() {
               Fitur Papan Opini interaktif kami mengubah cara berdiskusi. Tidak
               ada lagi debat panjang di kolom komentar. Algoritma kami memetakan
               respons warga secara visual dan secara otomatis menyoroti{" "}
-              <strong>&quot;Konsensus Kasar&quot;</strong>—titik temu yang
+              <strong>Titik Temu</strong> yang
               disetujui bersama oleh berbagai kubu yang berbeda pendapat.
             </p>
           </motion.div>
@@ -354,14 +345,14 @@ export default function LandingPage() {
             <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  Musrenbang Daerah
+                  Pembangunan Daerah
                 </span>
                 <h3 className="font-bold text-lg text-[#1A1F2B] leading-none mt-1">
                   Prioritas Pendanaan
                 </h3>
               </div>
               <div className="px-3 py-1 bg-blue-100 text-[#11538C] text-xs font-bold rounded-full flex items-center gap-1">
-                <Trophy className="size-3" /> Prioritas
+                <Trophy className="size-3" /> Ranking
               </div>
             </div>
 
@@ -450,7 +441,7 @@ export default function LandingPage() {
             <p className="text-slate-600 leading-relaxed text-lg">
               Sistem &quot;Upvote&quot; tunggal terlalu mudah dimanipulasi.
               Fitur Musrenbang kami menggunakan metode{" "}
-              <strong>Weighted Ranking (3-2-1)</strong>. Warga harus memilih 3
+              <strong>Weighted Ranking</strong>. Warga harus memilih 3
               usulan paling krusial, memastikan proyek yang didanai benar-benar
               merepresentasikan kebutuhan mendesak mayoritas, bukan sekadar adu
               popularitas.
@@ -476,7 +467,7 @@ export default function LandingPage() {
             </h2>
             <p className="text-slate-600 leading-relaxed text-lg">
               Transparansi anggaran tidak seharusnya berupa baris Excel yang
-              sulit dipahami. Melalui alat <i>Budget Map Visualizer</i>, cukup
+              sulit dipahami. Melalui alat <strong>Budget Map Visualizer</strong>, cukup
               arahkan kursor ke wilayahmu untuk melihat status serapan anggaran
               dan proyek yang sedang berjalan.
             </p>

@@ -9,16 +9,13 @@ export default async function RegisterPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Jika sudah login, lempar ke home
   if (user) {
     redirect("/home");
   }
 
   return (
-    <AuthShell
-      badge="Rembuka"
-      title="Create your account"
-      description="Set up your account to continue."
-    >
+    <AuthShell>
       <RegisterForm />
     </AuthShell>
   );

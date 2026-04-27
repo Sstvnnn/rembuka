@@ -80,23 +80,20 @@ export function Navbar({ user, isAdmin }: NavbarProps) {
           href={!user ? "/" : "/home"}
           className="flex items-center shrink-0"
         >
-          <div className="flex gap-3 items-center">
+          <div
+            className={cn(
+              "flex items-center transition-all duration-500",
+              isScrolled ? "h-9" : "h-14",
+            )}
+          >
             <Image
-              src="/logo-rembuka-rm.png"
+              src="/logoV2.png"
               alt="Rembuka Logo"
-              width={isScrolled ? 24 : 32}
-              height={isScrolled ? 24 : 32}
-              className="transition-all duration-500"
+              width={200}
+              height={80}
+              className="h-full w-auto object-contain"
               priority
             />
-            <span
-              className={cn(
-                "font-heading font-black text-[#11538C] tracking-tight transition-all duration-500",
-                isScrolled ? "text-lg" : "text-2xl",
-              )}
-            >
-              Rembuka
-            </span>
           </div>
         </Link>
 

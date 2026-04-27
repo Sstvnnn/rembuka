@@ -48,11 +48,9 @@ export function Footer() {
             Rembuka
           </Link>
           <p className="text-xs text-slate-500 leading-relaxed">
-            © 2026 Rembuka Civic Network.
+            © 2026 Rembuka.
             <br />
             Opini Jadi Data, Kebijakan Jadi Nyata.
-            <br />
-            Built for the people.
           </p>
         </motion.div>
 
