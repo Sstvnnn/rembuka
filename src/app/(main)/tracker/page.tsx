@@ -31,6 +31,9 @@ export default async function TrackPage() {
 
   const { data, error } = await getBoardTrackerData(userLocation);
 
+  console.log("DATA DARI SUPABASE:", data);
+  console.log("ERROR DARI SUPABASE:", error);
+
   if (error) {
     return (
       <div className="container mx-auto py-8">

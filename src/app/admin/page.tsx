@@ -23,7 +23,7 @@ export default async function AdminDashboardPage() {
     .in("verification_status", ["pending_review", "unverified"]);
 
   const { count: ongoingLegislation } = await supabase
-    .from("legislation_drafts")
+    .from("documents")
     .select("*", { count: "exact", head: true })
     .not("status", "in", '("REVISED", "NO_REVISION")');
 

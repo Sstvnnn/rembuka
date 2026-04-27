@@ -41,7 +41,7 @@ export default function TransparencyArchiveClient({
         <div className="grid grid-cols-1 divide-y divide-slate-100">
           {filteredData.map((item) => (
             <div
-              key={item.item_id}
+              key={item.id}
               className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-slate-50/50 transition-colors group"
             >
               <div className="flex items-start gap-4">
@@ -90,8 +90,8 @@ export default function TransparencyArchiveClient({
                   <Link
                     href={
                       item.item_type === "PROPOSAL"
-                        ? `/proposals/${item.item_id}`
-                        : `/legislation/${item.item_id}`
+                        ? `/proposals/${item.id}`
+                        : `/legislation/${item.id}`
                     }
                   >
                     Lihat Rekam Jejak{" "}

@@ -197,7 +197,63 @@ export function Navbar({ user, isAdmin }: NavbarProps) {
                 </button>
 
                 <AnimatePresence>
-                  {/* ... (Menu Dropdown Profile Tetap Sama) ... */}
+                  {isProfileOpen && (
+                    <>
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsProfileOpen(false)}
+                        className="fixed inset-0 z-[-1]"
+                      />
+                      <motion.div
+                        initial={{
+                          opacity: 0,
+                          y: 10,
+                          scale: 0.95,
+                        }}
+                        animate={{
+                          opacity: 1,
+                          y: 0,
+                          scale: 1,
+                        }}
+                        exit={{
+                          opacity: 0,
+                          y: 10,
+                          scale: 0.95,
+                        }}
+                        className="absolute right-0 mt-3 w-56 rounded-[1.5rem] border border-slate-100 bg-white shadow-2xl p-2"
+                      >
+                        <div className="px-4 py-3 border-b border-slate-50 mb-1">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1.5">
+                            Identitas Pengguna
+                          </p>
+                          <p className="text-sm font-bold text-slate-800 truncate">
+                            {user.user_metadata.full_name}
+                          </p>
+                        </div>
+
+                        <Link
+                          href="/profile"
+                          onClick={() => setIsProfileOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors"
+                        >
+                          <User className="size-4 text-slate-400" /> Pengaturan
+                          Akun
+                        </Link>
+
+                        <form action="/signout" method="post">
+                          <button
+                            type="submit"
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
+                          >
+                            <LogOut className="size-4 text-rose-400" /> Keluar
+                            Aman
+                          </button>
+                        </form>
+                      </motion.div>
+                    </>
+                  )}
                 </AnimatePresence>
               </div>
             </>

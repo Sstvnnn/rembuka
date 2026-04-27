@@ -28,10 +28,10 @@ import {
 } from "@/lib/constants/tracker";
 
 type TrackerItem = {
-  item_id: string;
+  id: string;
   title: string;
   item_type: "LEGISLATION" | "PROPOSAL";
-  current_status: string;
+  status: string;
   created_at: string;
   location: string | null;
 };
@@ -56,9 +56,11 @@ export default function TrackerBoard({
   ];
 
   const proposalColumns = [
-    PROPOSAL_STATUS.PENDING,
-    PROPOSAL_STATUS.APPROVED,
-    PROPOSAL_STATUS.REJECTED,
+    PROPOSAL_STATUS.PEMERIKSAAN_DATA,
+    PROPOSAL_STATUS.PEMILIHAN_PRIORITAS,
+    PROPOSAL_STATUS.ALOKASI_DANA,
+    PROPOSAL_STATUS.SEDANG_DIBANGUN,
+    PROPOSAL_STATUS.PROYEK_SELESAI,
   ];
 
   const KanbanBoard = ({
@@ -71,9 +73,7 @@ export default function TrackerBoard({
     // Styling custom scrollbar agar lebih menyatu dengan tema biru
     <div className="flex overflow-x-auto pb-8 pt-4 space-x-6 min-h-[600px] [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:bg-blue-200 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-50">
       {columns.map((statusKey) => {
-        const itemsInColumn = data.filter(
-          (item) => item.current_status === statusKey,
-        );
+        const itemsInColumn = data.filter((item) => item.status === statusKey);
 
         return (
           <div
@@ -94,7 +94,7 @@ export default function TrackerBoard({
             <div className="space-y-4 flex-grow">
               {itemsInColumn.map((item) => (
                 <Card
-                  key={item.item_id}
+                  key={item.id}
                   className="group bg-white border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300"
                 >
                   <CardHeader className="p-5 pb-3">
@@ -125,8 +125,8 @@ export default function TrackerBoard({
                       <Link
                         href={
                           item.item_type === "PROPOSAL"
-                            ? `/proposals/${item.item_id}`
-                            : `/legislation/${item.item_id}`
+                            ? `/proposals/${item.id}`
+                            : `/legislation/${item.id}`
                         }
                       >
                         <Eye className="w-3.5 h-3.5 mr-2" /> Lihat Detail

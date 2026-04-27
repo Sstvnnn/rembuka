@@ -23,10 +23,10 @@ import {
 } from "@/lib/constants/tracker";
 
 type TrackerItem = {
-  item_id: string;
+  id: string;
   title: string;
   item_type: "LEGISLATION" | "PROPOSAL";
-  current_status: string;
+  status: string;
   created_at: string;
   location: string | null;
 };
@@ -119,7 +119,7 @@ export default function AdminTrackerClient({
         <tbody className="divide-y">
           {data.map((item) => (
             <tr
-              key={item.item_id}
+              key={item.id}
               className="hover:bg-slate-50/50 transition-colors"
             >
               <td className="p-4">
@@ -127,7 +127,7 @@ export default function AdminTrackerClient({
                   {item.title}
                 </p>
                 <p className="text-[10px] text-slate-400 font-medium">
-                  ID: {item.item_id}
+                  ID: {item.id}
                 </p>
               </td>
               <td className="p-4">
@@ -150,7 +150,7 @@ export default function AdminTrackerClient({
               </td>
               <td className="p-4">
                 <span className="font-semibold text-slate-600">
-                  {STATUS_LABELS[item.current_status] || item.current_status}
+                  {STATUS_LABELS[item.status] || item.status}
                 </span>
               </td>
               <td className="p-4">
@@ -158,13 +158,13 @@ export default function AdminTrackerClient({
                   {/* SELECT STATUS */}
                   <select
                     className="text-xs p-2 border rounded-lg bg-white focus:ring-2 focus:ring-primary outline-none disabled:opacity-50 font-medium"
-                    disabled={isPending && loadingId === item.item_id}
-                    value={item.current_status}
+                    disabled={isPending && loadingId === item.id}
+                    value={item.status}
                     onChange={(e) =>
                       handleStatusChange(
-                        item.item_id,
+                        item.id,
                         item.item_type,
-                        item.current_status,
+                        item.status,
                         e.target.value,
                       )
                     }
@@ -189,8 +189,8 @@ export default function AdminTrackerClient({
                     <Link
                       href={
                         item.item_type === "PROPOSAL"
-                          ? `/proposals/${item.item_id}`
-                          : `/legislation/${item.item_id}`
+                          ? `/proposals/${item.id}`
+                          : `/legislation/${item.id}`
                       }
                     >
                       <Eye className="size-4" />
@@ -198,7 +198,7 @@ export default function AdminTrackerClient({
                     </Link>
                   </Button>
 
-                  {isPending && loadingId === item.item_id && (
+                  {isPending && loadingId === item.id && (
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                   )}
                 </div>

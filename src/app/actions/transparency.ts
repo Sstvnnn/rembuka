@@ -1,4 +1,3 @@
-// src/app/actions/transparency.ts
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
@@ -6,18 +5,12 @@ import { createClient } from "@/lib/supabase/server";
 export async function getArchivedDocuments(userLocation?: string | null) {
   const supabase = await createClient();
 
-  // Definisikan status mana saja yang dianggap "SUDAH SELESAI"
-  const completedStatuses = [
-    "REVISED", // RUU Selesai Direvisi
-    "NO_REVISION", // RUU Disahkan Tanpa Revisi
-    "approved", // Proposal Daerah Disetujui
-    "rejected", // Proposal Daerah Ditolak
-  ];
+  const completedStatuses = ["REVISED", "PROYEK_SELESAI", "rejected"];
 
   let query = supabase
     .from("vw_board_tracker")
     .select("*")
-    .in("current_status", completedStatuses) // HANYA AMBIL YANG SUDAH SELESAI
+    .in("status", completedStatuses)
     .order("created_at", { ascending: false });
 
   // Filter berdasarkan domisili untuk usulan daerah

@@ -69,7 +69,7 @@ export async function updateStatusAndLog(
 
   if (type === "LEGISLATION") {
     const { error } = await supabase
-      .from("legislation_drafts")
+      .from("documents")
       .update({ status: newStatus, updated_at: timestamp })
       .eq("id", id);
 
