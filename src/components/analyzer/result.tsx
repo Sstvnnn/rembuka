@@ -35,16 +35,7 @@ export default function Result({ data }: { data: AnalysisResponse }) {
                     <h2 className="text-2xl font-bold text-slate-800">
                         Hasil Analisis Hukum
                     </h2>
-                    <p className="text-sm text-slate-500">
-                        Terdeteksi {metadata.total_chunks_detected} pasal.
-                        Menampilkan {metadata.chunks_processed} pasal pertama.
-                    </p>
                 </div>
-                {metadata.is_truncated && (
-                    <span className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
-                        Dibatasi (Truncated)
-                    </span>
-                )}
             </div>
 
             {/* Kesimpulan Utama (Final Summary) */}
@@ -60,19 +51,6 @@ export default function Result({ data }: { data: AnalysisResponse }) {
                         <h4 className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2">
                             Poin Utama:
                         </h4>
-                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            {content.final.key_points.map((kp, i) => (
-                                <li
-                                    key={i}
-                                    className="flex items-start gap-2 text-sm text-slate-600"
-                                >
-                                    <span className="text-blue-500 mt-1">
-                                        •
-                                    </span>
-                                    {kp}
-                                </li>
-                            ))}
-                        </ul>
                     </div>
                 )}
             </section>
