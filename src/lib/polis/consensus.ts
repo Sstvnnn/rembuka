@@ -44,6 +44,8 @@ export function detectConsensus(votes: Vote[], clustered: ClusteredUser[]) {
         votesList.forEach((v) => {
             const cluster = userCluster[v.user_id];
 
+            if (cluster === undefined) return;
+
             if (!clusterStats[cluster]) {
                 clusterStats[cluster] = {
                     agree: 0,
@@ -70,6 +72,9 @@ export function detectConsensus(votes: Vote[], clustered: ClusteredUser[]) {
 
         for (const key of clusterKeys) {
             const stat = clusterStats[Number(key)];
+
+            if (stat.total === 0) continue;
+
             const agreeRatio = stat.agree / stat.total;
             const disagreeRatio = stat.disagree / stat.total;
 
@@ -82,6 +87,8 @@ export function detectConsensus(votes: Vote[], clustered: ClusteredUser[]) {
                     if (otherKey === key) continue;
 
                     const other = clusterStats[Number(otherKey)];
+                    if (other.total === 0) continue;
+
                     const otherDisagree = other.disagree / other.total;
 
                     if (otherDisagree > 0.6) {
@@ -91,14 +98,14 @@ export function detectConsensus(votes: Vote[], clustered: ClusteredUser[]) {
             }
         }
 
-        let label = "neutral";
+        let label: "consensus" | "polarized" | "neutral" = "neutral";
+
         if (isConsensus) label = "consensus";
         else if (isPolarized) label = "polarized";
 
         results.push({
             statement_id: statementId,
             label,
-            text: votesList[0]?.value || "",
 
             clusters: Object.entries(clusterStats).map(([cluster, stat]) => ({
                 cluster: Number(cluster),
