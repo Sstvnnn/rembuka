@@ -25,7 +25,7 @@ export default async function AdminDashboardPage() {
   const { count: ongoingLegislation } = await supabase
     .from("documents")
     .select("*", { count: "exact", head: true })
-    .not("status", "in", '("REVISED", "NO_REVISION")');
+    .not("status", "in", '("REVISED")');
 
   const { count: activeProposals } = await supabase
     .from("proposals")

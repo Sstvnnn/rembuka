@@ -76,7 +76,7 @@ export default function AdminSidebar() {
               className="w-full flex items-center gap-3 rounded-xl text-rose-500 hover:bg-rose-50 hover:text-rose-600 px-4 py-3 text-sm font-bold transition-colors"
             >
               <LogOut className="size-5" />
-              Keluar Aman
+              Keluar Akun
             </button>
           </form>
         </nav>

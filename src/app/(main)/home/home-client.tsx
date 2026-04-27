@@ -1,43 +1,46 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import {
   MapPin,
-  ShieldCheck,
-  UserRound,
-  Vote,
   ArrowRight,
-  TrendingUp,
-  MessageSquare,
   LucideIcon,
+  Users,
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  Plus,
+  Quote,
+  Building2,
+  FileText,
+  Calendar,
+  Gavel,
+  ArrowRightLeft,
+  Loader2,
 } from "lucide-react";
 import { motion, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  ROLE_MAPPING,
-  VERIFICATION_STATUS_MAPPING,
-} from "@/lib/constants/mappings";
+import { ROLE_MAPPING } from "@/lib/constants/mappings";
+import { Footer } from "@/components/shared/footer";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
+    transition: { staggerChildren: 0.08 },
   },
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: 0.5,
-      ease: "easeOut",
-    },
+    transition: { duration: 0.45, ease: "easeOut" },
   },
 };
 
@@ -45,74 +48,154 @@ interface StatCardProps {
   label: string;
   value: string;
   icon: LucideIcon;
-  colorClass: string;
+  iconBg: string;
+  iconColor: string;
+  trend?: string;
+  trendColor?: string;
 }
 
-function StatCard({ label, value, icon: Icon, colorClass }: StatCardProps) {
+function StatCard({
+  label,
+  value,
+  icon: Icon,
+  iconBg,
+  iconColor,
+  trend,
+  trendColor = "text-emerald-600 bg-emerald-50",
+}: StatCardProps) {
   return (
     <motion.div
       variants={itemVariants}
-      className="flex flex-col gap-2 rounded-3xl border border-white/60 bg-white/60 p-5 shadow-sm backdrop-blur-md"
+      className="flex items-center gap-4 rounded-2xl bg-white border border-slate-100 shadow-sm p-5 hover:shadow-md transition-shadow"
     >
       <div
         className={cn(
-          "flex size-10 items-center justify-center rounded-2xl",
-          colorClass,
+          "flex size-12 shrink-0 items-center justify-center rounded-xl",
+          iconBg,
         )}
       >
-        <Icon className="size-5" />
+        <Icon className={cn("size-6", iconColor)} />
       </div>
-      <div>
-        <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-          {label}
-        </p>
-        <p className="text-lg font-bold text-slate-800">{value}</p>
+      <div className="min-w-0 flex-grow">
+        <div className="flex items-center gap-2">
+          <p className="text-2xl font-black text-slate-800 tracking-tight leading-none">
+            {value}
+          </p>
+          {trend && (
+            <span
+              className={cn(
+                "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                trendColor,
+              )}
+            >
+              {trend}
+            </span>
+          )}
+        </div>
+        <p className="text-xs font-medium text-slate-400 mt-1">{label}</p>
       </div>
     </motion.div>
   );
 }
 
-interface ActionCardProps {
+interface ActivityItemProps {
+  icon: LucideIcon;
+  iconBg: string;
+  iconColor: string;
+  text: string;
+  statusInfo?: string;
+  time: string;
+}
+
+function ActivityItem({
+  icon: Icon,
+  iconBg,
+  iconColor,
+  text,
+  statusInfo,
+  time,
+}: ActivityItemProps) {
+  return (
+    <div className="flex items-start gap-3 py-3 border-b border-slate-50 last:border-0">
+      <div className="min-w-0 flex-grow">
+        <p className="text-sm font-bold text-slate-700 leading-relaxed">
+          {text}
+        </p>
+        {statusInfo && (
+          <p className="text-xs font-medium text-slate-500 mt-0.5">
+            {statusInfo}
+          </p>
+        )}
+        <p className="text-[11px] text-slate-400 mt-1">{time}</p>
+      </div>
+    </div>
+  );
+}
+
+type LegalItem = {
+  id: string;
+  final_summary: string;
+  file_name: string | null;
+  created_at: string;
+};
+
+type TrackerLog = {
+  id: string;
+  trackable_type: string;
+  trackable_id: string;
+  previous_status: string;
+  new_status: string;
+  change_notes: string | null;
+  created_at: string;
+  proposals?: { title: string };
+  legal_analysis?: { file_name: string | null; final_summary: string | null };
+};
+
+type ProposalItem = {
+  id: string;
   title: string;
   description: string;
-  icon: LucideIcon;
-  href: string;
-  color: string;
+  category: string;
+  location: string;
+  status: string;
+  created_at: string;
+  estimated_cost: number | null;
+};
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const STATUS_LABELS: Record<string, string> = {
+  pending: "Menunggu Tinjauan",
+  approved: "Disetujui",
+  rejected: "Ditolak",
+  DRAFT_UPLOADED: "Draf Diunggah",
+  PUBLIC_OPINION: "Opini Publik",
+  VERIFICATION: "Verifikasi",
+  REVISED: "Revisi",
+  PEMERIKSAAN_DATA: "Pemeriksaan Data",
+  PEMILIHAN_PRIORITAS: "Pemilihan Prioritas",
+  ALOKASI_DANA: "Alokasi Dana",
+  SEDANG_DIBANGUN: "Sedang Dibangun",
+  PROYEK_SELESAI: "Proyek Selesai",
+};
+
+function fmtStatus(s: string) {
+  return STATUS_LABELS[s] || s.replace(/_/g, " ");
 }
 
-function ActionCard({
-  title,
-  description,
-  icon: Icon,
-  href,
-  color,
-}: ActionCardProps) {
-  return (
-    <motion.div
-      variants={itemVariants}
-      whileHover={{ y: -5 }}
-      className="group relative overflow-hidden rounded-[2.5rem] border border-white/80 bg-white/40 p-8 shadow-lg backdrop-blur-xl transition-all hover:shadow-2xl hover:bg-white/60"
-    >
-      <div
-        className={cn(
-          "mb-6 flex size-14 items-center justify-center rounded-[1.5rem] transition-transform group-hover:scale-110 group-hover:rotate-3",
-          color,
-        )}
-      >
-        <Icon className="size-7 text-white" />
-      </div>
-      <h3 className="text-xl font-bold text-slate-800">{title}</h3>
-      <p className="mt-3 text-sm leading-relaxed text-slate-500">
-        {description}
-      </p>
-      <Link
-        href={href}
-        className="mt-6 flex items-center gap-2 text-sm font-bold text-slate-800 group-hover:gap-3 transition-all"
-      >
-        Jelajahi sekarang <ArrowRight className="size-4" />
-      </Link>
-    </motion.div>
-  );
+function timeAgo(d: string) {
+  const ms = Date.now() - new Date(d).getTime();
+  const m = Math.floor(ms / 60000);
+  if (m < 1) return "Baru saja";
+  if (m < 60) return `${m} menit yang lalu`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} jam yang lalu`;
+  const dy = Math.floor(h / 24);
+  if (dy < 7) return `${dy} hari yang lalu`;
+  return new Date(d).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 interface HomeClientProps {
@@ -151,221 +234,434 @@ export function HomeClient({
     nik?: string;
     position?: string;
   } | null;
+
   const fullName =
     typedProfile?.full_name ??
     user.user_metadata.full_name ??
     (isGovernance ? "Pejabat" : "Warga");
-  const nik = typedProfile?.nik ?? user.user_metadata.nik ?? "-";
   const location =
-    typedProfile?.location ?? user.user_metadata.location ?? "Tidak Diketahui";
-  const verificationStatusKey = typedProfile?.verification_status || "";
-  const isVerified = isGovernance || verificationStatusKey === "verified";
+    typedProfile?.location ?? user.user_metadata.location ?? "Nasional";
+
   const currentRole = isGovernance
     ? (position ??
       typedProfile?.position ??
-      (ROLE_MAPPING[role || "citizen"] || "Pemerintah"))
-    : ROLE_MAPPING[role || "citizen"] || "Warga";
+      ROLE_MAPPING[role || "citizen"] ??
+      "Pemerintah")
+    : (ROLE_MAPPING[role || "citizen"] ?? "Warga");
+
+  const [legalList, setLegalList] = useState<LegalItem[]>([]);
+  const [trackerLogs, setTrackerLogs] = useState<TrackerLog[]>([]);
+  const [proposals, setProposals] = useState<ProposalItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    async function fetchAll() {
+      setLoading(true);
+
+      try {
+        let proposalQuery = supabase
+          .from("proposals")
+          .select(
+            "id, title, description, category, location, status, created_at, estimated_cost",
+          )
+          .order("created_at", { ascending: false });
+
+        if (location && location !== "Nasional") {
+          proposalQuery = proposalQuery.eq("location", location);
+        }
+
+        const [legalRes, logRes, propRes] = await Promise.all([
+          supabase
+            .from("legal_analysis")
+            .select("id, final_summary, file_name, created_at")
+            .order("created_at", { ascending: false })
+            .limit(5),
+          supabase
+            .from("tracker_logs")
+            .select(
+              "id, trackable_type, trackable_id, previous_status, new_status, change_notes, created_at",
+            )
+            .order("created_at", { ascending: false })
+            .limit(5),
+          proposalQuery.limit(3),
+        ]);
+
+        if (logRes.error) console.error("Error Tracker Logs:", logRes.error);
+        if (propRes.error) console.error("Error Proposals:", propRes.error);
+
+        let enrichedLogs: TrackerLog[] = [];
+        if (logRes.data) {
+          enrichedLogs = await Promise.all(
+            logRes.data.map(async (log) => {
+              let extraData = {};
+
+              if (log.trackable_type === "LEGISLATION" && log.trackable_id) {
+                const { data } = await supabase
+                  .from("documents")
+                  .select("title")
+                  .eq("id", log.trackable_id)
+                  .maybeSingle();
+
+                if (data) {
+                  extraData = {
+                    legal_analysis: {
+                      file_name: data.title,
+                      final_summary: null,
+                    },
+                  };
+                }
+              } else if (log.trackable_id) {
+                const { data } = await supabase
+                  .from("proposals")
+                  .select("title")
+                  .eq("id", log.trackable_id)
+                  .single();
+                if (data) extraData = { proposals: data };
+              }
+
+              return { ...log, ...extraData } as TrackerLog;
+            }),
+          );
+        }
+
+        if (legalRes.data) setLegalList(legalRes.data);
+        setTrackerLogs(enrichedLogs);
+        if (propRes.data) setProposals(propRes.data as ProposalItem[]);
+      } catch (error) {
+        console.error("Terjadi kesalahan saat mengambil data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAll();
+  }, [location]);
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,rgba(79,179,179,0.15),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(242,92,122,0.1),transparent_50%),#f8fafc] px-4 pt-32 pb-12 sm:px-8">
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-        className="mx-auto max-w-7xl space-y-8"
-      >
-        {/* Hero Section */}
-        <section className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
-          <motion.div
+    <div className="min-h-screen bg-[#F4F6FA] font-sans">
+      <main className="pt-20">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6"
+        >
+          {/* ── HERO BANNER ─────────────────────────────────────────────── */}
+          <motion.section
             variants={itemVariants}
-            className={cn(
-              "group relative overflow-hidden rounded-[3rem] border border-white/20 p-10 text-white shadow-2xl transition-all",
-              isGovernance ? "bg-slate-800" : "bg-[#3F5C73]",
-            )}
+            className="relative overflow-hidden rounded-3xl text-white shadow-xl min-h-[570px] flex items-center"
           >
-            <div className="relative z-10">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-md">
-                <ShieldCheck
-                  className={cn(
-                    "size-3",
-                    isGovernance ? "text-amber-400" : "text-[#4FB3B3]",
-                  )}
-                />
+            <Image
+              src="/header-section-rembuka.png"
+              alt="Rembuka Header"
+              fill
+              className="object-cover object-center"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0a3d6b]/90 via-[#11538C]/60 to-transparent" />
+            <div className="relative z-10 p-8 md:p-12 lg:p-14 max-w-2xl">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black leading-tight drop-shadow-lg">
+                Selamat datang kembali,
+                <br />
+                <span className="text-blue-300">{fullName}!</span>
+              </h1>
+              <p className="mt-4 text-base md:text-lg text-blue-100/90 leading-relaxed max-w-lg drop-shadow-sm">
                 {isGovernance
-                  ? `Akun ${currentRole}`
-                  : VERIFICATION_STATUS_MAPPING[verificationStatusKey] ||
-                    "Menunggu Verifikasi"}
-              </div>
-              <h2 className="mt-8 font-heading text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">
-                {isGovernance ? "Portal" : "Suarakan"} <br />
-                <span
-                  className={cn(
-                    isGovernance ? "text-amber-400" : "text-[#4FB3B3]",
-                  )}
-                >
-                  {isGovernance ? "Manajemen" : "Aspirasi"}
-                </span>{" "}
-                {isGovernance ? "Pemerintah" : "Warga"}.
-              </h2>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-300">
-                Selamat datang kembali,{" "}
-                <span className="text-white font-bold">{fullName}</span>.
-                {isGovernance
-                  ? ` Akses resmi untuk pemerintah daerah di ${location}. Kelola proposal dan tinjau partisipasi warga.`
-                  : ` Akun Anda yang telah ${isVerified ? "terverifikasi" : "terdaftar"} memberi Anda akses ke platform tata kelola digital Rembuka.`}
+                  ? `Akses resmi untuk pemerintah daerah di ${location}. Kelola proposal dan tinjau partisipasi warga.`
+                  : "Bersama Rembuka, mari wujudkan kebijakan publik yang lebih transparan dan partisipatif."}
               </p>
-              <div className="mt-10 flex flex-wrap gap-4">
-                <Button
-                  asChild
-                  size="lg"
-                  className={cn(
-                    "rounded-2xl font-bold text-slate-900 shadow-xl",
-                    isGovernance
-                      ? "bg-amber-400 hover:bg-amber-500 shadow-amber-400/20"
-                      : "bg-[#4FB3B3] hover:bg-[#3da3a3] shadow-[#4FB3B3]/20",
-                  )}
-                >
-                  <Link href={isGovernance ? "/admin/queue" : "/proposals"}>
-                    {isGovernance ? "Tinjau Antrian" : "Lihat Proposal"}
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="rounded-2xl border-white/20 bg-white/5 font-bold text-white backdrop-blur-md hover:bg-white/10"
-                >
-                  <Link href="/profile">Identitas Saya</Link>
-                </Button>
-              </div>
             </div>
+          </motion.section>
 
-            {/* Background elements */}
-            <div
-              className={cn(
-                "absolute -right-20 -top-20 size-80 rounded-full blur-3xl group-hover:scale-110 transition-all duration-700",
-                isGovernance
-                  ? "bg-amber-400/10 group-hover:bg-amber-400/20"
-                  : "bg-[#4FB3B3]/10 group-hover:bg-[#4FB3B3]/20",
-              )}
+          {/* ── STAT CARDS ROW ──────────────────────────────────────────── */}
+          <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+              label="Warga Aktif"
+              value="12.458"
+              icon={Users}
+              iconBg="bg-blue-50"
+              iconColor="text-blue-600"
+              trend="+12%"
+              trendColor="text-emerald-600 bg-emerald-50"
             />
-            <div className="absolute -bottom-20 -left-20 size-80 rounded-full bg-rose-500/10 blur-3xl" />
-          </motion.div>
+            <StatCard
+              label="Usulan Aktif"
+              value="56"
+              icon={FileText}
+              iconBg="bg-emerald-50"
+              iconColor="text-emerald-600"
+              trend="+8%"
+              trendColor="text-emerald-600 bg-emerald-50"
+            />
+            <StatCard
+              label="Konsensus Tercapai"
+              value="89%"
+              icon={CheckCircle2}
+              iconBg="bg-sky-50"
+              iconColor="text-sky-600"
+              trend="+5%"
+              trendColor="text-emerald-600 bg-emerald-50"
+            />
+            <StatCard
+              label="Kota/Kabupaten"
+              value="34"
+              icon={Building2}
+              iconBg="bg-amber-50"
+              iconColor="text-amber-600"
+            />
+          </section>
 
-          <div className="grid grid-cols-2 gap-4">
-            <StatCard
-              label={isGovernance ? "Peran Resmi" : "ID Pengguna"}
-              value={isGovernance ? currentRole : nik.slice(0, 8) + "..."}
-              icon={isGovernance ? ShieldCheck : UserRound}
-              colorClass={
-                isGovernance
-                  ? "bg-amber-50 text-amber-600"
-                  : "bg-blue-50 text-blue-500"
-              }
-            />
-            <StatCard
-              label="Lokasi"
-              value={location}
-              icon={MapPin}
-              colorClass="bg-rose-50 text-rose-500"
-            />
-            <StatCard
-              label="Status Akun"
-              value={
-                isGovernance
-                  ? "Otorisasi"
-                  : VERIFICATION_STATUS_MAPPING[verificationStatusKey] ||
-                    "Pending"
-              }
-              icon={ShieldCheck}
-              colorClass="bg-emerald-50 text-emerald-500"
-            />
-            <StatCard
-              label="Beban Sistem"
-              value="Optimal"
-              icon={TrendingUp}
-              colorClass="bg-indigo-50 text-indigo-500"
-            />
-
+          {/* ── REGULASI TERKINI (from legal_analysis) ─────────────────── */}
+          <section className="grid lg:grid-cols gap-6">
             <motion.div
               variants={itemVariants}
-              className="col-span-2 rounded-3xl border border-white/60 bg-white/80 p-6 shadow-sm flex items-center justify-between"
+              className="rounded-2xl bg-white border border-slate-100 shadow-sm p-6"
             >
-              <div className="flex items-center gap-4">
-                <div
-                  className={cn(
-                    "size-12 rounded-2xl flex items-center justify-center text-white",
-                    isGovernance ? "bg-slate-700" : "bg-slate-800",
-                  )}
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-lg font-black text-slate-800">
+                  Regulasi Terkini
+                </h2>
+                <Link
+                  href="/legal"
+                  className="text-sm font-bold text-blue-600 flex items-center gap-1 hover:gap-2 transition-all"
                 >
-                  <MessageSquare className="size-6" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-800">
-                    {isGovernance ? "Peringatan Sistem" : "Diskusi Baru"}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {isGovernance
-                      ? "0 isu kritis tertunda"
-                      : "12 aktif di wilayah Anda"}
-                  </p>
-                </div>
+                  Lihat Semua <ArrowRight className="size-4" />
+                </Link>
               </div>
-              <ArrowRight className="size-5 text-slate-400" />
+
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="size-6 text-blue-400 animate-spin" />
+                </div>
+              ) : legalList.length === 0 ? (
+                <div className="text-center py-12 text-sm text-slate-400">
+                  Belum ada data regulasi.
+                </div>
+              ) : (
+                <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-none">
+                  {legalList.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={`/legal/${item.id}`}
+                      className="block"
+                    >
+                      <div className="flex flex-col rounded-2xl border border-slate-100 bg-white p-5 min-w-[280px] hover:shadow-md hover:border-blue-200 transition-all group">
+                        <span className="inline-flex w-fit items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-3 py-1 text-[11px] font-bold text-indigo-700 uppercase tracking-wide">
+                          <Gavel className="size-3" /> Regulasi
+                        </span>
+                        <h4 className="mt-3 text-base font-bold text-slate-800 leading-snug line-clamp-2 group-hover:text-blue-700 transition-colors">
+                          {item.file_name || item.final_summary || "Regulasi"}
+                        </h4>
+                        <div className="mt-2 flex items-center gap-1 text-xs text-slate-400">
+                          <Calendar className="size-3" />
+                          {new Date(item.created_at).toLocaleDateString(
+                            "id-ID",
+                            { day: "numeric", month: "long", year: "numeric" },
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                  {legalList.length > 3 && (
+                    <div className="flex items-center justify-center shrink-0 pl-2">
+                      <Link
+                        href="/legal"
+                        className="flex size-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors shadow-sm"
+                      >
+                        <ChevronRight className="size-5" />
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
             </motion.div>
-          </div>
-        </section>
+          </section>
 
-        {/* Feature Grid */}
-        <section className="grid gap-6 md:grid-cols-3">
-          <ActionCard
-            title={isGovernance ? "Manajemen Antrian" : "Ruang Wacana Publik"}
-            description={
-              isGovernance
-                ? "Tinjau dan proses permintaan verifikasi identitas warga yang masuk."
-                : "Ikuti ruang diskusi publik terstruktur untuk membaca, menimbang, dan memetakan wacana kebijakan daerah."
-            }
-            icon={isGovernance ? ShieldCheck : Vote}
-            href={isGovernance ? "/admin/queue" : "/proposals"}
-            color={isGovernance ? "bg-slate-700" : "bg-indigo-500"}
-          />
-          <ActionCard
-            title={
-              isGovernance ? "Pengawasan Proposal" : "Ruang Aspirasi Daerah"
-            }
-            description={
-              isGovernance
-                ? "Pantau dan moderasi proposal komunitas yang diajukan oleh warga terverifikasi."
-                : "Ajukan dan jelajahi aspirasi pembangunan wilayah berdasarkan jadwal resmi pemerintah daerah."
-            }
-            icon={MapPin}
-            href="/proposals"
-            color="bg-emerald-500"
-          />
-          <ActionCard
-            title={isGovernance ? "Analitik Jaringan" : "Analitik Regional"}
-            description={
-              isGovernance
-                ? "Akses data partisipasi komprehensif dan metrik pertumbuhan sistem."
-                : "Visualisasikan data partisipasi dan kemajuan pembangunan di distrik lokal Anda."
-            }
-            icon={TrendingUp}
-            href="/budget"
-            color="bg-amber-500"
-          />
-        </section>
+          <section className="grid lg:grid-cols-3 gap-6">
+            <motion.div
+              variants={itemVariants}
+              className="lg:col-span-2 rounded-2xl bg-white border border-slate-100 shadow-sm p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-base font-black text-slate-800">
+                  Aspirasi Daerah Terbaru
+                </h2>
+                <Link
+                  href="/proposals"
+                  className="text-xs font-bold text-blue-600 hover:underline"
+                >
+                  Lihat Semua
+                </Link>
+              </div>
 
-        {/* Footer */}
-        <motion.footer
-          variants={itemVariants}
-          className="pt-12 pb-6 flex flex-col items-center justify-center gap-4"
-        >
-          <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-400">
-            Jaringan {isGovernance ? "Pemerintah" : "Warga"} Rembuka &copy; 2026
-          </p>
-          <div className="h-[1px] w-12 bg-slate-200" />
-        </motion.footer>
-      </motion.div>
-    </main>
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="size-6 text-blue-400 animate-spin" />
+                </div>
+              ) : proposals.length === 0 ? (
+                <div className="text-center py-12 text-sm text-slate-400">
+                  Belum ada aspirasi daerah.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {proposals.map((p) => (
+                    <Link
+                      key={p.id}
+                      href={`/proposals/${p.id}`}
+                      className="block"
+                    >
+                      <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4 hover:border-blue-200 hover:bg-blue-50/30 transition-all group">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wide">
+                            {p.category || "Aspirasi"}
+                          </span>
+                          <span
+                            className={cn(
+                              "inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                              p.status === "approved"
+                                ? "bg-emerald-50 border border-emerald-200 text-emerald-700"
+                                : p.status === "rejected"
+                                  ? "bg-red-50 border border-red-200 text-red-700"
+                                  : "bg-amber-50 border border-amber-200 text-amber-700",
+                            )}
+                          >
+                            {fmtStatus(p.status)}
+                          </span>
+                        </div>
+                        <h4 className="text-sm font-bold text-slate-800 leading-snug group-hover:text-blue-700 transition-colors">
+                          {p.title}
+                        </h4>
+                        <p className="mt-1.5 text-xs text-slate-500 leading-relaxed line-clamp-2">
+                          {p.description}
+                        </p>
+                        <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-slate-400">
+                          <span className="flex items-center gap-1">
+                            <MapPin className="size-3" />
+                            {p.location}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Calendar className="size-3" />
+                            {new Date(p.created_at).toLocaleDateString(
+                              "id-ID",
+                              {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              },
+                            )}
+                          </span>
+                          {p.estimated_cost && (
+                            <span>
+                              Rp {p.estimated_cost.toLocaleString("id-ID")}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+
+            {/* Aktivitas Terbaru — 1 col, from tracker_logs */}
+            <motion.div
+              variants={itemVariants}
+              className="rounded-2xl bg-white border border-slate-100 shadow-sm p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-base font-black text-slate-800">
+                  Aktivitas Terbaru
+                </h2>
+                <Link
+                  href="/tracker"
+                  className="text-xs font-bold text-blue-600 hover:underline"
+                >
+                  Lihat Semua
+                </Link>
+              </div>
+
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="size-6 text-blue-400 animate-spin" />
+                </div>
+              ) : trackerLogs.length === 0 ? (
+                <div className="text-center py-12 text-sm text-slate-400">
+                  Belum ada aktivitas.
+                </div>
+              ) : (
+                <div className="space-y-0">
+                  {trackerLogs.map((log) => {
+                    const isLeg = log.trackable_type === "LEGISLATION";
+
+                    const itemName = isLeg
+                      ? log.legal_analysis?.file_name ||
+                        log.legal_analysis?.final_summary ||
+                        "Regulasi"
+                      : log.proposals?.title || "Usulan";
+
+                    const statusInfo = `${fmtStatus(log.previous_status)} → ${fmtStatus(log.new_status)}`;
+
+                    return (
+                      <ActivityItem
+                        key={log.id}
+                        icon={isLeg ? Gavel : ArrowRightLeft}
+                        iconBg={isLeg ? "bg-indigo-50" : "bg-blue-50"}
+                        iconColor={isLeg ? "text-indigo-500" : "text-blue-500"}
+                        text={itemName}
+                        statusInfo={statusInfo}
+                        time={timeAgo(log.created_at)}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          </section>
+
+          <motion.section
+            variants={itemVariants}
+            className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0a3d6b] via-[#11538C] to-[#0a2540] p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl border border-blue-800/50 group"
+          >
+            <div className="absolute top-0 right-0 -translate-y-12 translate-x-8 opacity-20 pointer-events-none transition-transform duration-700 group-hover:scale-110">
+              <div className="w-64 h-64 rounded-full bg-blue-400 blur-3xl"></div>
+            </div>
+            <div className="absolute bottom-0 left-0 translate-y-12 -translate-x-8 opacity-20 pointer-events-none transition-transform duration-700 group-hover:scale-110">
+              <div className="w-48 h-48 rounded-full bg-indigo-400 blur-3xl"></div>
+            </div>
+
+            <div className="relative z-10 flex items-start sm:items-center gap-5 w-full md:w-auto">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 shadow-inner">
+                <Quote className="size-6 text-blue-200" />
+              </div>
+              <div>
+                <p className="text-white font-black text-lg tracking-tight">
+                  Opini Jadi Data, Kebijakan Jadi Nyata.
+                </p>
+                <p className="text-blue-100/80 text-sm mt-1.5 max-w-lg leading-relaxed">
+                  Bergabunglah dengan ribuan warga lainnya yang sudah aktif
+                  membentuk masa depan kota kita bersama.
+                </p>
+              </div>
+            </div>
+            <div className="relative z-10 w-full md:w-auto shrink-0">
+              <Button
+                asChild
+                className="w-full md:w-auto bg-white text-blue-900 hover:bg-blue-50 font-black rounded-xl px-8 h-12 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] hover:-translate-y-0.5 transition-all duration-300"
+              >
+                <Link
+                  href="/proposals"
+                  className="flex items-center justify-center gap-2"
+                >
+                  Buat Usulan Baru <Plus className="size-4" />
+                </Link>
+              </Button>
+            </div>
+          </motion.section>
+        </motion.div>
+      </main>
+      <Footer />
+    </div>
   );
 }

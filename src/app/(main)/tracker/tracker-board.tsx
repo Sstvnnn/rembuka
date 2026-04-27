@@ -126,7 +126,7 @@ export default function TrackerBoard({
                         href={
                           item.item_type === "PROPOSAL"
                             ? `/proposals/${item.id}`
-                            : `/legislation/${item.id}`
+                            : `/legal/${item.id}`
                         }
                       >
                         <Eye className="w-3.5 h-3.5 mr-2" /> Lihat Detail

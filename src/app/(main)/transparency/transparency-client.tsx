@@ -58,12 +58,8 @@ export default function TransparencyArchiveClient({
                         ? "Regulasi"
                         : "Proposal Daerah"}
                     </Badge>
-                    <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 uppercase">
-                      {STATUS_LABELS[item.current_status] ||
-                        item.current_status}
-                    </span>
                   </div>
-                  <h3 className="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors leading-snug">
+                  <h3 className="text-lg font-bold ml-1 text-slate-800 group-hover:text-blue-600 transition-colors leading-snug">
                     {item.title}
                   </h3>
                   <div className="flex flex-wrap items-center gap-4 mt-3 text-xs font-medium text-slate-500">
@@ -91,7 +87,7 @@ export default function TransparencyArchiveClient({
                     href={
                       item.item_type === "PROPOSAL"
                         ? `/proposals/${item.id}`
-                        : `/legislation/${item.id}`
+                        : `/legal/${item.id}`
                     }
                   >
                     Lihat Rekam Jejak{" "}

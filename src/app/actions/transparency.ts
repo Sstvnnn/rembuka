@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function getArchivedDocuments(userLocation?: string | null) {
   const supabase = await createClient();
 
-  const completedStatuses = ["REVISED", "PROYEK_SELESAI", "rejected"];
+  const completedStatuses = ["REVISI", "PROYEK_SELESAI", "rejected"];
 
   let query = supabase
     .from("vw_board_tracker")
