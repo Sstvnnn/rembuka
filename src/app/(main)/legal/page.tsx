@@ -72,6 +72,8 @@ export default function LegalListPage() {
             const userLocation = citizenProfile?.location;
             console.log("User location:", userLocation);
 
+            const allowedCities = [userLocation, "Nasional"];
+
             const { data, error } = await supabase
                 .from("legal_analysis")
                 .select(
@@ -83,9 +85,7 @@ export default function LegalListPage() {
                         documents!inner(id, city)
                     `,
                 )
-                .ilike("documents.city", userLocation);
-
-            console.log("Fetch legal list response:", { data, error });
+                .in("documents.city", allowedCities);
 
             if (data) {
                 const mapped: Legal[] = data.map((item: any) => ({
