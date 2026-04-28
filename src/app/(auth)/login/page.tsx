@@ -10,7 +10,17 @@ export default async function LoginPage() {
   } = await supabase.auth.getUser();
 
   if (user) {
-    redirect("/home");
+    const { data: govUser } = await supabase
+      .from("governance")
+      .select("id")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (govUser) {
+      redirect("/admin");
+    } else {
+      redirect("/home");
+    }
   }
 
   return (

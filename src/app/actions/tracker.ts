@@ -69,9 +69,9 @@ export async function updateStatusAndLog(
 
   if (type === "LEGISLATION") {
     const { error } = await supabase
-      .from("documents")
+      .from("legal_analysis")
       .update({ status: newStatus, updated_at: timestamp })
-      .eq("id", id);
+      .eq("document_id", id);
 
     if (error) return { error: error.message };
   } else {

@@ -76,7 +76,7 @@ export default function AdminTrackerClient({
 
     setLoadingId(id);
     startTransition(async () => {
-      const adminId = null; // Biarkan null jika auth belum terintegrasi ke governance
+      const adminId = null;
       const result = await updateStatusAndLog(
         id,
         type,
@@ -190,7 +190,7 @@ export default function AdminTrackerClient({
                       href={
                         item.item_type === "PROPOSAL"
                           ? `/proposals/${item.id}`
-                          : `/legislation/${item.id}`
+                          : `/legal/${item.id}`
                       }
                     >
                       <Eye className="size-4" />
