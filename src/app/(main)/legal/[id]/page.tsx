@@ -2,8 +2,37 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { motion, type Variants } from "framer-motion";
+import {
+    ArrowRight,
+    Calendar,
+    CheckCircle2,
+    ChevronRight,
+    Gavel,
+    Loader2,
+    MessageSquareQuote,
+    ThumbsDown,
+    ThumbsUp,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+
+const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.08 },
+    },
+};
+
+const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 16 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.45, ease: "easeOut" },
+    },
+};
 
 export default function LegalDetailPage() {
     const supabase = createClient();
@@ -15,6 +44,7 @@ export default function LegalDetailPage() {
     const [text, setText] = useState("");
     const [user, setUser] = useState<any>(null);
     const [votes, setVotes] = useState<Record<string, number>>({});
+    const [loading, setLoading] = useState(true);
 
     const router = useRouter();
 
@@ -23,6 +53,8 @@ export default function LegalDetailPage() {
     }, []);
 
     async function init() {
+        setLoading(true);
+
         const {
             data: { user },
         } = await supabase.auth.getUser();
@@ -35,6 +67,8 @@ export default function LegalDetailPage() {
         if (user) {
             await fetchVotes(user.id);
         }
+
+        setLoading(false);
     }
 
     async function fetchStatements() {
@@ -57,10 +91,26 @@ export default function LegalDetailPage() {
     }
 
     async function fetchVotes(userId: string) {
+        console.log(
+            "Fetching votes for user ID:",
+            userId,
+            "and legal analysis ID:",
+            legalId,
+        );
         const { data } = await supabase
             .from("polis_votes")
-            .select("statement_id, value")
-            .eq("user_id", userId);
+            .select(
+                `
+                    statement_id,
+                    value,
+                    polis_statements!inner (
+                        id,
+                        legal_analysis_id
+                    )
+                `,
+            )
+            .eq("user_id", userId)
+            .eq("polis_statements.legal_analysis_id", legalId);
 
         if (data) {
             const map: Record<string, number> = {};
@@ -100,13 +150,17 @@ export default function LegalDetailPage() {
         active: boolean,
         type: "agree" | "disagree" | "pass",
     ) {
-        const base = "px-3 py-1 rounded transition";
+        const base =
+            "inline-flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold shadow-sm transition-all duration-300 focus:outline-none focus:ring-4";
 
-        if (!active) return `${base} bg-gray-200 text-black hover:bg-gray-300`;
+        if (!active)
+            return `${base} border-slate-200 bg-white text-slate-700 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 hover:shadow-md focus:ring-slate-200`;
 
-        if (type === "agree") return `${base} bg-green-500 text-white`;
-        if (type === "disagree") return `${base} bg-red-500 text-white`;
-        return `${base} bg-blue-500 text-white`;
+        if (type === "agree")
+            return `${base} border-emerald-200 bg-emerald-500 text-white shadow-emerald-500/20 hover:bg-emerald-600 focus:ring-emerald-200`;
+        if (type === "disagree")
+            return `${base} border-rose-200 bg-rose-500 text-white shadow-rose-500/20 hover:bg-rose-600 focus:ring-rose-200`;
+        return `${base} border-sky-200 bg-sky-500 text-white shadow-sky-500/20 hover:bg-sky-600 focus:ring-sky-200`;
     }
 
     async function submitOpinion() {
@@ -131,94 +185,258 @@ export default function LegalDetailPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-20 px-4">
-            <div className="max-w-2xl mx-auto space-y-6">
-                {/* STATEMENTS */}
-                <div>
-                    <h2 className="text-xl font-bold mb-4">
-                        Voting for {legal?.file_name}
-                    </h2>
-                    <Button
-                        onClick={() => router.push(`/legal/${legalId}/summary`)}
-                        className="hover:cursor-pointer mb-4 hover:bg-gray-700"
+        <div className="min-h-screen bg-[#F4F6FA] font-sans">
+            <main className="pt-20">
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={containerVariants}
+                    className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6"
+                >
+                    <motion.section
+                        variants={itemVariants}
+                        className="relative overflow-hidden rounded-3xl text-white shadow-xl min-h-[340px] flex items-center"
                     >
-                        View Original Document
-                    </Button>
-                    <Button
-                        onClick={() =>
-                            router.push(`/legal/${legalId}/analysis`)
-                        }
-                        className="hover:cursor-pointer mb-4 hover:bg-gray-700"
-                    >
-                        View Analysis Summary
-                    </Button>
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#0a3d6b]/95 via-[#11538C]/75 to-[#0a2540]/35" />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.24),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(99,102,241,0.2),transparent_30%)]" />
+                        <div className="relative z-10 p-8 md:p-12 lg:p-14 max-w-4xl">
+                            <span className="inline-flex w-fit items-center gap-1 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-100 backdrop-blur-sm">
+                                <Gavel className="size-3" />
+                                Detail Regulasi
+                            </span>
+                            <h1 className="mt-4 text-3xl md:text-4xl lg:text-5xl font-black leading-tight drop-shadow-lg">
+                                {loading
+                                    ? "Memuat regulasi..."
+                                    : legal?.file_name ||
+                                      "Voting untuk Regulasi"}
+                            </h1>
+                            <p className="mt-4 max-w-3xl text-sm md:text-base text-blue-100/90 leading-relaxed">
+                                Tinjau ringkasan, lihat dokumen asli, dan
+                                berikan suara pada pernyataan yang Anda anggap
+                                paling tepat.
+                            </p>
+                        </div>
+                    </motion.section>
 
-                    <div className="space-y-3">
-                        {statements.map((s) => {
-                            const currentVote = votes[s.id];
+                    <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
+                            <p className="text-xs font-medium text-slate-400">
+                                Pernyataan
+                            </p>
+                            <p className="mt-2 text-2xl font-black text-slate-800 tracking-tight">
+                                {loading ? "..." : statements.length}
+                            </p>
+                        </div>
+                        <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
+                            <p className="text-xs font-medium text-slate-400">
+                                Riwayat suara saya
+                            </p>
+                            <p className="mt-2 text-2xl font-black text-slate-800 tracking-tight">
+                                {Object.keys(votes).length}
+                            </p>
+                        </div>
+                        <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
+                            <p className="text-xs font-medium text-slate-400">
+                                Status
+                            </p>
+                            <p className="mt-2 text-2xl font-black text-slate-800 tracking-tight">
+                                Aktif
+                            </p>
+                        </div>
+                        <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
+                            <p className="text-xs font-medium text-slate-400">
+                                Akses dokumen
+                            </p>
+                            <p className="mt-2 text-2xl font-black text-slate-800 tracking-tight">
+                                Cepat
+                            </p>
+                        </div>
+                    </section>
 
-                            return (
-                                <div
-                                    key={s.id}
-                                    className="bg-white p-4 rounded-xl border"
-                                >
-                                    <p className="mb-3">{s.text}</p>
-
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => handleVote(s.id, 1)}
-                                            className={getButtonStyle(
-                                                currentVote === 1,
-                                                "agree",
-                                            )}
-                                        >
-                                            👍
-                                        </button>
-
-                                        <button
-                                            onClick={() => handleVote(s.id, -1)}
-                                            className={getButtonStyle(
-                                                currentVote === -1,
-                                                "disagree",
-                                            )}
-                                        >
-                                            👎
-                                        </button>
-
-                                        <button
-                                            onClick={() => handleVote(s.id, 0)}
-                                            className={getButtonStyle(
-                                                currentVote === 0,
-                                                "pass",
-                                            )}
-                                        >
-                                            ⏭
-                                        </button>
-                                    </div>
+                    <section className="grid lg:grid-cols-3 gap-6">
+                        <motion.div
+                            variants={itemVariants}
+                            className="lg:col-span-2 rounded-2xl bg-white border border-slate-100 shadow-sm p-6"
+                        >
+                            <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
+                                <div>
+                                    <h2 className="text-lg font-black text-slate-800">
+                                        Ringkasan Regulasi
+                                    </h2>
+                                    <p className="text-sm text-slate-500 mt-1">
+                                        {legal?.file_name ||
+                                            "Dokumen belum tersedia"}
+                                    </p>
                                 </div>
-                            );
-                        })}
-                    </div>
-                </div>
+                                <div className="flex flex-wrap gap-3">
+                                    <Button
+                                        onClick={() =>
+                                            router.push(
+                                                `/legal/${legalId}/summary`,
+                                            )
+                                        }
+                                        className="bg-slate-900 text-white hover:bg-slate-800 rounded-xl px-5 h-11 shadow-sm"
+                                    >
+                                        Lihat Dokumen Asli
+                                        <ChevronRight className="ml-2 size-4" />
+                                    </Button>
+                                    <Button
+                                        onClick={() =>
+                                            router.push(
+                                                `/legal/${legalId}/analysis`,
+                                            )
+                                        }
+                                        className="bg-blue-600 text-white hover:bg-blue-500 rounded-xl px-5 h-11 shadow-sm"
+                                    >
+                                        Lihat Hasil Analisis
+                                        <ArrowRight className="ml-2 size-4" />
+                                    </Button>
+                                </div>
+                            </div>
 
-                {/* SUBMIT OPINION */}
-                <div className="bg-white p-4 rounded-xl border">
-                    <h2 className="font-bold mb-2">Tulis Opini</h2>
+                            {loading ? (
+                                <div className="flex items-center justify-center py-12">
+                                    <Loader2 className="size-6 text-blue-400 animate-spin" />
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="rounded-2xl bg-slate-50/70 border border-slate-100 p-5">
+                                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-indigo-700">
+                                            <MessageSquareQuote className="size-4" />
+                                            Kesimpulan
+                                        </div>
+                                        <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+                                            {legal?.final_summary ||
+                                                "Kesimpulan belum tersedia untuk regulasi ini."}
+                                        </p>
+                                    </div>
 
-                    <textarea
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        className="w-full border p-2 rounded mb-3"
-                    />
+                                    <div className="mt-6 space-y-3">
+                                        <h3 className="text-base font-black text-slate-800">
+                                            Pernyataan Voting
+                                        </h3>
 
-                    <button
-                        onClick={submitOpinion}
-                        className="bg-black text-white px-4 py-2 rounded"
-                    >
-                        Kirim
-                    </button>
-                </div>
-            </div>
+                                        {statements.length === 0 ? (
+                                            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center text-sm text-slate-500">
+                                                Belum ada pernyataan yang
+                                                disetujui.
+                                            </div>
+                                        ) : (
+                                            statements.map((s) => {
+                                                const currentVote = votes[s.id];
+
+                                                return (
+                                                    <motion.div
+                                                        key={s.id}
+                                                        variants={itemVariants}
+                                                        className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
+                                                    >
+                                                        <p className="text-sm font-medium text-slate-700 leading-relaxed">
+                                                            {s.text}
+                                                        </p>
+
+                                                        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                                                            <button
+                                                                onClick={() =>
+                                                                    handleVote(
+                                                                        s.id,
+                                                                        1,
+                                                                    )
+                                                                }
+                                                                className={getButtonStyle(
+                                                                    currentVote ===
+                                                                        1,
+                                                                    "agree",
+                                                                )}
+                                                            >
+                                                                <ThumbsUp className="size-4" />
+                                                                Setuju
+                                                            </button>
+
+                                                            <button
+                                                                onClick={() =>
+                                                                    handleVote(
+                                                                        s.id,
+                                                                        -1,
+                                                                    )
+                                                                }
+                                                                className={getButtonStyle(
+                                                                    currentVote ===
+                                                                        -1,
+                                                                    "disagree",
+                                                                )}
+                                                            >
+                                                                <ThumbsDown className="size-4" />
+                                                                Tidak Setuju
+                                                            </button>
+
+                                                            <button
+                                                                onClick={() =>
+                                                                    handleVote(
+                                                                        s.id,
+                                                                        0,
+                                                                    )
+                                                                }
+                                                                className={getButtonStyle(
+                                                                    currentVote ===
+                                                                        0,
+                                                                    "pass",
+                                                                )}
+                                                            >
+                                                                <CheckCircle2 className="size-4" />
+                                                                Lewati
+                                                            </button>
+                                                        </div>
+                                                    </motion.div>
+                                                );
+                                            })
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </motion.div>
+
+                        <motion.div
+                            variants={itemVariants}
+                            className="rounded-2xl bg-white border border-slate-100 shadow-sm p-6"
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-base font-black text-slate-800">
+                                    Tulis Opini
+                                </h2>
+                                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[11px] font-bold text-blue-700 uppercase tracking-wide">
+                                    <Calendar className="size-3" />
+                                    Publik
+                                </span>
+                            </div>
+
+                            <p className="text-sm text-slate-500 leading-relaxed mb-4">
+                                Sampaikan masukan singkat dan langsung untuk
+                                regulasi ini.
+                            </p>
+
+                            <textarea
+                                value={text}
+                                onChange={(e) => setText(e.target.value)}
+                                className="min-h-40 w-full rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                                placeholder="Tulis opini Anda di sini..."
+                            />
+
+                            <Button
+                                onClick={submitOpinion}
+                                className="mt-4 w-full bg-slate-900 text-white hover:bg-slate-800 rounded-xl h-11 font-semibold"
+                            >
+                                Kirim Opini
+                            </Button>
+
+                            <div className="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+                                Opini yang dikirim akan membantu proses
+                                penilaian kebijakan.
+                            </div>
+                        </motion.div>
+                    </section>
+                </motion.div>
+            </main>
         </div>
     );
 }
