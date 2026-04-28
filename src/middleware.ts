@@ -8,19 +8,18 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
-  
+
   // Public routes (auth flow)
-  const isAuthRoute = 
-    pathname.startsWith("/login") || 
-    pathname.startsWith("/register") || 
+  const isAuthRoute =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
     pathname.startsWith("/forgot-password") ||
     pathname.startsWith("/verify-otp") ||
     pathname.startsWith("/reset-password");
 
   // Protected routes
-  const isProtectedRoute = 
-    pathname.startsWith("/home") || 
-    pathname.startsWith("/profile");
+  const isProtectedRoute =
+    pathname.startsWith("/home") || pathname.startsWith("/profile");
 
   const isAdminRoute = pathname.startsWith("/admin");
 
@@ -49,7 +48,9 @@ export async function middleware(request: NextRequest) {
     // A. Check if email is confirmed (Supabase level)
     if (!user.email_confirmed_at) {
       if (isProtectedRoute) {
-        return NextResponse.redirect(new URL("/login?message=confirm-email", request.url));
+        return NextResponse.redirect(
+          new URL("/login?message=confirm-email", request.url),
+        );
       }
     } else {
       // B. Check profile for Citizens
@@ -62,7 +63,9 @@ export async function middleware(request: NextRequest) {
 
         if (!citizenProfile && isProtectedRoute) {
           await supabase.auth.signOut();
-          return NextResponse.redirect(new URL("/register?message=incomplete-registration", request.url));
+          return NextResponse.redirect(
+            new URL("/register?message=incomplete-registration", request.url),
+          );
         }
       }
 
