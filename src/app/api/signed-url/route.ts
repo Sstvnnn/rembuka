@@ -6,10 +6,12 @@ export async function POST(req: Request) {
         const supabase = await createClient();
 
         const { file_path } = await req.json();
+        console.log("Received file_path for signed URL:", file_path);
 
         const { data, error } = await supabase.storage
             .from("pdf-documents")
-            .createSignedUrl(file_path, 60 * 5); // 5 menit
+            .createSignedUrl(file_path, 60 * 5);
+        console.log("Supabase signed URL response:", { data, error });
 
         if (error) {
             return NextResponse.json({ error: error.message }, { status: 500 });
