@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import ViewPdfButton from "@/components/view-pdf-button";
 import { useEffect, useState } from "react";
 import {
@@ -134,70 +135,6 @@ export default function LegalAnalysisPage() {
                         </div>
                     </div>
                 </div>
-
-                {/* <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-[2rem] border border-slate-100 bg-white p-5 shadow-xl">
-                        <div className="flex items-center gap-3">
-                            <div className="flex size-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-                                <FileText className="size-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-                                    Daftar
-                                </p>
-                                <p className="text-lg font-black text-slate-800">
-                                    Legal Analysis
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-[2rem] border border-slate-100 bg-white p-5 shadow-xl">
-                        <div className="flex items-center gap-3">
-                            <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
-                                <CheckCircle2 className="size-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-                                    Status
-                                </p>
-                                <p className="text-lg font-black text-slate-800">
-                                    Siap Diedit
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-[2rem] border border-slate-100 bg-white p-5 shadow-xl">
-                        <div className="flex items-center gap-3">
-                            <div className="flex size-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
-                                <Calendar className="size-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-                                    Workflow
-                                </p>
-                                <p className="text-lg font-black text-slate-800">
-                                    Review & Publish
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-[2rem] border border-slate-100 bg-white p-5 shadow-xl">
-                        <div className="flex items-center gap-3">
-                            <div className="flex size-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
-                                <Sparkles className="size-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-                                    Fokus
-                                </p>
-                                <p className="text-lg font-black text-slate-800">
-                                    Ringkasan Reg.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </section> */}
-
                 {error && (
                     <div className="rounded-[2rem] border border-red-200 bg-red-50 p-5 text-red-700 shadow-sm">
                         <div className="flex items-start gap-3">
@@ -313,6 +250,14 @@ export default function LegalAnalysisPage() {
                                                                     ?.file_path
                                                             }
                                                         />
+
+                                                        <Link
+                                                            href={`/legal/admin/${item.id}`}
+                                                            className="inline-flex items-center gap-2 rounded-2xl border border-[#4FB3B3]/20 bg-[#4FB3B3]/10 px-4 py-2.5 text-sm font-semibold text-[#3F5C73] shadow-sm transition hover:border-[#4FB3B3]/40 hover:bg-[#4FB3B3]/15"
+                                                        >
+                                                            Atur Statement
+                                                            <ArrowRight className="size-4" />
+                                                        </Link>
 
                                                         <button
                                                             onClick={() => {

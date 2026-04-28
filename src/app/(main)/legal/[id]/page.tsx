@@ -150,13 +150,17 @@ export default function LegalDetailPage() {
         active: boolean,
         type: "agree" | "disagree" | "pass",
     ) {
-        const base = "px-3 py-1 rounded transition";
+        const base =
+            "inline-flex flex-1 min-w-[140px] items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold shadow-sm transition-all duration-300 focus:outline-none focus:ring-4";
 
-        if (!active) return `${base} bg-gray-200 text-black hover:bg-gray-300`;
+        if (!active)
+            return `${base} border-slate-200 bg-white text-slate-700 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 hover:shadow-md focus:ring-slate-200`;
 
-        if (type === "agree") return `${base} bg-green-500 text-white`;
-        if (type === "disagree") return `${base} bg-red-500 text-white`;
-        return `${base} bg-blue-500 text-white`;
+        if (type === "agree")
+            return `${base} border-emerald-200 bg-emerald-500 text-white shadow-emerald-500/20 hover:bg-emerald-600 focus:ring-emerald-200`;
+        if (type === "disagree")
+            return `${base} border-rose-200 bg-rose-500 text-white shadow-rose-500/20 hover:bg-rose-600 focus:ring-rose-200`;
+        return `${base} border-sky-200 bg-sky-500 text-white shadow-sky-500/20 hover:bg-sky-600 focus:ring-sky-200`;
     }
 
     async function submitOpinion() {
@@ -225,7 +229,7 @@ export default function LegalDetailPage() {
                         </div>
                         <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
                             <p className="text-xs font-medium text-slate-400">
-                                Riwayat suara
+                                Riwayat suara saya
                             </p>
                             <p className="mt-2 text-2xl font-black text-slate-800 tracking-tight">
                                 {Object.keys(votes).length}
@@ -331,7 +335,7 @@ export default function LegalDetailPage() {
                                                             {s.text}
                                                         </p>
 
-                                                        <div className="mt-4 flex flex-wrap gap-2">
+                                                        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                                                             <button
                                                                 onClick={() =>
                                                                     handleVote(
