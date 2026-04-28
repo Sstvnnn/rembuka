@@ -1,6 +1,7 @@
 import { getArchivedDocuments } from "@/app/actions/transparency";
 import { createClient } from "@/lib/supabase/server";
 import TransparencyArchiveClient from "./transparency-client";
+import { ShieldCheck } from "lucide-react";
 
 export const metadata = {
   title: "Dokumentasi Transparansi | Rembuka",
@@ -37,26 +38,32 @@ export default async function TransparencyPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] px-4 pt-32 pb-12 sm:px-8">
-      <div className="mx-auto max-w-6xl space-y-8">
-        <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-blue-50 relative overflow-hidden">
-          <div className="relative z-10">
-            <h1 className="text-3xl md:text-5xl font-black text-slate-800 tracking-tight leading-tight">
-              Dokumentasi <span className="text-blue-600">Transparansi</span>
-            </h1>
-            <p className="mt-4 text-slate-500 font-medium max-w-2xl leading-relaxed">
-              Arsip permanen yang merekam seluruh hasil akhir kebijakan nasional
-              dan keputusan pembangunan daerah. Data di halaman ini bersifat
-              final dan dapat diaudit secara publik.
-            </p>
-          </div>
+    <div className="min-h-screen bg-[#F4F6FA] font-sans">
+      <main className="pt-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+          {/* Hero Section — matching legal page design */}
+          <section className="relative overflow-hidden rounded-3xl text-white shadow-xl min-h-[320px] flex items-center">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0a3d6b]/95 via-[#11538C]/75 to-[#0a2540]/35" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.25),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(99,102,241,0.22),transparent_30%)]" />
+            <div className="relative z-10 p-8 md:p-12 lg:p-14 max-w-3xl">
+              <span className="inline-flex w-fit items-center gap-1 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-100 backdrop-blur-sm">
+                <ShieldCheck className="size-3" />
+                Arsip Publik
+              </span>
+              <h1 className="mt-4 text-3xl md:text-4xl lg:text-5xl font-black leading-tight drop-shadow-lg">
+                Dokumentasi <span className="text-blue-200">Transparansi</span>
+              </h1>
+              <p className="mt-4 max-w-2xl text-sm md:text-base text-blue-100/90 leading-relaxed">
+                Arsip permanen yang merekam seluruh hasil akhir kebijakan
+                nasional dan keputusan pembangunan daerah. Data di halaman ini
+                bersifat final dan dapat diaudit secara publik.
+              </p>
+            </div>
+          </section>
 
-          {/* Ornamen Biru */}
-          <div className="absolute -right-24 -top-24 size-80 rounded-full bg-blue-50 blur-3xl pointer-events-none" />
+          <TransparencyArchiveClient initialData={data || []} />
         </div>
-
-        <TransparencyArchiveClient initialData={data || []} />
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

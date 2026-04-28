@@ -104,7 +104,7 @@ export default function TrackerBoard({
                   </CardHeader>
 
                   <CardContent className="p-5 pt-0 space-y-2.5">
-                    <div className="flex items-center text-[11px] font-medium text-slate-500 bg-slate-50 w-fit px-2 py-1 rounded-md">
+                    <div className="flex items-center text-[11px] font-medium text-slate-500">
                       <MapPin className="w-3 h-3 mr-1.5 text-blue-500" />
                       {item.location || "Tingkat Nasional"}
                     </div>
@@ -129,7 +129,7 @@ export default function TrackerBoard({
                             : `/legal/${item.id}`
                         }
                       >
-                        <Eye className="w-3.5 h-3.5 mr-2" /> Lihat Detail
+                        Lihat Detail
                       </Link>
                     </Button>
                   </CardFooter>
