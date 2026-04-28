@@ -2,6 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { motion, type Variants } from "framer-motion";
+import {
+    ArrowRightLeft,
+    CheckCircle2,
+    ChevronRight,
+    CircleAlert,
+    Loader2,
+    MapPin,
+    MessageSquareQuote,
+    Sparkles,
+    Users,
+} from "lucide-react";
 import {
     ScatterChart,
     Scatter,
@@ -11,6 +23,23 @@ import {
     CartesianGrid,
     ResponsiveContainer,
 } from "recharts";
+
+const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.08 },
+    },
+};
+
+const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 16 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.45, ease: "easeOut" },
+    },
+};
 
 type Point = {
     user: string;
@@ -41,9 +70,9 @@ const CustomTooltip = ({ active, payload }: any) => {
         const data = payload[0].payload;
 
         return (
-            <div className="bg-white border rounded px-3 py-2 text-sm shadow">
-                <p className="font-medium">{data.full_name}</p>
-                <p className="text-gray-500">Cluster {data.cluster}</p>
+            <div className="rounded-xl border border-slate-100 bg-white px-3 py-2 text-sm shadow-lg">
+                <p className="font-semibold text-slate-800">{data.full_name}</p>
+                <p className="text-slate-500">Cluster {data.cluster}</p>
             </div>
         );
     }
@@ -106,8 +135,11 @@ export default function AnalysisPage() {
     // ===== LOADING =====
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-gray-500">Loading analysis...</p>
+            <div className="min-h-screen flex items-center justify-center bg-[#F4F6FA]">
+                <div className="rounded-2xl bg-white border border-slate-100 shadow-sm px-6 py-5 flex items-center gap-3 text-slate-600">
+                    <Loader2 className="size-5 animate-spin text-blue-500" />
+                    <p>Loading analysis...</p>
+                </div>
             </div>
         );
     }
@@ -115,8 +147,10 @@ export default function AnalysisPage() {
     // ===== ERROR =====
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-red-500">{error}</p>
+            <div className="min-h-screen flex items-center justify-center bg-[#F4F6FA] px-4">
+                <div className="max-w-xl rounded-2xl border border-red-200 bg-red-50 px-6 py-5 text-red-700 shadow-sm">
+                    {error}
+                </div>
             </div>
         );
     }
@@ -124,10 +158,10 @@ export default function AnalysisPage() {
     // ===== EMPTY =====
     if (points.length === 0) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-gray-500">
-                    Not enough data to generate analysis
-                </p>
+            <div className="min-h-screen flex items-center justify-center bg-[#F4F6FA] px-4">
+                <div className="rounded-2xl bg-white border border-slate-100 shadow-sm px-6 py-5 text-slate-600">
+                    Data tidak cukup untuk menghasilkan analisis.
+                </div>
             </div>
         );
     }
@@ -175,128 +209,185 @@ export default function AnalysisPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6 pt-30">
-            <div className="max-w-7xl mx-auto space-y-6">
-                {/* SUMMARY */}
-                <div className="bg-white p-4 rounded-xl shadow">
-                    <h2 className="text-lg font-semibold mb-2">Summary</h2>
-                    <p className="text-sm text-gray-600">
-                        Found <b>{consensusList.length}</b> consensus points and{" "}
-                        <b>{polarizedList.length}</b> polarized issues across{" "}
-                        <b>{points.length}</b> participants.
-                    </p>
-                </div>
-
-                <div className="grid grid-cols-3 gap-6">
-                    {/* LEFT: MAP */}
-                    <div className="col-span-2 bg-white p-6 rounded-xl shadow">
-                        <h2 className="text-xl font-semibold mb-4">
-                            Live Consensus Map
-                        </h2>
-
-                        <ResponsiveContainer width="100%" height={400}>
-                            <ScatterChart>
-                                <CartesianGrid />
-                                <XAxis
-                                    dataKey="x"
-                                    tick={false}
-                                    // axisLine={false}
-                                />
-                                <YAxis
-                                    dataKey="y"
-                                    tick={false}
-                                    // axisLine={false}
-                                />
-                                <Tooltip content={<CustomTooltip />} />
-
-                                <Scatter
-                                    data={points}
-                                    shape={renderPointDynamic}
-                                />
-                            </ScatterChart>
-                        </ResponsiveContainer>
-                        <div className="mt-6 flex flex-wrap items-center gap-6 text-sm">
-                            {/* CLUSTER LEGEND */}
-                            <div className="flex items-center gap-2">
-                                <div className="w-4 h-4 rounded-full bg-blue-500"></div>
-                                <span>Cluster 0</span>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                                <span>Cluster 1</span>
-                            </div>
-
-                            {/* MODE INFO */}
-                            {selectedStatement && (
-                                <>
-                                    <div className="h-4 w-px bg-gray-300" />
-
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                                        <span>Agree</span>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                                        <span>Disagree</span>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-4 h-4 rounded-full bg-gray-300"></div>
-                                        <span>Pass / No vote</span>
-                                    </div>
-                                </>
-                            )}
-                            <p className="text-xs text-gray-500 mt-2">
-                                Users closer together have similar voting
-                                patterns. Clusters represent groups with similar
-                                opinions.
+        <div className="min-h-screen bg-[#F4F6FA] font-sans">
+            <main className="pt-20">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+                    <section className="relative overflow-hidden rounded-3xl text-white shadow-xl min-h-[330px] flex items-center">
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#0a3d6b]/95 via-[#11538C]/75 to-[#0a2540]/35" />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.24),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(99,102,241,0.2),transparent_30%)]" />
+                        <div className="relative z-10 p-8 md:p-12 lg:p-14 max-w-4xl">
+                            <span className="inline-flex w-fit items-center gap-1 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-100 backdrop-blur-sm">
+                                <Users className="size-3" />
+                                Consensus Analysis
+                            </span>
+                            <h1 className="mt-4 text-3xl md:text-4xl lg:text-5xl font-black leading-tight drop-shadow-lg">
+                                Live consensus map and voting clusters
+                            </h1>
+                            <p className="mt-4 max-w-3xl text-sm md:text-base text-blue-100/90 leading-relaxed">
+                                Visualize how participants are grouped, compare
+                                agreement patterns, and inspect statements by
+                                consensus level.
                             </p>
                         </div>
+                    </section>
+
+                    <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
+                            <p className="text-xs font-medium text-slate-400">
+                                Consensus points
+                            </p>
+                            <p className="mt-2 text-2xl font-black text-slate-800 tracking-tight">
+                                {consensusList.length}
+                            </p>
+                        </div>
+                        <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
+                            <p className="text-xs font-medium text-slate-400">
+                                Polarized issues
+                            </p>
+                            <p className="mt-2 text-2xl font-black text-slate-800 tracking-tight">
+                                {polarizedList.length}
+                            </p>
+                        </div>
+                        <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
+                            <p className="text-xs font-medium text-slate-400">
+                                Participants
+                            </p>
+                            <p className="mt-2 text-2xl font-black text-slate-800 tracking-tight">
+                                {points.length}
+                            </p>
+                        </div>
+                        <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
+                            <p className="text-xs font-medium text-slate-400">
+                                Filter mode
+                            </p>
+                            <p className="mt-2 text-2xl font-black text-slate-800 tracking-tight">
+                                {selectedStatement ? "Active" : "All"}
+                            </p>
+                        </div>
+                    </section>
+
+                    <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
+                        <h2 className="text-lg font-black text-slate-800 mb-2">
+                            Summary
+                        </h2>
+                        <p className="text-sm text-gray-600">
+                            Found <b>{consensusList.length}</b> consensus points
+                            and <b>{polarizedList.length}</b> polarized issues
+                            across <b>{points.length}</b> participants.
+                        </p>
                     </div>
 
-                    {/* RIGHT PANEL */}
-                    <div className="space-y-6">
-                        {/* RESET */}
-                        {selectedStatement && (
-                            <button
-                                onClick={() => setSelectedStatement(null)}
-                                className="text-sm text-blue-600 underline"
-                            >
-                                Reset highlight
-                            </button>
-                        )}
+                    <div className="grid lg:grid-cols-3 gap-6">
+                        {/* LEFT: MAP */}
+                        <div className="lg:col-span-2 rounded-2xl bg-white border border-slate-100 shadow-sm p-6">
+                            <h2 className="text-lg font-black text-slate-800 mb-4">
+                                Live Consensus Map
+                            </h2>
 
-                        {/* CONSENSUS */}
-                        <Section
-                            title="Consensus"
-                            color="green"
-                            list={consensusList}
-                            selected={selectedStatement}
-                            setSelected={setSelectedStatement}
-                        />
+                            <ResponsiveContainer width="100%" height={400}>
+                                <ScatterChart>
+                                    <CartesianGrid />
+                                    <XAxis
+                                        dataKey="x"
+                                        tick={false}
+                                        // axisLine={false}
+                                    />
+                                    <YAxis
+                                        dataKey="y"
+                                        tick={false}
+                                        // axisLine={false}
+                                    />
+                                    <Tooltip content={<CustomTooltip />} />
 
-                        {/* POLARIZED */}
-                        <Section
-                            title="Polarized"
-                            color="red"
-                            list={polarizedList}
-                            selected={selectedStatement}
-                            setSelected={setSelectedStatement}
-                        />
+                                    <Scatter
+                                        data={points}
+                                        shape={renderPointDynamic}
+                                    />
+                                </ScatterChart>
+                            </ResponsiveContainer>
+                            <div className="mt-6 flex flex-wrap items-center gap-6 text-sm">
+                                {/* CLUSTER LEGEND */}
+                                <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+                                    <span>Cluster 0</span>
+                                </div>
 
-                        {/* NEUTRAL */}
-                        <Section
-                            title="Neutral"
-                            color="gray"
-                            list={neutralList}
-                            selected={selectedStatement}
-                            setSelected={setSelectedStatement}
-                        />
+                                <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
+                                    <span>Cluster 1</span>
+                                </div>
+
+                                {/* MODE INFO */}
+                                {selectedStatement && (
+                                    <>
+                                        <div className="h-4 w-px bg-gray-300" />
+
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                                            <span>Agree</span>
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 rounded-full bg-red-500"></div>
+                                            <span>Disagree</span>
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 rounded-full bg-gray-300"></div>
+                                            <span>Pass / No vote</span>
+                                        </div>
+                                    </>
+                                )}
+                                <p className="text-xs text-gray-500 mt-2">
+                                    Users closer together have similar voting
+                                    patterns. Clusters represent groups with
+                                    similar opinions.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* RIGHT PANEL */}
+                        <div className="space-y-6">
+                            {/* RESET */}
+                            {selectedStatement && (
+                                <button
+                                    onClick={() => setSelectedStatement(null)}
+                                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-200 hover:text-blue-700"
+                                >
+                                    Reset highlight
+                                </button>
+                            )}
+
+                            {/* CONSENSUS */}
+                            <Section
+                                title="Consensus"
+                                color="green"
+                                list={consensusList}
+                                selected={selectedStatement}
+                                setSelected={setSelectedStatement}
+                            />
+
+                            {/* POLARIZED */}
+                            <Section
+                                title="Polarized"
+                                color="red"
+                                list={polarizedList}
+                                selected={selectedStatement}
+                                setSelected={setSelectedStatement}
+                            />
+
+                            {/* NEUTRAL */}
+                            <Section
+                                title="Neutral"
+                                color="gray"
+                                list={neutralList}
+                                selected={selectedStatement}
+                                setSelected={setSelectedStatement}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

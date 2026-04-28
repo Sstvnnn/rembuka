@@ -157,7 +157,7 @@ export async function combineSummaries(
                 }`,
             },
         ]);
-
+        console.log("Raw response from LLM in combineSummaries:", rawResponse);
         const cleanJson = cleanJsonResponse(rawResponse);
         return JSON.parse(cleanJson);
     } catch (e) {

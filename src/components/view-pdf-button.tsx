@@ -1,5 +1,7 @@
 "use client";
 
+import { FileText, ExternalLink, AlertTriangle } from "lucide-react";
+
 interface ViewPdfButtonProps {
     filePath?: string | null;
     label?: string;
@@ -7,7 +9,7 @@ interface ViewPdfButtonProps {
 
 export default function ViewPdfButton({
     filePath,
-    label = "View Original PDF",
+    label = "Lihat File Asli",
 }: ViewPdfButtonProps) {
     const handleView = () => {
         if (!filePath) {
@@ -30,16 +32,21 @@ export default function ViewPdfButton({
         <button
             onClick={handleView}
             disabled={!filePath}
-            className={`
-                text-sm px-2 py-1 rounded
+            className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold shadow-sm transition-all duration-300
                 ${
                     filePath
-                        ? "text-indigo-600 bg-indigo-100 hover:bg-indigo-200"
-                        : "text-gray-400 bg-gray-100 cursor-not-allowed"
+                        ? "bg-slate-900 text-white hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-lg hover:shadow-slate-900/15 active:translate-y-0"
+                        : "cursor-not-allowed bg-slate-100 text-slate-400"
                 }
             `}
         >
-            {label}
+            {filePath ? (
+                <FileText className="size-4" />
+            ) : (
+                <AlertTriangle className="size-4" />
+            )}
+            <span>{label}</span>
+            {filePath ? <ExternalLink className="size-4 opacity-80" /> : null}
         </button>
     );
 }
