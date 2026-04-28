@@ -29,6 +29,7 @@ type LoginApiResponse = {
   error?: string;
   email?: string;
   requiresVerification?: boolean;
+  role?: string;
 };
 
 export function LoginForm() {
@@ -120,7 +121,13 @@ export function LoginForm() {
         return;
       }
 
-      router.replace("/home");
+      if (payload.role === "admin") {
+        router.replace("/admin");
+      } else if (payload.role === "governance") {
+        router.replace("/governance");
+      } else {
+        router.replace("/home");
+      }
       router.refresh();
     } catch {
       setError("Kesalahan jaringan. Silakan coba lagi.");

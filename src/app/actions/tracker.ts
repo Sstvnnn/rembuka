@@ -2,7 +2,6 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { LegislationStatus, ProposalStatus } from "@/lib/constants/tracker";
 
 // 1. Fungsi untuk mengambil semua data yang akan ditampilkan di Kanban Board
 export async function getBoardTrackerData(userLocation?: string | null) {

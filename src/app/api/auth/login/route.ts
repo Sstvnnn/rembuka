@@ -16,7 +16,10 @@ export async function POST(request: Request) {
     const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
     if (!passwordRegex.test(password)) {
       return NextResponse.json(
-        { error: "Invalid password format. Citizens must use at least 8 alphanumeric characters." },
+        {
+          error:
+            "Invalid password format. Citizens must use at least 8 alphanumeric characters.",
+        },
         { status: 400 },
       );
     }
@@ -83,24 +86,32 @@ export async function POST(request: Request) {
         { status: 403 },
       );
     }
-  } else {
-    // Citizen Sync...
 
+    return NextResponse.json({
+      success: true,
+      role: govProfile.role,
+      user: { email: data.user.email },
+    });
+  } else {
     const nik = normalizeNik(String(formData.get("nik") ?? ""));
     const citizen = await findCitizenByNik(nik);
     if (citizen) {
       await syncCitizenProfile({
         userId: data.user.id,
         citizen,
-        citizenCardPath: (data.user.user_metadata.citizen_card_path as string | undefined) ?? null,
+        citizenCardPath:
+          (data.user.user_metadata.citizen_card_path as string | undefined) ??
+          null,
         verificationStatus:
-          (data.user.user_metadata.verification_status as string | undefined) ?? null,
+          (data.user.user_metadata.verification_status as string | undefined) ??
+          null,
       });
     }
   }
 
   return NextResponse.json({
     success: true,
+    role: "citizen",
     user: {
       email: data.user.email,
     },
