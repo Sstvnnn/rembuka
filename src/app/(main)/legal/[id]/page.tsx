@@ -1,19 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { motion, type Variants } from "framer-motion";
-import {
-    ArrowRight,
-    Calendar,
-    CheckCircle2,
-    ChevronRight,
-    Gavel,
-    Loader2,
-    MessageSquareQuote,
-    ThumbsDown,
-    ThumbsUp,
-} from "lucide-react";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 
@@ -37,7 +25,11 @@ const itemVariants: Variants = {
 export default function LegalDetailPage() {
     const supabase = createClient();
     const params = useParams();
+    const pathname = usePathname();
     const legalId = params.id as string;
+    const roleBasePath = pathname.startsWith("/governance")
+        ? "/governance/polis"
+        : "/citizen/polis";
 
     const [statements, setStatements] = useState<any[]>([]);
     const [legal, setLegal] = useState<any>(null);
@@ -185,38 +177,25 @@ export default function LegalDetailPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#F4F6FA] font-sans">
-            <main className="pt-20">
-                <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={containerVariants}
-                    className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6"
-                >
-                    <motion.section
-                        variants={itemVariants}
-                        className="relative overflow-hidden rounded-3xl text-white shadow-xl min-h-[340px] flex items-center"
+        <div className="min-h-screen bg-gray-50 py-20 px-4">
+            <div className="max-w-2xl mx-auto space-y-6">
+                {/* STATEMENTS */}
+                <div>
+                    <h2 className="text-xl font-bold mb-4">
+                        Voting for {legal?.file_name}
+                    </h2>
+                    <Button
+                        onClick={() => router.push(`${roleBasePath}/${legalId}/summary`)}
+                        className="hover:cursor-pointer mb-4 hover:bg-gray-700"
                     >
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#0a3d6b]/95 via-[#11538C]/75 to-[#0a2540]/35" />
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.24),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(99,102,241,0.2),transparent_30%)]" />
-                        <div className="relative z-10 p-8 md:p-12 lg:p-14 max-w-4xl">
-                            <span className="inline-flex w-fit items-center gap-1 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-100 backdrop-blur-sm">
-                                <Gavel className="size-3" />
-                                Detail Regulasi
-                            </span>
-                            <h1 className="mt-4 text-3xl md:text-4xl lg:text-5xl font-black leading-tight drop-shadow-lg">
-                                {loading
-                                    ? "Memuat regulasi..."
-                                    : legal?.file_name ||
-                                      "Voting untuk Regulasi"}
-                            </h1>
-                            <p className="mt-4 max-w-3xl text-sm md:text-base text-blue-100/90 leading-relaxed">
-                                Tinjau ringkasan, lihat dokumen asli, dan
-                                berikan suara pada pernyataan yang Anda anggap
-                                paling tepat.
-                            </p>
-                        </div>
-                    </motion.section>
+                        View Original Document
+                    </Button>
+                    <Button
+                        onClick={() => router.push(`${roleBasePath}/${legalId}/analysis`)}
+                        className="hover:cursor-pointer mb-4 hover:bg-gray-700"
+                    >
+                        View Analysis Summary
+                    </Button>
 
                     <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">

@@ -6,9 +6,7 @@ import {
   MapPin,
   Wallet,
   Trophy,
-  Clock,
   User,
-  CalendarRange,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,7 +16,6 @@ import { PhaseCountdown } from "@/components/proposals/phase-countdown";
 import { PeriodTimeline } from "@/components/proposals/period-timeline";
 import { getCurrentProfile } from "@/lib/profile";
 import {
-  formatPeriodDateTime,
   getProposalPhase,
   getProposalPhaseLabel,
 } from "@/lib/proposal-periods";
@@ -64,6 +61,9 @@ export default async function ProposalDetailPage({
   const currentPhase = getProposalPhase(period);
   const isGovernance = userType === "governance" && role === "governance";
   const isOwner = proposal.author_id === user.id;
+  const proposalsBasePath = isGovernance
+    ? "/governance/proposals"
+    : "/citizen/proposals";
   const canVote =
     userType === "citizen" &&
     proposal.status === "approved" &&
@@ -82,14 +82,14 @@ export default async function ProposalDetailPage({
         : STATUS_MAPPING[proposal.status] || proposal.status;
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] px-4 pb-12 pt-32 sm:px-8">
+    <main className="min-h-screen bg-[#F6F5F2] px-4 pb-12 pt-32 sm:px-8 text-[#1A1F2B]">
       <div className="mx-auto max-w-5xl space-y-8">
         <Button
           asChild
           variant="ghost"
-          className="-ml-4 rounded-xl text-slate-500 hover:text-slate-800"
+          className="-ml-4 rounded-xl text-slate-500 hover:text-[#1A1F2B]"
         >
-          <Link href="/proposals" className="flex items-center gap-2">
+          <Link href={proposalsBasePath} className="flex items-center gap-2">
             <ArrowLeft className="size-4" /> Kembali ke Ruang Aspirasi Daerah
           </Link>
         </Button>
@@ -265,7 +265,7 @@ export default async function ProposalDetailPage({
                     asChild
                     className="h-14 w-full rounded-2xl bg-[#4FB3B3] font-bold text-slate-900 shadow-lg shadow-[#4FB3B3]/20 hover:bg-[#3da3a3]"
                   >
-                    <Link href="/proposals">Buka Sesi Voting Wilayah</Link>
+                    <Link href={proposalsBasePath}>Buka Sesi Voting Wilayah</Link>
                   </Button>
                 ) : (
                   <div className="flex items-center justify-center rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center text-xs font-bold uppercase tracking-widest text-slate-400">

@@ -12,6 +12,8 @@ import { getProposalPhase, getProposalPhaseLabel } from "@/lib/proposal-periods"
 import { getProposals, getProposalVotes, getRelevantProposalPeriod, getTopRankedProposals, getProposalPeriods, getProposalPeriodById } from "@/lib/proposals";
 import { Proposal } from "@/types/musrenbang";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProposalsPage({
   searchParams,
 }: {
@@ -24,6 +26,8 @@ export default async function ProposalsPage({
     const userType = profileData.userType;
     const role = profileData.role;
     const location = profileData.profile?.location || "";
+    const basePath =
+      userType === "governance" ? "/governance/proposals" : "/citizen/proposals";
 
     if (role === "admin") {
       return (
@@ -33,7 +37,7 @@ export default async function ProposalsPage({
               <AlertTriangle className="size-10" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-black tracking-tight text-slate-800">Akses Dibatasi</h2>
+              <h2 className="text-2xl font-black tracking-tight text-[#1A1F2B]">Akses Dibatasi</h2>
               <p className="text-sm font-medium text-slate-500">Ruang Aspirasi Daerah hanya digunakan oleh warga dan pemerintah wilayah. Admin fokus pada antrian verifikasi identitas.</p>
             </div>
             <Button asChild className="h-12 w-full rounded-2xl bg-slate-800 font-bold text-white hover:bg-slate-700">
@@ -86,7 +90,7 @@ export default async function ProposalsPage({
     const isWaitingForNewSession = !period && allPeriods.length > 0;
 
     return (
-      <main className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,rgba(79,179,179,0.1),transparent_50%),#f8fafc] px-4 pb-12 pt-32 sm:px-8">
+      <main className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,rgba(79,179,179,0.1),transparent_50%),#F6F5F2] px-4 pb-12 pt-32 sm:px-8 text-[#1A1F2B]">
         <div className="mx-auto max-w-7xl space-y-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="space-y-2">
@@ -99,7 +103,7 @@ export default async function ProposalsPage({
                   <span className="rounded-full bg-amber-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-600">Menunggu Jadwal Baru</span>
                 )}
               </div>
-              <h1 className="font-heading text-4xl font-black tracking-tight text-slate-800">{pageTitle}</h1>
+              <h1 className="font-heading text-4xl font-black tracking-tight text-[#1A1F2B]">{pageTitle}</h1>
               <p className="max-w-2xl text-sm font-medium text-slate-500">
                 {currentPhase === "voting"
                   ? "Masa pengajuan telah ditutup. Warga sekarang memilih tiga proposal terbaik yang sudah disetujui pemerintah wilayah."
@@ -122,7 +126,7 @@ export default async function ProposalsPage({
               
               {!isHistorical && !isWaitingForNewSession && userType === "citizen" && currentPhase === "proposal" ? (
                 <Button asChild className="h-12 rounded-2xl bg-[#3F5C73] px-6 font-bold text-white shadow-xl shadow-[#3F5C73]/20 hover:bg-[#314b60]">
-                  <Link href="/proposals/submit" className="flex items-center gap-2">
+                  <Link href={`${basePath}/submit`} className="flex items-center gap-2">
                     <Plus className="size-4" /> Ajukan Aspirasi
                   </Link>
                 </Button>
@@ -135,7 +139,7 @@ export default async function ProposalsPage({
               <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
                 <History className="size-8" />
               </div>
-              <h3 className="mt-6 text-xl font-bold text-slate-800">Sesi Wilayah Selesai</h3>
+              <h3 className="mt-6 text-xl font-bold text-[#1A1F2B]">Sesi Wilayah Selesai</h3>
               <p className="mx-auto mt-2 max-w-sm text-sm text-slate-500">Sesi saat ini telah berakhir. Anda dapat melihat hasil pemenang dan proposal sesi sebelumnya menggunakan tombol riwayat di atas.</p>
             </div>
           )}
@@ -158,14 +162,14 @@ export default async function ProposalsPage({
                 </div>
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-600">Hasil Wilayah</p>
-                  <h2 className="text-2xl font-black tracking-tight text-slate-800">3 Aspirasi Teratas</h2>
+                  <h2 className="text-2xl font-black tracking-tight text-[#1A1F2B]">3 Aspirasi Teratas</h2>
                 </div>
               </div>
               <div className="grid gap-4 md:grid-cols-3">
                 {topProposals.map((proposal, index) => (
                   <div key={proposal.id} className="rounded-[2rem] border border-slate-100 bg-slate-50 p-5">
                     <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Peringkat #{index + 1}</p>
-                    <h3 className="mt-3 text-lg font-bold text-slate-800">{proposal.title}</h3>
+                    <h3 className="mt-3 text-lg font-bold text-[#1A1F2B]">{proposal.title}</h3>
                     <p className="mt-2 text-sm text-slate-500">{proposal.total_points ?? 0} poin - {proposal.total_votes ?? 0} suara</p>
                   </div>
                 ))}
@@ -197,10 +201,10 @@ export default async function ProposalsPage({
             <AlertTriangle className="size-10" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-black tracking-tight text-slate-800">Kesalahan Akses</h2>
+            <h2 className="text-2xl font-black tracking-tight text-[#1A1F2B]">Kesalahan Akses</h2>
             <p className="text-sm font-medium text-slate-500">Kami mengalami masalah saat memuat Ruang Aspirasi Daerah. Silakan coba lagi nanti.</p>
           </div>
-          <Button asChild className="h-12 w-full rounded-2xl bg-slate-800 font-bold text-white hover:bg-slate-700">
+            <Button asChild className="h-12 w-full rounded-2xl bg-slate-800 font-bold text-white hover:bg-slate-700">
             <Link href="/home">Kembali ke Beranda</Link>
           </Button>
         </div>

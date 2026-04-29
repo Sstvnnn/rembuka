@@ -135,7 +135,7 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
   return (
     <div className="mx-auto w-full max-w-2xl">
       <div className="mb-6 flex items-center justify-between">
-        <Button asChild variant="ghost" className="rounded-xl text-slate-500 hover:text-slate-800">
+        <Button asChild variant="ghost" className="rounded-xl text-slate-500 hover:text-[#1A1F2B]">
           <Link href="/proposals" className="flex items-center gap-2">
             <ArrowLeft className="size-4" /> Kembali ke Ruang Aspirasi Daerah
           </Link>
@@ -152,7 +152,7 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
                 </div>
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4FB3B3]">Ruang Aspirasi Daerah</p>
-                  <CardTitle className="text-2xl font-black tracking-tight text-slate-800">Aspirasi Baru</CardTitle>
+                  <CardTitle className="text-2xl font-black tracking-tight text-[#1A1F2B]">Aspirasi Baru</CardTitle>
                 </div>
               </div>
               {!isVerified ? (
@@ -167,7 +167,7 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
           <CardContent className="space-y-6 p-8">
             {activePeriod ? (
               <div className="rounded-[2rem] border border-slate-100 bg-white/80 p-6 shadow-sm">
-                <div className="mb-4 flex items-center gap-3 text-slate-800">
+                <div className="mb-4 flex items-center gap-3 text-[#1A1F2B]">
                   <CalendarRange className="size-5 text-[#4FB3B3]" />
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Status Jadwal</p>
@@ -209,7 +209,7 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
 
             {isFormLocked ? (
               <div className="rounded-[2rem] border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center">
-                <h3 className="text-lg font-bold text-slate-800">
+                <h3 className="text-lg font-bold text-[#1A1F2B]">
                   {currentPhase === "upcoming"
                     ? "Pengajuan Belum Dimulai"
                     : currentPhase === "voting"

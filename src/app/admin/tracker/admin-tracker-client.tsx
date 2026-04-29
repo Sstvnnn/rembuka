@@ -123,7 +123,7 @@ export default function AdminTrackerClient({
               className="hover:bg-slate-50/50 transition-colors"
             >
               <td className="p-4">
-                <p className="font-bold text-slate-800 line-clamp-1">
+                <p className="font-bold text-[#1A1F2B] line-clamp-1">
                   {item.title}
                 </p>
                 <p className="text-[10px] text-slate-400 font-medium">
@@ -186,13 +186,13 @@ export default function AdminTrackerClient({
                     size="sm"
                     className="h-9 px-3 gap-2 border-slate-200 hover:bg-slate-100"
                   >
-                    <Link
-                      href={
-                        item.item_type === "PROPOSAL"
-                          ? `/proposals/${item.id}`
-                          : `/legal/${item.id}`
-                      }
-                    >
+                      <Link
+                        href={
+                          item.item_type === "PROPOSAL"
+                            ? `/governance/proposals/${item.id}`
+                            : `/governance/polis/${item.id}`
+                        }
+                      >
                       <Eye className="size-4" />
                       <span className="hidden sm:inline">Detail</span>
                     </Link>

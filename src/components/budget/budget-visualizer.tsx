@@ -129,7 +129,7 @@ export function BudgetVisualizer({ budgetItems, initialTaxProfile }: BudgetVisua
                 <div className="flex size-10 items-center justify-center rounded-xl bg-[#3F5C73] text-white">
                   <PieIcon className="size-5" />
                 </div>
-                <CardTitle className="text-xl font-black text-slate-800 tracking-tight uppercase">Alokasi Anggaran</CardTitle>
+                <CardTitle className="text-xl font-black text-[#1A1F2B] tracking-tight uppercase">Alokasi Anggaran</CardTitle>
               </div>
               <div className="text-right">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Total Anggaran</p>
@@ -166,7 +166,7 @@ export function BudgetVisualizer({ budgetItems, initialTaxProfile }: BudgetVisua
         </Card>
 
         <div className="space-y-6">
-          <h3 className="text-lg font-bold text-slate-800 px-2">Pos Pengeluaran Teratas</h3>
+          <h3 className="text-lg font-bold text-[#1A1F2B] px-2">Pos Pengeluaran Teratas</h3>
           <div className="space-y-4">
             {chartData.sort((a,b) => b.value - a.value).slice(0, 5).map((item, idx) => (
               <motion.div
@@ -181,7 +181,7 @@ export function BudgetVisualizer({ budgetItems, initialTaxProfile }: BudgetVisua
                     <Building2 className="size-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-800">{item.name}</p>
+                    <p className="text-sm font-bold text-[#1A1F2B]">{item.name}</p>
                     {hasTaxProfile && (
                       <p className="text-[10px] font-bold text-slate-400 uppercase">Kontribusi Anda: <span className="text-[#4FB3B3]">{formatIDR(item.contribution)}</span></p>
                     )}

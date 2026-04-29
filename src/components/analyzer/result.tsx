@@ -67,45 +67,68 @@ export default function Result({ data }: { data: AnalysisResponse }) {
     }
 
     return (
-        <div className="mx-auto max-w-5xl space-y-6 rounded-[2.5rem] border border-slate-100 bg-white p-6 shadow-xl sm:p-8">
-            <div
-                className="relative overflow-hidden rounded-[2rem] p-6 text-white shadow-xl sm:p-8"
-                style={{
-                    backgroundImage:
-                        "linear-gradient(135deg, #0a3d6b 0%, #11538C 55%, #0a2540 100%)",
-                }}
-            >
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.24),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(99,102,241,0.18),transparent_30%)]" />
-                <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                    <div className="max-w-3xl space-y-3">
-                        <span className="inline-flex w-fit items-center gap-1 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-100 backdrop-blur-sm">
-                            <Sparkles className="size-3" />
-                            Executive Summary
-                        </span>
-                        <h2 className="text-2xl font-black leading-tight sm:text-3xl">
-                            Ringkasan Eksekutif
-                        </h2>
-                        <p className="max-w-2xl text-sm leading-relaxed text-blue-100/90">
-                            Tinjau, edit, dan simpan ringkasan final untuk
-                            analisis regulasi ini sebelum dipublikasikan.
-                        </p>
-                    </div>
-
-                    <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-semibold text-blue-50 backdrop-blur-sm">
-                        <FileText className="size-4" />
-                        {data.data.final.id}
-                    </div>
+        <div className="max-w-4xl mx-auto p-6 space-y-8 bg-white rounded-xl shadow-sm border border-slate-200">
+            {/* Header & Stats */}
+            <div className="flex items-center justify-between border-b pb-4">
+                <div>
+                    <h2 className="text-2xl font-bold text-[#1A1F2B]">
+                        Hasil Analisis Hukum
+                    </h2>
                 </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-[2rem] border border-slate-100 bg-slate-50/80 p-5 shadow-sm">
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-                        Status
-                    </p>
-                    <p className="mt-2 text-lg font-black text-slate-800">
-                        {isEditing ? "Editing" : "Reviewed"}
-                    </p>
+            {/* Kesimpulan Utama (Final Summary) */}
+            <section className="bg-slate-50 p-6 rounded-lg border-l-4 border-blue-600">
+                <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                    Ringkasan Eksekutif
+                </h3>
+                <p className="text-slate-700 leading-relaxed mb-4">
+                    {content.final?.final_summary}
+                </p>
+                {content.final?.key_points?.length > 0 && (
+                    <div>
+                        <h4 className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2">
+                            Poin Utama:
+                        </h4>
+                    </div>
+                )}
+            </section>
+
+            {/* Breakdown Per Pasal */}
+            <div className="space-y-6">
+                <h3 className="text-xl font-bold text-[#1A1F2B]">
+                    Detail Per Pasal
+                </h3>
+                <div className="grid gap-4">
+                    {content.chunks.map((item, i) => (
+                        <div
+                            key={i}
+                            className="p-4 border rounded-lg hover:border-blue-200 transition-colors"
+                        >
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs font-bold rounded">
+                                    {item.title}
+                                </span>
+                            </div>
+                            <p className="text-slate-700 text-sm leading-relaxed mb-3">
+                                {item.summary}
+                            </p>
+
+                            {/* Key Points per Pasal (Opsional) */}
+                            {item.key_points?.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                    {item.key_points.map((kp, idx) => (
+                                        <span
+                                            key={idx}
+                                            className="text-[11px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded border border-blue-100"
+                                        >
+                                            {kp}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ))}
                 </div>
                 <div className="rounded-[2rem] border border-slate-100 bg-slate-50/80 p-5 shadow-sm">
                     <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">

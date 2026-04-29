@@ -2,8 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { tr } from "framer-motion/client";
+import { useParams, usePathname } from "next/navigation";
 
 type Statement = {
     id: string;
@@ -17,7 +16,11 @@ type VoteMap = {
 export default function LegalVotingPage() {
     const supabase = createClient();
     const params = useParams();
+    const pathname = usePathname();
     const legalId = params.id as string;
+    const roleLabel = pathname.startsWith("/governance")
+        ? "governance"
+        : "citizen";
 
     const [title, setTitle] = useState("");
     const [statements, setStatements] = useState<Statement[]>([]);
@@ -128,7 +131,7 @@ export default function LegalVotingPage() {
                 </h1>
 
                 <p className="text-center text-gray-500 mb-6">
-                    Berikan pendapatmu terhadap pernyataan berikut
+                    Workspace {roleLabel}: berikan pendapatmu terhadap pernyataan berikut
                 </p>
 
                 {/* EMPTY STATE */}

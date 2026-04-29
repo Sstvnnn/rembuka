@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createMiddlewareClient } from "@/lib/supabase/middleware";
+import { getRoleHomePath } from "@/lib/role-routes";
 
 export async function middleware(request: NextRequest) {
   const { supabase, response } = createMiddlewareClient(request);
@@ -17,13 +18,22 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/verify-otp") ||
     pathname.startsWith("/reset-password");
 
-  // Rute Warga / Umum
-  const isProtectedRoute =
-    pathname.startsWith("/home") || pathname.startsWith("/profile");
+  // Protected routes
+  const isProtectedRoute = 
+    pathname.startsWith("/citizen") ||
+    pathname.startsWith("/governance") ||
+    pathname.startsWith("/home") || 
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/budget") ||
+    pathname.startsWith("/tracker") ||
+    pathname.startsWith("/transparency") ||
+    pathname.startsWith("/legal") ||
+    pathname.startsWith("/proposals");
 
   // Rute Khusus Pemerintahan
   const isAdminRoute = pathname.startsWith("/admin");
   const isGovernanceRoute = pathname.startsWith("/governance");
+  const isCitizenRoute = pathname.startsWith("/citizen");
 
   // 1. Jika mencoba akses rute terproteksi tapi belum login -> tendang ke login
   if ((isProtectedRoute || isAdminRoute || isGovernanceRoute) && !user) {
@@ -42,26 +52,39 @@ export async function middleware(request: NextRequest) {
     // Normalisasi string role agar aman dari case-sensitive (huruf besar/kecil)
     const userRole = govProfile?.role?.toLowerCase();
     const isGovUser = !!govProfile;
+    const roleHomePath = getRoleHomePath({
+      userType: isGovUser ? "governance" : "citizen",
+      role: govProfile?.role || "citizen",
+    });
 
-    // --- LOGIKA PROTEKSI HALAMAN BERBASIS ROLE ---
-
-    // A. Blokir akses ke /admin jika BUKAN admin
-    if (isAdminRoute && userRole !== "admin") {
-      // Jika dia governance, lempar ke /governance. Jika warga, lempar ke /home.
-      const redirectUrl = userRole === "governance" ? "/governance" : "/home";
-      return NextResponse.redirect(new URL(redirectUrl, request.url));
+    // A. Role-based Route Protection
+    const citizenOnlyPaths = ["/budget", "/tracker", "/transparency", "/legal"];
+    const govOnlyPaths = ["/legal/admin"]; // governance dashboards
+    
+    // 1. Block non-admins from /admin routes
+    if (isAdminRoute && !isAdmin) {
+      return NextResponse.redirect(new URL(roleHomePath, request.url));
     }
 
-    // B. Blokir akses ke /governance jika BUKAN governance
-    if (isGovernanceRoute && userRole !== "governance") {
-      // Jika dia admin, lempar ke /admin. Jika warga, lempar ke /home.
-      const redirectUrl = userRole === "admin" ? "/admin" : "/home";
-      return NextResponse.redirect(new URL(redirectUrl, request.url));
+    // 2. Block governance from citizen-only routes
+    if (isGovUser && citizenOnlyPaths.some(p => pathname.startsWith(p)) && !isAdmin) {
+      return NextResponse.redirect(new URL(roleHomePath, request.url));
     }
 
-    // --- LOGIKA KELENGKAPAN PROFIL & EMAIL ---
+    // 3. Block citizens from governance routes
+    if (!isGovUser && govOnlyPaths.some(p => pathname.startsWith(p))) {
+      return NextResponse.redirect(new URL(roleHomePath, request.url));
+    }
 
-    // C. Cek konfirmasi email
+    if (isCitizenRoute && (isGovUser || isAdmin)) {
+      return NextResponse.redirect(new URL(roleHomePath, request.url));
+    }
+
+    if (isGovernanceRoute && (!isGovUser || isAdmin)) {
+      return NextResponse.redirect(new URL(roleHomePath, request.url));
+    }
+
+    // B. Check if email is confirmed (Supabase level)
     if (!user.email_confirmed_at) {
       if (isProtectedRoute || isAdminRoute || isGovernanceRoute) {
         return NextResponse.redirect(
@@ -87,14 +110,7 @@ export async function middleware(request: NextRequest) {
 
       // E. Mencegah user yang sudah login kembali ke halaman Auth (/login, /register, dll)
       if (isAuthRoute) {
-        // Redirect sesuai porsi masing-masing!
-        if (userRole === "admin") {
-          return NextResponse.redirect(new URL("/admin", request.url));
-        } else if (userRole === "governance") {
-          return NextResponse.redirect(new URL("/governance", request.url));
-        } else {
-          return NextResponse.redirect(new URL("/home", request.url));
-        }
+        return NextResponse.redirect(new URL(roleHomePath, request.url));
       }
     }
   }

@@ -143,7 +143,6 @@ export function LoginForm() {
       variants={containerVariants}
       className="w-full"
     >
-      {/* Header */}
       <motion.div variants={itemVariants} className="mb-10">
         <h2 className="font-heading text-4xl md:text-5xl font-bold text-[#1A1F2B] mb-4">
           Login
@@ -154,7 +153,6 @@ export function LoginForm() {
         </p>
       </motion.div>
 
-      {/* Tab Toggle */}
       <motion.div
         variants={itemVariants}
         className="mb-8 flex p-1 bg-white border border-slate-200 rounded-lg shadow-sm"
@@ -185,69 +183,92 @@ export function LoginForm() {
         </button>
       </motion.div>
 
-      {/* Form */}
       <motion.form
-        variants={itemVariants}
+        layout
+        variants={containerVariants}
         onSubmit={onSubmit}
         className="space-y-6"
       >
-        <AnimatePresence mode="wait">
-          {loginType === "citizen" ? (
-            <motion.div
-              key="citizen-field"
-              initial={{ opacity: 0, x: -5 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 5 }}
-              className="space-y-2"
-            >
-              <Label htmlFor="nik" className="text-slate-700 font-bold text-sm">
-                Nomor Induk Kependudukan (NIK)
-              </Label>
-              <div className="relative">
-                <Input
-                  id="nik"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  placeholder="Masukkan NIK"
-                  value={nik}
-                  onChange={onNikChange}
-                  className="h-12 rounded-lg border-slate-300 bg-white text-[#1A1F2B] focus-visible:border-[#11538C] focus-visible:ring-1 focus-visible:ring-[#11538C] shadow-sm transition-all"
-                />
-                {nik.length >= 16 && (
-                  <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-green-600" />
-                )}
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="gov-field"
-              initial={{ opacity: 0, x: 5 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -5 }}
-              className="space-y-2"
-            >
-              <Label
-                htmlFor="email"
-                className="text-slate-700 font-bold text-sm"
+        <motion.div variants={itemVariants} layout>
+          <AnimatePresence mode="wait" initial={false}>
+            {loginType === "citizen" ? (
+              <motion.div
+                key="citizen-field"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-2"
               >
-                Email Instansi
-              </Label>
-              <div className="relative">
-                <Input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="nama@pemda.go.id"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 rounded-lg border-slate-300 bg-white text-[#1A1F2B] focus-visible:border-[#16a34a] focus-visible:ring-1 focus-visible:ring-[#16a34a] shadow-sm transition-all"
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <Label
+                  htmlFor="nik"
+                  className="text-slate-700 font-bold text-sm"
+                >
+                  Nomor Induk Kependudukan (NIK)
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="nik"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    placeholder="Masukkan NIK"
+                    value={nik}
+                    onChange={onNikChange}
+                    className="h-12 rounded-lg border-slate-300 bg-white text-[#1A1F2B] focus-visible:border-[#11538C] focus-visible:ring-1 focus-visible:ring-[#11538C] focus-visible:ring-offset-0 shadow-sm transition-all"
+                  />
+                  {nik.length >= 16 && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2"
+                    >
+                      <CheckCircle2 className="size-4 text-green-600" />
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="gov-field"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-2"
+              >
+                <Label
+                  htmlFor="email"
+                  className="text-slate-700 font-bold text-sm"
+                >
+                  Email Instansi
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="nama@pemda.go.id"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-12 rounded-lg border-slate-300 bg-white text-[#1A1F2B] focus-visible:border-[#16a34a] focus-visible:ring-1 focus-visible:ring-[#16a34a] focus-visible:ring-offset-0 shadow-sm transition-all"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
-        <div className="space-y-2">
+        <motion.div
+          layout
+          variants={itemVariants}
+          // Key unik diselaraskan dengan transisi tab
+          key={`password-field-${loginType}`}
+          initial={{ opacity: 0, x: loginType === "citizen" ? -10 : 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: loginType === "citizen" ? 10 : -10 }}
+          transition={{ duration: 0.2 }}
+          className="space-y-2"
+        >
           <div className="flex items-center justify-between">
             <Label
               htmlFor="password"
@@ -257,7 +278,12 @@ export function LoginForm() {
             </Label>
             <Link
               href="/forgot-password"
-              className="text-xs font-bold text-[#11538C] hover:text-[#0c3e6b] transition-colors"
+              className={cn(
+                "text-xs font-bold transition-colors",
+                loginType === "citizen"
+                  ? "text-[#11538C] hover:text-[#0c3e6b]"
+                  : "text-[#16a34a] hover:text-[#128a3e]",
+              )}
             >
               Lupa sandi?
             </Link>
@@ -270,25 +296,41 @@ export function LoginForm() {
               placeholder="••••••••"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="h-12 rounded-lg border-slate-300 bg-white text-[#1A1F2B] pr-10 focus-visible:border-[#11538C] focus-visible:ring-1 focus-visible:ring-[#11538C] shadow-sm transition-all"
+              className={cn(
+                "h-12 rounded-lg border-slate-300 bg-white text-[#1A1F2B] pr-10 shadow-sm transition-all",
+                loginType === "citizen"
+                  ? "focus-visible:border-[#11538C] focus-visible:ring-1 focus-visible:ring-[#11538C] focus-visible:ring-offset-0"
+                  : "focus-visible:border-[#16a34a] focus-visible:ring-1 focus-visible:ring-[#16a34a] focus-visible:ring-offset-0",
+              )}
             />
             <button
               type="button"
               onClick={() => setShowPassword((value) => !value)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors"
             >
-              {showPassword ? (
-                <EyeOff className="size-4" />
-              ) : (
-                <Eye className="size-4" />
-              )}
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={showPassword ? "hide" : "show"}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  {showPassword ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
+                </motion.div>
+              </AnimatePresence>
             </button>
           </div>
-        </div>
+        </motion.div>
 
         <AnimatePresence mode="wait">
           {error && (
             <motion.div
+              layout
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
@@ -299,24 +341,30 @@ export function LoginForm() {
           )}
         </AnimatePresence>
 
-        <Button
-          type="submit"
-          disabled={isLoading}
-          className="h-12 w-full rounded-lg text-sm font-bold tracking-wide text-white transition-all bg-[#0c3e6b] hover:bg-[#082a4a] hover:shadow-lg shadow-[#11538C]/20"
-        >
-          {isLoading ? (
-            <LoadingSpinner className="mr-2" />
-          ) : (
-            <>
-              Masuk <ArrowRight className="ml-2 size-4" />
-            </>
-          )}
-        </Button>
+        <motion.div layout variants={itemVariants} className="w-full">
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className={cn(
+              "h-12 w-full rounded-lg text-sm font-bold tracking-wide text-white transition-all shadow-lg",
+              loginType === "citizen"
+                ? "bg-[#11538C] hover:bg-[#0c3e6b] shadow-[#11538C]/20"
+                : "bg-[#16a34a] hover:bg-[#128a3e] shadow-[#16a34a]/20",
+            )}
+          >
+            {isLoading ? (
+              <LoadingSpinner className="mr-2" />
+            ) : (
+              <>
+                Masuk <ArrowRight className="ml-2 size-4" />
+              </>
+            )}
+          </Button>
+        </motion.div>
       </motion.form>
 
-      {/* Footer Link Component */}
       {loginType === "citizen" && (
-        <motion.div variants={itemVariants} className="mt-8 text-center">
+        <motion.div layout variants={itemVariants} className="mt-8 text-center">
           <AuthLinkRow
             question="Belum menjadi warga terdaftar?"
             href="/register"

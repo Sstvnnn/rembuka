@@ -12,7 +12,7 @@ export default async function BudgetPage() {
       <div className="mx-auto max-w-7xl space-y-8">
         <div className="space-y-2">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#4FB3B3]">Dasbor Transparansi</p>
-          <h1 className="font-heading text-4xl font-black text-slate-800 tracking-tight">Visualisasi Anggaran</h1>
+          <h1 className="font-heading text-4xl font-black text-[#1A1F2B] tracking-tight">Visualisasi Anggaran</h1>
           <p className="max-w-xl text-sm font-medium text-slate-500">
             Pahami bagaimana kontribusi pajak Anda mendukung pembangunan lokal. Jelajahi pengeluaran regional di bidang Infrastruktur, Pendidikan, Kesehatan, dan lainnya.
           </p>
