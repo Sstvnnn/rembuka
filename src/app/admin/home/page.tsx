@@ -20,49 +20,45 @@ export default async function AdminDashboardPage() {
     .select("*", { count: "exact", head: true })
     .in("verification_status", ["pending_review", "unverified"]);
 
-  const { count: ongoingLegislation } = await supabase
-    .from("documents")
+  const { count: verifiedUser } = await supabase
+    .from("users")
     .select("*", { count: "exact", head: true })
-    .not("status", "in", '("REVISED")');
+    .eq("verification_status", "verified");
 
-  const { count: activeProposals } = await supabase
-    .from("proposals")
+  const { count: rejectedUser } = await supabase
+    .from("users")
     .select("*", { count: "exact", head: true })
-    .eq("status", "pending");
+    .eq("verification_status", "rejected");
 
   return (
     <main className="min-h-screen bg-[#F6F5F2] px-4 pb-12 pt-8 sm:px-8 text-[#1A1F2B]">
       <div className="mx-auto max-w-7xl space-y-8">
         <section className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10">
-          <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#11538C]">
-            Admin Workspace
-          </p>
-          <h1 className="mt-3 font-heading text-4xl font-black tracking-tight text-[#1A1F2B]">
-            Operational Overview
+          <h1 className="mt-3 font-heading text-4xl font-black tracking-tight text-[#11538C]">
+            Selamat Datang, Admin
           </h1>
-          <p className="mt-4 max-w-3xl text-sm font-medium leading-relaxed text-slate-500">
-            Semua tugas admin sekarang dikumpulkan di dalam workspace yang sama
-            dengan tampilan utama aplikasi. Fokus admin tetap pada verifikasi
-            identitas warga dan pengawasan board tracker.
+          <p className="mt-4 max-w-4xl text-sm font-medium leading-relaxed text-slate-500">
+            Kelola antrian pendaftaran dan pastikan keabsahan identitas warga
+            untuk menjaga integritas prinsip "Satu KTP, Satu Suara"
           </p>
         </section>
 
         <section className="grid gap-5 md:grid-cols-3">
           {[
             {
-              label: "Verification Queue",
+              label: "Antrian Verifikasi",
               value: pendingCount || 0,
               icon: Users,
             },
             {
-              label: "Active Legal Drafts",
-              value: ongoingLegislation || 0,
-              icon: ScrollText,
+              label: "Warga Terverifikasi",
+              value: verifiedUser || 0,
+              icon: Users,
             },
             {
-              label: "Pending Proposals",
-              value: activeProposals || 0,
-              icon: FileCheck,
+              label: "Warga Ditolak",
+              value: rejectedUser || 0,
+              icon: Users,
             },
           ].map((item) => (
             <article
@@ -91,7 +87,7 @@ export default async function AdminDashboardPage() {
               <ShieldCheck className="size-6" />
             </div>
             <h2 className="mt-6 text-2xl font-black tracking-tight">
-              Verification Queue
+              Antrian Verifikasi
             </h2>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-blue-100">
               Tinjau permohonan warga yang menunggu validasi identitas dan
@@ -99,26 +95,6 @@ export default async function AdminDashboardPage() {
             </p>
             <span className="mt-6 inline-flex items-center text-sm font-bold">
               Buka Antrian
-              <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
-            </span>
-          </Link>
-
-          <Link
-            href="/admin/tracker"
-            className="group rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm transition-all hover:border-blue-200 hover:shadow-md"
-          >
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-              <FileCheck className="size-6" />
-            </div>
-            <h2 className="mt-6 text-2xl font-black tracking-tight text-[#1A1F2B]">
-              Tracker Board
-            </h2>
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-slate-500">
-              Kelola status proposal pembangunan dan draf kebijakan yang tampil
-              di board publik warga.
-            </p>
-            <span className="mt-6 inline-flex items-center text-sm font-bold text-[#11538C]">
-              Buka Tracker
               <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
             </span>
           </Link>

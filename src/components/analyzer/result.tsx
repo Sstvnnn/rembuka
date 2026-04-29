@@ -21,7 +21,13 @@ interface AnalysisResponse {
         final: {
             id: string;
             final_summary: string;
+            key_points?: string[];
         };
+        chunks: {
+            title: string;
+            summary: string;
+            key_points: string[];
+        }[];
     };
 }
 
@@ -34,6 +40,8 @@ export default function Result({ data }: { data: AnalysisResponse }) {
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const content = data.data;
 
     async function handleSave() {
         try {
@@ -85,7 +93,7 @@ export default function Result({ data }: { data: AnalysisResponse }) {
                 <p className="text-slate-700 leading-relaxed mb-4">
                     {content.final?.final_summary}
                 </p>
-                {content.final?.key_points?.length > 0 && (
+                {(content.final?.key_points?.length ?? 0) > 0 && (
                     <div>
                         <h4 className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2">
                             Poin Utama:

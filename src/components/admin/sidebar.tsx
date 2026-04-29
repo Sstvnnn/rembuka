@@ -7,12 +7,11 @@ import {
   LayoutDashboard,
   Users,
   FileCheck,
-  User,
   LogOut,
   MessageSquare,
   ScrollText,
-  Home,
   type LucideIcon,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +23,7 @@ type SidebarLink = {
 
 type AdminSidebarProps = {
   scope?: "admin" | "governance";
+  location?: string | null;
 };
 
 const adminLinks: SidebarLink[] = [
@@ -33,9 +33,14 @@ const adminLinks: SidebarLink[] = [
 
 const governanceLinks: SidebarLink[] = [
   {
+    label: "Dashboard",
+    href: "/governance/home",
+    icon: LayoutDashboard,
+  },
+  {
     label: "Regulasi Kebijakan",
     href: "/governance/legal",
-    icon: MessageSquare,
+    icon: FileText,
   },
   {
     label: "Proposal Warga",
@@ -45,11 +50,12 @@ const governanceLinks: SidebarLink[] = [
   { label: "Tracker", href: "/governance/tracker", icon: FileCheck },
 ];
 
-export default function AdminSidebar({ scope = "admin" }: AdminSidebarProps) {
+export default function AdminSidebar({
+  scope = "admin",
+  location,
+}: AdminSidebarProps) {
   const pathname = usePathname();
   const links = scope === "governance" ? governanceLinks : adminLinks;
-  const sidebarTitle =
-    scope === "governance" ? "Menu Governance" : "Menu Admin";
 
   return (
     <aside className="group/sidebar w-64 border-r border-slate-200 bg-white flex-shrink-0 h-screen sticky top-0 overflow-y-auto flex flex-col">
@@ -71,10 +77,21 @@ export default function AdminSidebar({ scope = "admin" }: AdminSidebarProps) {
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 p-4">
-        <p className="mb-3 px-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
-          {sidebarTitle}
-        </p>
+      <div className="p-4">
+        {/* --- BAGIAN JUDUL SIDEBAR YANG DIUBAH --- */}
+        <div className="mb-4 px-3">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+            {scope === "governance" ? "Menu Governance" : "Menu Admin"}
+          </p>
+          {/* Jika scope governance dan lokasi ada, tampilkan di baris bawahnya */}
+          {scope === "governance" && location && (
+            <p className="text-[11px] font-bold text-blue-600 mt-1 truncate uppercase tracking-wider">
+              {location}
+            </p>
+          )}
+        </div>
+        {/* ---------------------------------------- */}
+
         <nav className="space-y-1">
           {links.map((link) => {
             const isActive =

@@ -63,11 +63,7 @@ export function getRoleNavLinks(scope: RoleScope): NavLink[] {
           href: "/admin/queue",
           description: "Verifikasi warga yang menunggu",
         },
-        {
-          label: "Tracker Board",
-          href: "/admin/tracker",
-          description: "Kelola progres proposal dan kebijakan",
-        },
+
         {
           label: "Profile",
           href: "/admin/profile",
@@ -83,13 +79,18 @@ export function getRoleNavLinks(scope: RoleScope): NavLink[] {
         },
         {
           label: "POL.IS Rules",
-          href: "/governance/polis",
+          href: "/governance/legal",
           description: "Atur pernyataan dan ringkasan regulasi",
         },
         {
           label: "Building Proposals",
           href: "/governance/proposals",
           description: "Tinjau proposal dan atur jadwal fase",
+        },
+        {
+          label: "Tracker Board",
+          href: "/governance/tracker",
+          description: "Kelola progres proposal dan kebijakan",
         },
         {
           label: "Profile",

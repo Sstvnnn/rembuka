@@ -337,7 +337,7 @@ export default function AdminQueuePage() {
             <ShieldCheck className="size-5" />
           </div>
           <h1 className="font-heading text-4xl font-black tracking-tight text-slate-900">
-            Verification Queue
+            Antrian Verifikasi
           </h1>
         </div>
         <p className="mt-4 max-w-3xl text-sm font-medium leading-relaxed text-slate-500">

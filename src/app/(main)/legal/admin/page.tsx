@@ -1,4 +1,16 @@
+"use client";
+
 import { redirect } from "next/navigation";
+import { useState, useEffect } from "react";
+
+interface Analysis {
+    id: string;
+    file_name: string;
+    final_summary: string;
+    documents?: {
+        file_path: string;
+    };
+}
 
 export default function LegalAnalysisPage() {
     const [data, setData] = useState<Analysis[]>([]);

@@ -190,7 +190,7 @@ export default function AdminTrackerClient({
                       href={
                         item.item_type === "PROPOSAL"
                           ? `/governance/proposals/${item.id}`
-                          : `/governance/polis/${item.id}`
+                          : `/governance/legal/${item.id}`
                       }
                     >
                       <Eye className="size-4" />
