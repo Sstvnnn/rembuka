@@ -7,9 +7,14 @@ export const metadata = {
 };
 
 export default async function AdminTrackerPage() {
-  const { userType, profile } = await getCurrentProfile();
+  // 1. Ambil profil user yang sedang login
+  const { profile, userType } = await getCurrentProfile();
+
+  // 2. Ambil lokasi (hanya jika dia adalah governance)
   const userLocation = userType === "governance" ? profile?.location : null;
-  const { data, error } = await getBoardTrackerData(userLocation);
+
+  // 3. Fetch data berdasarkan lokasi tersebut
+  const { data: initialData, error } = await getBoardTrackerData(userLocation);
 
   if (error) {
     return <div className="p-8 text-red-500">Error: {error}</div>;
@@ -29,7 +34,10 @@ export default async function AdminTrackerPage() {
           </p>
         </section>
 
-        <AdminTrackerClient initialData={data || []} />
+        <AdminTrackerClient
+          initialData={initialData || []}
+          userLocation={userLocation}
+        />
       </div>
     </main>
   );

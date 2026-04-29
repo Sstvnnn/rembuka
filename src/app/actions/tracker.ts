@@ -12,10 +12,10 @@ export async function getBoardTrackerData(userLocation?: string | null) {
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (userLocation) {
-    query = query.or(
-      `item_type.eq.LEGISLATION,and(item_type.eq.PROPOSAL,location.eq."${userLocation}")`,
-    );
+  if (userLocation && userLocation !== "Nasional") {
+    query = query.in("location", ["Nasional", userLocation]);
+  } else if (userLocation === "Nasional") {
+    query = query.eq("location", "Nasional");
   }
 
   const { data, error } = await query;
@@ -94,7 +94,7 @@ export async function updateStatusAndLog(
   if (logError) return { error: logError.message };
 
   revalidatePath("/track");
-  revalidatePath("/admin/tracker");
+  revalidatePath("/governance/tracker");
 
   return { success: true };
 }

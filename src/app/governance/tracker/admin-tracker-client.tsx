@@ -33,8 +33,10 @@ type TrackerItem = {
 
 export default function AdminTrackerClient({
   initialData,
+  userLocation,
 }: {
   initialData: TrackerItem[];
+  userLocation?: string | null;
 }) {
   const [isPending, startTransition] = useTransition();
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -141,7 +143,7 @@ export default function AdminTrackerClient({
                     })}
                   </div>
                   {item.location && (
-                    <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full w-fit border border-emerald-100">
+                    <div className="flex items-center gap-1.5 text-[10px] font-medium text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full w-fit border border-blue-100 whitespace-nowrap">
                       <MapPin className="size-3 opacity-70" />
                       {item.location}
                     </div>
