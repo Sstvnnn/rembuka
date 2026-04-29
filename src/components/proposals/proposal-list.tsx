@@ -165,7 +165,7 @@ export function ProposalList({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Mode Ruang Aspirasi Daerah</p>
-            <h2 className="mt-2 text-2xl font-black text-slate-800">
+            <h2 className="mt-2 text-2xl font-black text-[#1A1F2B]">
               {currentPhase === "proposal"
                 ? "Masa Pengajuan Aspirasi"
                 : currentPhase === "voting"
@@ -252,7 +252,7 @@ export function ProposalList({
                 {proposal ? (
                   <div className="flex items-center gap-3">
                     <div className="flex size-8 items-center justify-center rounded-xl bg-[#4FB3B3] text-xs font-black text-white">{rank}</div>
-                    <p className="truncate text-xs font-bold text-slate-800">{proposal.title}</p>
+                    <p className="truncate text-xs font-bold text-[#1A1F2B]">{proposal.title}</p>
                   </div>
                 ) : (
                   <p className="text-xs italic font-medium text-slate-400">Belum ada pilihan</p>
@@ -303,7 +303,7 @@ export function ProposalList({
                 </div>
 
                 <div className="flex flex-1 flex-col p-8">
-                  <h3 className="min-h-[3.5rem] line-clamp-2 text-xl font-bold text-slate-800">{proposal.title || "Tanpa Judul"}</h3>
+                  <h3 className="min-h-[3.5rem] line-clamp-2 text-xl font-bold text-[#1A1F2B]">{proposal.title || "Tanpa Judul"}</h3>
 
                   <div className="mt-4 flex items-center gap-3">
                     <div className={cn("rounded-full border px-2 py-0.5 text-[8px] font-black uppercase", getStatusClass(proposal))}>

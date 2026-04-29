@@ -59,7 +59,7 @@ export default function TransparencyArchiveClient({
                         : "Proposal Daerah"}
                     </Badge>
                   </div>
-                  <h3 className="text-lg font-bold ml-1 text-slate-800 group-hover:text-blue-600 transition-colors leading-snug">
+                  <h3 className="text-lg font-bold ml-1 text-[#1A1F2B] group-hover:text-blue-600 transition-colors leading-snug">
                     {item.title}
                   </h3>
                   <div className="flex flex-wrap items-center gap-4 mt-3 text-xs font-medium text-slate-500">

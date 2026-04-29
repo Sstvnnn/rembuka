@@ -244,7 +244,7 @@ export function ProfileSettings({
                 <div className="flex size-10 items-center justify-center rounded-xl bg-[#3F5C73] text-white">
                   <ShieldCheck className="size-5" />
                 </div>
-                <CardTitle className="text-xl font-black text-slate-800 tracking-tight uppercase">
+                <CardTitle className="text-xl font-black text-[#1A1F2B] tracking-tight uppercase">
                   {isGovernance ? "Profil Pejabat Pemerintah" : "Profil Registrasi"}
                 </CardTitle>
               </div>
@@ -253,7 +253,7 @@ export function ProfileSettings({
               <div className="grid gap-8 sm:grid-cols-2">
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nama Lengkap</p>
-                  <p className="text-base font-bold text-slate-800">{fullName}</p>
+                  <p className="text-base font-bold text-[#1A1F2B]">{fullName}</p>
                 </div>
                 {isGovernance ? (
                   <div className="space-y-1">
@@ -268,11 +268,11 @@ export function ProfileSettings({
                 )}
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Akses Email</p>
-                  <p className="text-base font-bold text-slate-800">{email}</p>
+                  <p className="text-base font-bold text-[#1A1F2B]">{email}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wilayah Tugas</p>
-                  <p className="text-base font-bold text-slate-800">{location}</p>
+                  <p className="text-base font-bold text-[#1A1F2B]">{location}</p>
                 </div>
               </div>
             </CardContent>
@@ -283,7 +283,7 @@ export function ProfileSettings({
         <motion.div variants={itemVariants}>
           <Card className="rounded-[2.5rem] border-white/60 bg-white/40 shadow-xl backdrop-blur-xl">
             <CardHeader className="px-8 pt-8">
-              <CardTitle className="text-lg font-bold text-slate-800">Keamanan Akun</CardTitle>
+              <CardTitle className="text-lg font-bold text-[#1A1F2B]">Keamanan Akun</CardTitle>
             </CardHeader>
             <CardContent className="px-8 pb-8">
               <form onSubmit={onPasswordSubmit} className="space-y-6">
@@ -343,7 +343,7 @@ export function ProfileSettings({
         <motion.div variants={itemVariants} className="space-y-8">
           <Card className="overflow-hidden rounded-[2.5rem] border-white/60 bg-white/40 shadow-2xl backdrop-blur-xl">
             <CardHeader className="flex flex-row items-center justify-between px-8 py-6 bg-slate-50/50">
-              <CardTitle className="text-lg font-bold text-slate-800">Token Identitas</CardTitle>
+              <CardTitle className="text-lg font-bold text-[#1A1F2B]">Token Identitas</CardTitle>
               <div className={cn(
                 "rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest border",
                 isVerified ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 

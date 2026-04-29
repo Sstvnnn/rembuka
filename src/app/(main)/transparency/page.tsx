@@ -37,12 +37,12 @@ export default async function TransparencyPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] px-4 pt-32 pb-12 sm:px-8">
+    <main className="min-h-screen bg-[#F6F5F2] px-4 pt-32 pb-12 sm:px-8 text-[#1A1F2B]">
       <div className="mx-auto max-w-6xl space-y-8">
-        <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-blue-50 relative overflow-hidden">
+        <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-slate-100 relative overflow-hidden">
           <div className="relative z-10">
-            <h1 className="text-3xl md:text-5xl font-black text-slate-800 tracking-tight leading-tight">
-              Dokumentasi <span className="text-blue-600">Transparansi</span>
+            <h1 className="text-3xl md:text-5xl font-black text-[#1A1F2B] tracking-tight leading-tight font-heading">
+              Dokumentasi <span className="text-[#11538C]">Transparansi</span>
             </h1>
             <p className="mt-4 text-slate-500 font-medium max-w-2xl leading-relaxed">
               Arsip permanen yang merekam seluruh hasil akhir kebijakan nasional

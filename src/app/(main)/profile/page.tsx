@@ -31,7 +31,7 @@ export default async function ProfilePage() {
           <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#4FB3B3]">
             Account Management
           </p>
-          <h1 className="font-heading text-4xl font-black text-slate-800 tracking-tight">Your Identity</h1>
+          <h1 className="font-heading text-4xl font-black text-[#1A1F2B] tracking-tight">Your Identity</h1>
           <p className="max-w-2xl text-sm font-medium leading-relaxed text-slate-500">
             Review your {userType === "governance" ? "official" : "citizen"} credentials, maintain your account security, and access your profile information.
           </p>

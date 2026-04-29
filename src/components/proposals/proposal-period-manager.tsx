@@ -67,14 +67,14 @@ export function ProposalPeriodManager({ location, currentPeriod, currentPhase }:
           </div>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#4FB3B3]">Ruang Aspirasi Daerah</p>
-            <CardTitle className="text-2xl font-black text-slate-800 tracking-tight">Jadwal Wilayah</CardTitle>
+            <CardTitle className="text-2xl font-black text-[#1A1F2B] tracking-tight">Jadwal Wilayah</CardTitle>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6 p-8">
         <div className="rounded-3xl bg-slate-50 p-5">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Wilayah Tugas</p>
-          <p className="mt-2 text-lg font-bold text-slate-800">{location}</p>
+          <p className="mt-2 text-lg font-bold text-[#1A1F2B]">{location}</p>
           <div className="mt-4 flex items-center gap-2 text-sm font-semibold text-slate-500">
             <Clock3 className="size-4 text-[#4FB3B3]" />
             Fase saat ini: {getProposalPhaseLabel(currentPhase)}

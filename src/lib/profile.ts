@@ -1,13 +1,15 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
-import { requireUser } from "@/lib/auth";
+import { requireUser, getSessionUser } from "@/lib/auth";
 
-export async function getCurrentProfile() {
-  const user = await requireUser();
+export async function getSafeProfile() {
+  const user = await getSessionUser();
+  if (!user) return null;
+
   const supabase = await createClient();
 
-  // 1. Try fetching Governance profile first (higher precedence)
+  // 1. Try fetching Governance profile first
   const { data: govProfile } = await supabase
     .from("governance")
     .select("id, full_name, role, position, location, created_at")
@@ -63,4 +65,13 @@ export async function getCurrentProfile() {
     position: null,
     citizenCardUrl,
   };
+}
+
+export async function getCurrentProfile() {
+  const profile = await getSafeProfile();
+  if (!profile) {
+    await requireUser();
+    throw new Error("Authenticated profile could not be resolved.");
+  }
+  return profile;
 }

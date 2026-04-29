@@ -11,7 +11,6 @@ import {
   Users,
   CheckCircle2,
   ChevronRight,
-  Clock,
   Plus,
   Quote,
   Building2,
@@ -26,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ROLE_MAPPING } from "@/lib/constants/mappings";
 import { Footer } from "@/components/shared/footer";
+import { getRoleScope, getRoleNavLinks } from "@/lib/role-routes";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -78,7 +78,7 @@ function StatCard({
       </div>
       <div className="min-w-0 flex-grow">
         <div className="flex items-center gap-2">
-          <p className="text-2xl font-black text-slate-800 tracking-tight leading-none">
+          <p className="text-2xl font-black text-[#1A1F2B] tracking-tight leading-none">
             {value}
           </p>
           {trend && (
@@ -117,8 +117,16 @@ function ActivityItem({
 }: ActivityItemProps) {
   return (
     <div className="flex items-start gap-3 py-3 border-b border-slate-50 last:border-0">
+      <div
+        className={cn(
+          "flex size-10 shrink-0 items-center justify-center rounded-xl",
+          iconBg,
+        )}
+      >
+        <Icon className={cn("size-4", iconColor)} />
+      </div>
       <div className="min-w-0 flex-grow">
-        <p className="text-sm font-bold text-slate-700 leading-relaxed">
+        <p className="text-[#1A1F2B] font-bold leading-relaxed">
           {text}
         </p>
         {statusInfo && (
@@ -227,6 +235,16 @@ export function HomeClient({
   position,
 }: HomeClientProps) {
   const isGovernance = userType === "governance";
+  const roleScope = getRoleScope({ userType, role });
+  const navLinks = getRoleNavLinks(roleScope);
+  const proposalsHref =
+    navLinks.find((link) => link.label === "Building Proposals")?.href ||
+    "/citizen/proposals";
+  const polisHref =
+    navLinks.find((link) => link.label === "POL.IS Vote" || link.label === "POL.IS Rules")?.href ||
+    "/citizen/polis";
+  const trackerHref =
+    navLinks.find((link) => link.label === "Tracker")?.href || "/citizen/tracker";
   const typedProfile = profile as {
     full_name?: string;
     location?: string;
@@ -340,7 +358,7 @@ export function HomeClient({
   }, [location]);
 
   return (
-    <div className="min-h-screen bg-[#F4F6FA] font-sans">
+    <div className="min-h-screen bg-[#F6F5F2] font-sans text-[#1A1F2B]">
       <main className="pt-20">
         <motion.div
           initial="hidden"
@@ -360,17 +378,20 @@ export function HomeClient({
               className="object-cover object-center"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0a3d6b]/90 via-[#11538C]/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0a3d6b]/95 via-[#11538C]/70 to-transparent" />
             <div className="relative z-10 p-8 md:p-12 lg:p-14 max-w-2xl">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black leading-tight drop-shadow-lg">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black leading-[1.1] drop-shadow-xl font-heading">
                 Selamat datang kembali,
                 <br />
-                <span className="text-blue-300">{fullName}!</span>
+                <span className="text-blue-300 italic">{fullName}!</span>
               </h1>
-              <p className="mt-4 text-base md:text-lg text-blue-100/90 leading-relaxed max-w-lg drop-shadow-sm">
+              <p className="mt-6 text-base md:text-lg text-blue-50/90 leading-relaxed max-w-lg drop-shadow-sm font-medium">
                 {isGovernance
-                  ? `Akses resmi untuk pemerintah daerah di ${location}. Kelola proposal dan tinjau partisipasi warga.`
-                  : "Bersama Rembuka, mari wujudkan kebijakan publik yang lebih transparan dan partisipatif."}
+                  ? `Panel Kontrol Pemerintah: Akses resmi untuk wilayah ${location}. Kelola proposal, pantau opini publik, dan tinjau partisipasi warga secara real-time.`
+                  : "Ruang Partisipasi Publik: Bersama Rembuka, mari wujudkan kebijakan yang transparan melalui musyawarah berbasis data dan voting prioritas."}
+              </p>
+              <p className="mt-4 text-xs font-bold uppercase tracking-[0.24em] text-blue-200">
+                Workspace aktif: {currentRole}
               </p>
             </div>
           </motion.section>
@@ -420,11 +441,11 @@ export function HomeClient({
               className="rounded-2xl bg-white border border-slate-100 shadow-sm p-6"
             >
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg font-black text-slate-800">
+                <h2 className="text-lg font-black text-[#1A1F2B]">
                   Regulasi Terkini
                 </h2>
                 <Link
-                  href="/legal"
+                  href={polisHref}
                   className="text-sm font-bold text-blue-600 flex items-center gap-1 hover:gap-2 transition-all"
                 >
                   Lihat Semua <ArrowRight className="size-4" />
@@ -444,14 +465,14 @@ export function HomeClient({
                   {legalList.map((item) => (
                     <Link
                       key={item.id}
-                      href={`/legal/${item.id}`}
+                      href={`${polisHref}/${item.id}`}
                       className="block"
                     >
                       <div className="flex flex-col rounded-2xl border border-slate-100 bg-white p-5 min-w-[280px] hover:shadow-md hover:border-blue-200 transition-all group">
                         <span className="inline-flex w-fit items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-3 py-1 text-[11px] font-bold text-indigo-700 uppercase tracking-wide">
                           <Gavel className="size-3" /> Regulasi
                         </span>
-                        <h4 className="mt-3 text-base font-bold text-slate-800 leading-snug line-clamp-2 group-hover:text-blue-700 transition-colors">
+                        <h4 className="mt-3 text-base font-bold text-[#1A1F2B] leading-snug line-clamp-2 group-hover:text-blue-700 transition-colors">
                           {item.file_name || item.final_summary || "Regulasi"}
                         </h4>
                         <div className="mt-2 flex items-center gap-1 text-xs text-slate-400">
@@ -467,7 +488,7 @@ export function HomeClient({
                   {legalList.length > 3 && (
                     <div className="flex items-center justify-center shrink-0 pl-2">
                       <Link
-                        href="/legal"
+                        href={polisHref}
                         className="flex size-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors shadow-sm"
                       >
                         <ChevronRight className="size-5" />
@@ -485,11 +506,11 @@ export function HomeClient({
               className="lg:col-span-2 rounded-2xl bg-white border border-slate-100 shadow-sm p-6"
             >
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-base font-black text-slate-800">
+                <h2 className="text-base font-black text-[#1A1F2B]">
                   Aspirasi Daerah Terbaru
                 </h2>
                 <Link
-                  href="/proposals"
+                  href={proposalsHref}
                   className="text-xs font-bold text-blue-600 hover:underline"
                 >
                   Lihat Semua
@@ -509,7 +530,7 @@ export function HomeClient({
                   {proposals.map((p) => (
                     <Link
                       key={p.id}
-                      href={`/proposals/${p.id}`}
+                      href={`${proposalsHref}/${p.id}`}
                       className="block"
                     >
                       <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4 hover:border-blue-200 hover:bg-blue-50/30 transition-all group">
@@ -530,7 +551,7 @@ export function HomeClient({
                             {fmtStatus(p.status)}
                           </span>
                         </div>
-                        <h4 className="text-sm font-bold text-slate-800 leading-snug group-hover:text-blue-700 transition-colors">
+                        <h4 className="text-sm font-bold text-[#1A1F2B] leading-snug group-hover:text-blue-700 transition-colors">
                           {p.title}
                         </h4>
                         <p className="mt-1.5 text-xs text-slate-500 leading-relaxed line-clamp-2">
@@ -571,11 +592,11 @@ export function HomeClient({
               className="rounded-2xl bg-white border border-slate-100 shadow-sm p-6"
             >
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-base font-black text-slate-800">
+                <h2 className="text-base font-black text-[#1A1F2B]">
                   Aktivitas Terbaru
                 </h2>
                 <Link
-                  href="/tracker"
+                  href={trackerHref}
                   className="text-xs font-bold text-blue-600 hover:underline"
                 >
                   Lihat Semua
@@ -651,7 +672,7 @@ export function HomeClient({
                 className="w-full md:w-auto bg-white text-blue-900 hover:bg-blue-50 font-black rounded-xl px-8 h-12 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] hover:-translate-y-0.5 transition-all duration-300"
               >
                 <Link
-                  href="/proposals"
+                  href={proposalsHref}
                   className="flex items-center justify-center gap-2"
                 >
                   Buat Usulan Baru <Plus className="size-4" />

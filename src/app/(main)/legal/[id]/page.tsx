@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 
 export default function LegalDetailPage() {
     const supabase = createClient();
     const params = useParams();
+    const pathname = usePathname();
     const legalId = params.id as string;
+    const roleBasePath = pathname.startsWith("/governance")
+        ? "/governance/polis"
+        : "/citizen/polis";
 
     const [statements, setStatements] = useState<any[]>([]);
     const [legal, setLegal] = useState<any>(null);
@@ -139,15 +143,13 @@ export default function LegalDetailPage() {
                         Voting for {legal?.file_name}
                     </h2>
                     <Button
-                        onClick={() => router.push(`/legal/${legalId}/summary`)}
+                        onClick={() => router.push(`${roleBasePath}/${legalId}/summary`)}
                         className="hover:cursor-pointer mb-4 hover:bg-gray-700"
                     >
                         View Original Document
                     </Button>
                     <Button
-                        onClick={() =>
-                            router.push(`/legal/${legalId}/analysis`)
-                        }
+                        onClick={() => router.push(`${roleBasePath}/${legalId}/analysis`)}
                         className="hover:cursor-pointer mb-4 hover:bg-gray-700"
                     >
                         View Analysis Summary

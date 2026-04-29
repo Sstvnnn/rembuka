@@ -185,7 +185,7 @@ export default function AdminQueuePage() {
           {data.map((user) => (
             <tr key={user.id} className="hover:bg-blue-50/30 transition-colors">
               <td className="p-4">
-                <p className="font-bold text-slate-800 line-clamp-1">
+                <p className="font-bold text-[#1A1F2B] line-clamp-1">
                   {user.full_name}
                 </p>
                 <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono mt-0.5">
@@ -330,24 +330,22 @@ export default function AdminQueuePage() {
   }
 
   return (
-    <div className="container mx-auto py-8 lg:py-12 px-8 lg:px-12 space-y-6 min-h-screen">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="size-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 pb-12 pt-32 sm:px-8">
+      <section className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10">
+        <div className="mb-2 flex items-center gap-3">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
             <ShieldCheck className="size-5" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-            Tinjauan Verifikasi Warga
+          <h1 className="font-heading text-4xl font-black tracking-tight text-slate-900">
+            Verification Queue
           </h1>
         </div>
-        <p className="text-muted-foreground mt-2">
+        <p className="mt-4 max-w-3xl text-sm font-medium leading-relaxed text-slate-500">
           Tinjau dan verifikasi identitas warga. Pastikan dokumen yang diajukan
           valid sebelum memberikan akses.
         </p>
-      </div>
+      </section>
 
-      {/* Tabs Content */}
       <Tabs
         defaultValue="pending"
         onValueChange={() => {
@@ -561,7 +559,7 @@ export default function AdminQueuePage() {
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                           Nama
                         </p>
-                        <p className="text-sm font-semibold text-slate-800">
+                        <p className="text-sm font-semibold text-[#1A1F2B]">
                           {selectedUser.full_name}
                         </p>
                       </div>
@@ -574,7 +572,7 @@ export default function AdminQueuePage() {
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                           NIK
                         </p>
-                        <p className="text-sm font-semibold text-slate-800 font-mono">
+                        <p className="text-sm font-semibold text-[#1A1F2B] font-mono">
                           {selectedUser.nik}
                         </p>
                       </div>
@@ -587,7 +585,7 @@ export default function AdminQueuePage() {
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                           Wilayah
                         </p>
-                        <p className="text-sm font-semibold text-slate-800">
+                        <p className="text-sm font-semibold text-[#1A1F2B]">
                           {selectedUser.location}
                         </p>
                       </div>
@@ -600,7 +598,7 @@ export default function AdminQueuePage() {
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                           Terdaftar
                         </p>
-                        <p className="text-sm font-semibold text-slate-800">
+                        <p className="text-sm font-semibold text-[#1A1F2B]">
                           {new Date(selectedUser.created_at).toLocaleString(
                             "id-ID",
                           )}

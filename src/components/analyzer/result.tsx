@@ -32,7 +32,7 @@ export default function Result({ data }: { data: AnalysisResponse }) {
             {/* Header & Stats */}
             <div className="flex items-center justify-between border-b pb-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-800">
+                    <h2 className="text-2xl font-bold text-[#1A1F2B]">
                         Hasil Analisis Hukum
                     </h2>
                 </div>
@@ -57,7 +57,7 @@ export default function Result({ data }: { data: AnalysisResponse }) {
 
             {/* Breakdown Per Pasal */}
             <div className="space-y-6">
-                <h3 className="text-xl font-bold text-slate-800">
+                <h3 className="text-xl font-bold text-[#1A1F2B]">
                     Detail Per Pasal
                 </h3>
                 <div className="grid gap-4">

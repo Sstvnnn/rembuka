@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AppProviders } from "@/providers/app-providers";
 import { Navbar } from "@/components/shared/navbar";
-import { createClient } from "@/lib/supabase/server";
+import { getSafeProfile } from "@/lib/profile";
+import { getRoleScope } from "@/lib/role-routes";
 import "./globals.css";
 
 const inter = Inter({
@@ -22,20 +23,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  let isAdmin = false;
-  if (user) {
-    const { data: govProfile } = await supabase
-      .from("governance")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-    isAdmin = govProfile?.role === "admin";
-  }
+  const profileData = await getSafeProfile();
+  const user = profileData?.user;
+  const userType = profileData?.userType || "citizen";
+  const role = profileData?.role || "citizen";
+  const roleScope = getRoleScope({ userType, role });
 
   // Safely cast user metadata for the Navbar
   const navbarUser = user
@@ -49,9 +41,14 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#f8fafc]">
+      <body className="min-h-full flex flex-col bg-[#F6F5F2]">
         <AppProviders>
-          <Navbar user={navbarUser} isAdmin={isAdmin} />
+          <Navbar 
+            user={navbarUser} 
+            userType={userType} 
+            role={role} 
+            roleScope={roleScope}
+          />
           <main className="flex-1">{children}</main>
         </AppProviders>
       </body>
