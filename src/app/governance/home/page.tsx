@@ -23,10 +23,17 @@ export default async function GovernanceDashboardPage() {
   const supabase = await createClient();
   const { profile } = (await getCurrentProfile()) as { profile: any };
 
-  const { data: boardData } = await supabase
+  let query = supabase
     .from("vw_board_tracker")
-    .select("item_type, status");
+    .select("item_type, status, location");
 
+  if (profile?.location && profile.location !== "Nasional") {
+    query = query.in("location", ["Nasional", profile.location]);
+  } else if (profile?.location === "Nasional") {
+    query = query.eq("location", "Nasional");
+  }
+
+  const { data: boardData } = await query;
   const safeData = boardData || [];
 
   const regData = safeData.filter((item) => item.item_type === "LEGISLATION");
@@ -61,19 +68,18 @@ export default async function GovernanceDashboardPage() {
     },
   ];
 
-  // 3. Hitung Statistik Proposal Pembangunan (PROPOSAL)
   const propData = safeData.filter((item) => item.item_type === "PROPOSAL");
   const proposalStats = [
     {
       label: "Pemeriksaan Data",
-      value: propData.filter((i) => i.status === "VERIFIKASI_DATA").length,
+      value: propData.filter((i) => i.status === "PEMERIKSAAN_DATA").length,
       icon: FileCheck,
       color: "text-slate-600",
       bg: "bg-slate-50 border-slate-200",
     },
     {
       label: "Pemilihan Prioritas",
-      value: propData.filter((i) => i.status === "FASE_VOTING").length,
+      value: propData.filter((i) => i.status === "PEMILIHAN_PRIORITAS").length,
       icon: Users,
       color: "text-purple-600",
       bg: "bg-purple-50 border-purple-100",
