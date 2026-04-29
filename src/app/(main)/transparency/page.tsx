@@ -1,6 +1,7 @@
 import { getArchivedDocuments } from "@/app/actions/transparency";
 import { createClient } from "@/lib/supabase/server";
 import TransparencyArchiveClient from "./transparency-client";
+import { ShieldCheck } from "lucide-react";
 
 export const metadata = {
   title: "Dokumentasi Transparansi | Rembuka",
@@ -51,12 +52,9 @@ export default async function TransparencyPage() {
             </p>
           </div>
 
-          {/* Ornamen Biru */}
-          <div className="absolute -right-24 -top-24 size-80 rounded-full bg-blue-50 blur-3xl pointer-events-none" />
+          <TransparencyArchiveClient initialData={data || []} />
         </div>
-
-        <TransparencyArchiveClient initialData={data || []} />
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { LegislationStatus, ProposalStatus } from "@/lib/constants/tracker";
 
 // 1. Fungsi untuk mengambil semua data yang akan ditampilkan di Kanban Board
 export async function getBoardTrackerData(userLocation?: string | null) {
@@ -69,9 +68,9 @@ export async function updateStatusAndLog(
 
   if (type === "LEGISLATION") {
     const { error } = await supabase
-      .from("documents")
+      .from("legal_analysis")
       .update({ status: newStatus, updated_at: timestamp })
-      .eq("id", id);
+      .eq("document_id", id);
 
     if (error) return { error: error.message };
   } else {

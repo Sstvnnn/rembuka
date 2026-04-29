@@ -1,14 +1,15 @@
 export const INDONESIA_LOCATIONS: Record<string, string[]> = {
-  Banten: ["Tangerang Selatan", "Kota Tangerang", "Serang", "Cilegon"],
-  "DKI Jakarta": [
-    "Jakarta Selatan",
-    "Jakarta Pusat",
-    "Jakarta Timur",
-    "Jakarta Barat",
-    "Jakarta Utara",
-  ],
-  "Jawa Barat": ["Bandung", "Bogor", "Bekasi", "Depok"],
-  "Jawa Tengah": ["Semarang", "Surakarta", "Magelang", "Salatiga"],
+    Nasional: ["Nasional"],
+    Banten: ["Tangerang Selatan", "Kota Tangerang", "Serang", "Cilegon"],
+    "DKI Jakarta": [
+        "Jakarta Selatan",
+        "Jakarta Pusat",
+        "Jakarta Timur",
+        "Jakarta Barat",
+        "Jakarta Utara",
+    ],
+    "Jawa Barat": ["Bandung", "Bogor", "Bekasi", "Depok"],
+    "Jawa Tengah": ["Semarang", "Surakarta", "Magelang", "Salatiga"],
 };
 
 /**
@@ -16,8 +17,8 @@ export const INDONESIA_LOCATIONS: Record<string, string[]> = {
  * If not found, returns "Unknown".
  */
 export function getProvinceFromCity(city: string): string {
-  for (const [province, cities] of Object.entries(INDONESIA_LOCATIONS)) {
-    if (cities.includes(city)) return province;
-  }
-  return "Unknown";
+    for (const [province, cities] of Object.entries(INDONESIA_LOCATIONS)) {
+        if (cities.includes(city)) return province;
+    }
+    return "Unknown";
 }

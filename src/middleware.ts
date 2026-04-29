@@ -9,11 +9,11 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
-  
-  // Public routes (auth flow)
-  const isAuthRoute = 
-    pathname.startsWith("/login") || 
-    pathname.startsWith("/register") || 
+
+  // Rute Publik (alur autentikasi)
+  const isAuthRoute =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
     pathname.startsWith("/forgot-password") ||
     pathname.startsWith("/verify-otp") ||
     pathname.startsWith("/reset-password");
@@ -30,25 +30,27 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/legal") ||
     pathname.startsWith("/proposals");
 
+  // Rute Khusus Pemerintahan
   const isAdminRoute = pathname.startsWith("/admin");
   const isGovernanceRoute = pathname.startsWith("/governance");
   const isCitizenRoute = pathname.startsWith("/citizen");
 
-  // 1. If trying to access protected route but no auth user, go to login
-  if ((isProtectedRoute || isAdminRoute) && !user) {
+  // 1. Jika mencoba akses rute terproteksi tapi belum login -> tendang ke login
+  if ((isProtectedRoute || isAdminRoute || isGovernanceRoute) && !user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // 2. If user is authenticated
+  // 2. Jika user SUDAH login
   if (user) {
-    // Check if user is in Governance table
+    // Cek apakah user ada di tabel Governance
     const { data: govProfile } = await supabase
       .from("governance")
       .select("role")
       .eq("id", user.id)
       .single();
 
-    const isAdmin = govProfile?.role === "admin";
+    // Normalisasi string role agar aman dari case-sensitive (huruf besar/kecil)
+    const userRole = govProfile?.role?.toLowerCase();
     const isGovUser = !!govProfile;
     const roleHomePath = getRoleHomePath({
       userType: isGovUser ? "governance" : "citizen",
@@ -84,11 +86,13 @@ export async function middleware(request: NextRequest) {
 
     // B. Check if email is confirmed (Supabase level)
     if (!user.email_confirmed_at) {
-      if (isProtectedRoute) {
-        return NextResponse.redirect(new URL("/login?message=confirm-email", request.url));
+      if (isProtectedRoute || isAdminRoute || isGovernanceRoute) {
+        return NextResponse.redirect(
+          new URL("/login?message=confirm-email", request.url),
+        );
       }
     } else {
-      // B. Check profile for Citizens
+      // D. Cek profil Warga (hanya jika dia BUKAN orang pemerintahan)
       if (!isGovUser) {
         const { data: citizenProfile } = await supabase
           .from("users")
@@ -98,11 +102,13 @@ export async function middleware(request: NextRequest) {
 
         if (!citizenProfile && isProtectedRoute) {
           await supabase.auth.signOut();
-          return NextResponse.redirect(new URL("/register?message=incomplete-registration", request.url));
+          return NextResponse.redirect(
+            new URL("/register?message=incomplete-registration", request.url),
+          );
         }
       }
 
-      // C. Don't let authenticated users back into auth pages
+      // E. Mencegah user yang sudah login kembali ke halaman Auth (/login, /register, dll)
       if (isAuthRoute) {
         return NextResponse.redirect(new URL(roleHomePath, request.url));
       }

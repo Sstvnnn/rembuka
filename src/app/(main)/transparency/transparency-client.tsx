@@ -81,7 +81,7 @@ export default function TransparencyArchiveClient({
               <div className="shrink-0 flex items-center justify-end">
                 <Button
                   asChild
-                  className="rounded-full bg-slate-900 text-white hover:bg-blue-600 shadow-md transition-all px-6"
+                  className="rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow-md transition-all px-6"
                 >
                   <Link
                     href={
@@ -90,8 +90,7 @@ export default function TransparencyArchiveClient({
                         : `/legal/${item.id}`
                     }
                   >
-                    Lihat Rekam Jejak{" "}
-                    <Eye className="w-4 h-4 ml-2 opacity-80" />
+                    Lihat Detail
                   </Link>
                 </Button>
               </div>

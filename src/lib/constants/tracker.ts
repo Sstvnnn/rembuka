@@ -13,9 +13,6 @@ export const PROPOSAL_STATUS = {
   PROYEK_SELESAI: "PROYEK_SELESAI",
 } as const;
 
-export type LegislationStatus = keyof typeof LEGISLATION_STATUS;
-export type ProposalStatus = keyof typeof PROPOSAL_STATUS;
-
 export const STATUS_LABELS: Record<string, string> = {
   [LEGISLATION_STATUS.DRAFT_UPLOADED]: "Draf Masuk",
   [LEGISLATION_STATUS.PUBLIC_OPINION]: "Masa Opini Publik",
