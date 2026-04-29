@@ -5,6 +5,7 @@ import { runPCA } from "./runPCA";
 import { runKMeans } from "./runKMeans";
 import { detectConsensus } from "./consensus";
 import { fetchUsers } from "./fetchUsers";
+import { runDBSCAN } from "./dbmenas";
 
 export async function runAnalysis(legalAnalysisId: string) {
     const votes = await fetchVotes(legalAnalysisId);
@@ -29,10 +30,12 @@ export async function runAnalysis(legalAnalysisId: string) {
     console.log("Matrix shape:", matrix.length, matrix[0]?.length);
 
     // PCA
-    const points = runPCA(matrix, users);
+    const cleanMatrix = sanitizeMatrix(matrix);
+    const points = runPCA(cleanMatrix, users);
 
     // CLUSTERING
     const clustered = runKMeans(points, 2);
+    // const clustered = runDBSCAN(points);
 
     // CONSENSUS (pure)
     const rawConsensus = detectConsensus(votes, clustered);
@@ -87,4 +90,8 @@ function getInitials(name: string) {
         .join("")
         .toUpperCase()
         .slice(0, 2);
+}
+
+function sanitizeMatrix(matrix: (number | null)[][]): number[][] {
+    return matrix.map((row) => row.map((v) => (v === null ? 0 : v)));
 }

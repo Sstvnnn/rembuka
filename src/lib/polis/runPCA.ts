@@ -1,6 +1,7 @@
 import { PCA } from "ml-pca";
 
 export function runPCA(matrix: number[][], users: string[]) {
+    console.log(matrix);
     const pca = new PCA(matrix);
 
     const transformed = pca.predict(matrix, {

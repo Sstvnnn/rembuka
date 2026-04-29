@@ -72,7 +72,7 @@ const CustomTooltip = ({ active, payload }: any) => {
         return (
             <div className="rounded-xl border border-slate-100 bg-white px-3 py-2 text-sm shadow-lg">
                 <p className="font-semibold text-slate-800">{data.full_name}</p>
-                <p className="text-slate-500">Cluster {data.cluster}</p>
+                <p className="text-slate-500">Klaster {data.cluster}</p>
             </div>
         );
     }
@@ -115,7 +115,7 @@ export default function AnalysisPage() {
             setPoints(data.clustered || []);
             setConsensus(data.consensus || []);
 
-            // build vote map (SAFE)
+            // bangun peta suara (AMAN)
             const map: Record<string, Record<string, number>> = {};
 
             data.votes?.forEach((v: any) => {
@@ -128,23 +128,23 @@ export default function AnalysisPage() {
             console.error(err);
             setError(err.message || "Something went wrong");
         } finally {
-            setLoading(false); // 🔥 FIX UTAMA
+            setLoading(false); // 🔥 PERBAIKAN UTAMA
         }
     }
 
-    // ===== LOADING =====
+    // ===== MEMUAT =====
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#F4F6FA]">
                 <div className="rounded-2xl bg-white border border-slate-100 shadow-sm px-6 py-5 flex items-center gap-3 text-slate-600">
                     <Loader2 className="size-5 animate-spin text-blue-500" />
-                    <p>Loading analysis...</p>
+                    <p>Memuat analisis...</p>
                 </div>
             </div>
         );
     }
 
-    // ===== ERROR =====
+    // ===== KESALAHAN =====
     if (error) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#F4F6FA] px-4">
@@ -155,7 +155,7 @@ export default function AnalysisPage() {
         );
     }
 
-    // ===== EMPTY =====
+    // ===== KOSONG =====
     if (points.length === 0) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#F4F6FA] px-4">
@@ -170,7 +170,7 @@ export default function AnalysisPage() {
     const polarizedList = consensus.filter((c) => c.label === "polarized");
     const neutralList = consensus.filter((c) => c.label === "neutral");
 
-    // ===== RENDER POINT =====
+    // ===== RENDER TITIK =====
     const renderPointDynamic = (props: any) => {
         const { cx, cy, payload } = props;
 
@@ -218,15 +218,16 @@ export default function AnalysisPage() {
                         <div className="relative z-10 p-8 md:p-12 lg:p-14 max-w-4xl">
                             <span className="inline-flex w-fit items-center gap-1 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-100 backdrop-blur-sm">
                                 <Users className="size-3" />
-                                Consensus Analysis
+                                Analisis Konsensus
                             </span>
                             <h1 className="mt-4 text-3xl md:text-4xl lg:text-5xl font-black leading-tight drop-shadow-lg">
-                                Live consensus map and voting clusters
+                                Peta konsensus langsung dan klaster pemungutan
+                                suara
                             </h1>
                             <p className="mt-4 max-w-3xl text-sm md:text-base text-blue-100/90 leading-relaxed">
-                                Visualize how participants are grouped, compare
-                                agreement patterns, and inspect statements by
-                                consensus level.
+                                Visualisasikan bagaimana peserta dikelompokkan,
+                                bandingkan pola persetujuan, dan telusuri
+                                pernyataan berdasarkan tingkat konsensus.
                             </p>
                         </div>
                     </section>
@@ -234,7 +235,7 @@ export default function AnalysisPage() {
                     <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
                             <p className="text-xs font-medium text-slate-400">
-                                Consensus points
+                                Poin konsensus
                             </p>
                             <p className="mt-2 text-2xl font-black text-slate-800 tracking-tight">
                                 {consensusList.length}
@@ -242,7 +243,7 @@ export default function AnalysisPage() {
                         </div>
                         <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
                             <p className="text-xs font-medium text-slate-400">
-                                Polarized issues
+                                Isu terpolarisasi
                             </p>
                             <p className="mt-2 text-2xl font-black text-slate-800 tracking-tight">
                                 {polarizedList.length}
@@ -250,7 +251,7 @@ export default function AnalysisPage() {
                         </div>
                         <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
                             <p className="text-xs font-medium text-slate-400">
-                                Participants
+                                Peserta
                             </p>
                             <p className="mt-2 text-2xl font-black text-slate-800 tracking-tight">
                                 {points.length}
@@ -258,31 +259,68 @@ export default function AnalysisPage() {
                         </div>
                         <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-5">
                             <p className="text-xs font-medium text-slate-400">
-                                Filter mode
+                                Mode filter
                             </p>
                             <p className="mt-2 text-2xl font-black text-slate-800 tracking-tight">
-                                {selectedStatement ? "Active" : "All"}
+                                {selectedStatement ? "Aktif" : "Semua"}
                             </p>
                         </div>
                     </section>
 
                     <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
                         <h2 className="text-lg font-black text-slate-800 mb-2">
-                            Summary
+                            Ringkasan
                         </h2>
                         <p className="text-sm text-gray-600">
-                            Found <b>{consensusList.length}</b> consensus points
-                            and <b>{polarizedList.length}</b> polarized issues
-                            across <b>{points.length}</b> participants.
+                            Ditemukan <b>{consensusList.length}</b> poin
+                            konsensus dan <b>{polarizedList.length}</b> isu
+                            terpolarisasi dari <b>{points.length}</b> peserta.
                         </p>
                     </div>
 
+                    {/* <div className="rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-sky-50 p-5 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
+                            Wawasan naratif
+                        </p>
+                        <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                            Contoh: sebagian besar peserta sepakat pada beberapa
+                            prioritas pembangunan, tetapi penolakan yang kuat
+                            muncul pada topik alokasi anggaran.
+                        </p>
+                    </div> */}
+
                     <div className="grid lg:grid-cols-3 gap-6">
-                        {/* LEFT: MAP */}
-                        <div className="lg:col-span-2 rounded-2xl bg-white border border-slate-100 shadow-sm p-6">
+                        {/* KIRI: PETA */}
+                        <div className="lg:col-span-2 rounded-2xl bg-white border border-slate-100 shadow-sm p-6 space-y-5">
                             <h2 className="text-lg font-black text-slate-800 mb-4">
-                                Live Consensus Map
+                                Peta Konsensus Langsung
                             </h2>
+
+                            <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
+                                <div className="flex items-start gap-3">
+                                    <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white">
+                                        <Users className="size-4" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <p className="text-sm font-semibold text-slate-800">
+                                            Cara membaca peta ini
+                                        </p>
+                                        <p className="text-sm text-slate-600">
+                                            Jarak antar titik menunjukkan
+                                            kemiripan pola pemungutan suara:
+                                            makin dekat, makin mirip
+                                            pendapatnya.
+                                        </p>
+                                        <p className="text-xs text-slate-500">
+                                            Klik sebuah pernyataan untuk
+                                            menyorot siapa yang setuju, tidak
+                                            setuju, atau melewati. Arahkan
+                                            kursor ke titik untuk melihat detail
+                                            peserta.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
 
                             <ResponsiveContainer width="100%" height={400}>
                                 <ScatterChart>
@@ -306,84 +344,130 @@ export default function AnalysisPage() {
                                 </ScatterChart>
                             </ResponsiveContainer>
                             <div className="mt-6 flex flex-wrap items-center gap-6 text-sm">
-                                {/* CLUSTER LEGEND */}
-                                <div className="flex items-center gap-2">
-                                    <div className="w-4 h-4 rounded-full bg-blue-500"></div>
-                                    <span>Cluster 0</span>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                                    <span>Cluster 1</span>
-                                </div>
-
-                                {/* MODE INFO */}
-                                {selectedStatement && (
-                                    <>
-                                        <div className="h-4 w-px bg-gray-300" />
-
+                                {/* LEGENDA KLASTER */}
+                                <div className="w-full rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                                    <div className="flex flex-wrap items-center gap-4">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                                            <span>Agree</span>
+                                            <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+                                            <span>Klaster 0</span>
                                         </div>
 
                                         <div className="flex items-center gap-2">
                                             <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                                            <span>Disagree</span>
+                                            <span>Klaster 1</span>
                                         </div>
 
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-4 h-4 rounded-full bg-gray-300"></div>
-                                            <span>Pass / No vote</span>
+                                        <div className="h-4 w-px bg-gray-300" />
+
+                                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                                            <span>
+                                                Klaster menunjukkan kelompok
+                                                dengan perilaku suara yang
+                                                mirip.
+                                            </span>
                                         </div>
-                                    </>
-                                )}
-                                <p className="text-xs text-gray-500 mt-2">
-                                    Users closer together have similar voting
-                                    patterns. Clusters represent groups with
-                                    similar opinions.
-                                </p>
+                                    </div>
+
+                                    <p className="mt-2 text-xs text-gray-500">
+                                        Klaster 0 dan 1 dibuat oleh sistem,
+                                        bukan ideologi yang sudah ditentukan
+                                        sebelumnya.
+                                    </p>
+
+                                    {/* INFO MODE */}
+                                    <div className="mt-4 flex flex-wrap items-center gap-4">
+                                        {selectedStatement ? (
+                                            <>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                                                    <span>Setuju</span>
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
+                                                    <span>Tidak setuju</span>
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-4 h-4 rounded-full bg-gray-300"></div>
+                                                    <span>
+                                                        Lewati / Tidak memilih
+                                                    </span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="text-xs text-slate-500">
+                                                Mode default: warna menunjukkan
+                                                klaster. Saat pernyataan
+                                                dipilih, warna menunjukkan
+                                                voting (setuju/tidak setuju/
+                                                lewati).
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <p className="mt-3 text-xs text-gray-500">
+                                        Pengguna yang posisinya berdekatan
+                                        memiliki pola pemungutan suara yang
+                                        mirip. Klaster merepresentasikan
+                                        kelompok dengan pendapat yang serupa.
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
-                        {/* RIGHT PANEL */}
-                        <div className="space-y-6">
-                            {/* RESET */}
+                        {/* PANEL KANAN */}
+                        <div className="space-y-7">
+                            {/* ATUR ULANG */}
                             {selectedStatement && (
                                 <button
                                     onClick={() => setSelectedStatement(null)}
                                     className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-200 hover:text-blue-700"
                                 >
-                                    Reset highlight
+                                    Atur ulang sorotan
                                 </button>
                             )}
 
-                            {/* CONSENSUS */}
+                            {/* KONSENSUS */}
                             <Section
-                                title="Consensus"
+                                title="Konsensus"
+                                description="Mayoritas peserta lintas klaster cenderung setuju."
                                 color="green"
                                 list={consensusList}
                                 selected={selectedStatement}
                                 setSelected={setSelectedStatement}
                             />
 
-                            {/* POLARIZED */}
+                            {/* TERPOLARISASI */}
                             <Section
-                                title="Polarized"
+                                title="Terpolarisasi"
+                                description="Klaster-klaster menunjukkan perbedaan pendapat yang kuat."
                                 color="red"
                                 list={polarizedList}
                                 selected={selectedStatement}
                                 setSelected={setSelectedStatement}
                             />
 
-                            {/* NEUTRAL */}
+                            {/* NETRAL */}
                             <Section
-                                title="Neutral"
+                                title="Netral"
+                                description="Pendapat masih bercampur atau belum cukup jelas untuk dibaca."
                                 color="gray"
                                 list={neutralList}
                                 selected={selectedStatement}
                                 setSelected={setSelectedStatement}
                             />
+
+                            <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+                                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                    Batasan data
+                                </p>
+                                <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                                    Insight bergantung pada jumlah peserta dan
+                                    vote yang tersedia. Dataset kecil dapat
+                                    menghasilkan klaster yang kurang stabil.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -392,11 +476,23 @@ export default function AnalysisPage() {
     );
 }
 
-// ===== REUSABLE SECTION COMPONENT =====
-function Section({ title, color, list, selected, setSelected }: any) {
+// ===== KOMPONEN BAGIAN YANG DAPAT DIGUNAKAN ULANG =====
+function Section({
+    title,
+    description,
+    color,
+    list,
+    selected,
+    setSelected,
+}: any) {
     return (
         <div>
-            <h3 className={`text-${color}-600 font-semibold mb-3`}>{title}</h3>
+            <div className="mb-3 space-y-1">
+                <h3 className={`text-${color}-600 text-base font-bold`}>
+                    {title}
+                </h3>
+                <p className="text-sm text-slate-500">{description}</p>
+            </div>
 
             <div className="space-y-3">
                 {list.map((c: any) => {
@@ -420,7 +516,7 @@ function Section({ title, color, list, selected, setSelected }: any) {
                             <div className="text-xs text-gray-600">
                                 {(c.clusters || []).map((cl: any) => (
                                     <div key={cl.cluster}>
-                                        Cluster {cl.cluster}:{" "}
+                                        Klaster {cl.cluster}:{" "}
                                         {(cl.agreeRatio * 100).toFixed(0)}%
                                     </div>
                                 ))}
