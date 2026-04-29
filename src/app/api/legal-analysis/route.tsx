@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/lib/profile";
 
 export async function GET() {
     const supabase = await createClient();
+    const { profile } = await getCurrentProfile();
+
+    const allowedCities = [profile?.location].filter((value): value is string =>
+        Boolean(value),
+    );
+
+    console.log("Allowed cities for legal analysis:", allowedCities);
 
     const { data, error } = await supabase
         .from("legal_analysis")
@@ -12,12 +20,14 @@ export async function GET() {
         file_name,
         final_summary,
         document_id,
-        documents (
+        documents!inner (
             file_path,
-            title
+            title,
+            city
         )
     `,
         )
+        .in("documents.city", allowedCities)
         .order("created_at", { ascending: false });
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });

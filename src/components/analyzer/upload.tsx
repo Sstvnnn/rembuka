@@ -14,8 +14,10 @@ import { useEffect, useState } from "react";
 
 export default function Upload({
     onResult,
+    lockedLocation,
 }: {
     onResult: (data: any) => void;
+    lockedLocation?: string | null;
 }) {
     const [file, setFile] = useState<File | null>(null);
 
@@ -24,18 +26,26 @@ export default function Upload({
 
     const [title, setTitle] = useState("");
     const [province, setProvince] = useState("");
-    const [city, setCity] = useState("");
+    const [city, setCity] = useState(lockedLocation ?? "");
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
+    useEffect(() => {
+        if (lockedLocation) {
+            setCity(lockedLocation);
+        }
+    }, [lockedLocation]);
+
     if (!mounted) return null;
 
     const handleSubmit = async () => {
         if (!file) return setError("File PDF wajib dipilih");
-        if (!title || !province || !city) {
+        const finalCity = lockedLocation ?? city;
+
+        if (!title || (!lockedLocation && (!province || !city)) || !finalCity) {
             return setError("Judul dan lokasi wajib diisi");
         }
 
@@ -49,8 +59,8 @@ export default function Upload({
             const formData = new FormData();
             formData.append("file", file);
             formData.append("title", title);
-            formData.append("province", province);
-            formData.append("city", city);
+            formData.append("province", lockedLocation ? "" : province);
+            formData.append("city", finalCity);
 
             const uploadRes = await fetch("/api/upload", {
                 method: "POST",
@@ -139,47 +149,60 @@ export default function Upload({
                     />
                 </label>
 
-                <label className="space-y-2">
-                    <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-                        Provinsi
-                    </span>
-                    <select
-                        value={province}
-                        onChange={(e) => {
-                            setProvince(e.target.value);
-                            setCity("");
-                        }}
-                        className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-[#4FB3B3] focus:bg-white focus:ring-4 focus:ring-[#4FB3B3]/10"
-                        disabled={loading}
-                    >
-                        <option value="">Pilih Provinsi</option>
-                        {Object.keys(INDONESIA_LOCATIONS).map((p) => (
-                            <option key={p} value={p}>
-                                {p}
-                            </option>
-                        ))}
-                    </select>
-                </label>
+                {lockedLocation ? (
+                    <label className="space-y-2">
+                        <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+                            Kota / Kabupaten
+                        </span>
+                        <div className="flex min-h-13 items-center rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700">
+                            {lockedLocation}
+                        </div>
+                    </label>
+                ) : (
+                    <>
+                        <label className="space-y-2">
+                            <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+                                Provinsi
+                            </span>
+                            <select
+                                value={province}
+                                onChange={(e) => {
+                                    setProvince(e.target.value);
+                                    setCity("");
+                                }}
+                                className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-[#4FB3B3] focus:bg-white focus:ring-4 focus:ring-[#4FB3B3]/10"
+                                disabled={loading}
+                            >
+                                <option value="">Pilih Provinsi</option>
+                                {Object.keys(INDONESIA_LOCATIONS).map((p) => (
+                                    <option key={p} value={p}>
+                                        {p}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
 
-                <label className="space-y-2">
-                    <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-                        Kota / Kabupaten
-                    </span>
-                    <select
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-[#4FB3B3] focus:bg-white focus:ring-4 focus:ring-[#4FB3B3]/10 disabled:cursor-not-allowed disabled:bg-slate-100"
-                        disabled={!province || loading}
-                    >
-                        <option value="">Pilih Kota</option>
-                        {province &&
-                            INDONESIA_LOCATIONS[province].map((c) => (
-                                <option key={c} value={c}>
-                                    {c}
-                                </option>
-                            ))}
-                    </select>
-                </label>
+                        <label className="space-y-2">
+                            <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+                                Kota / Kabupaten
+                            </span>
+                            <select
+                                value={city}
+                                onChange={(e) => setCity(e.target.value)}
+                                className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-[#4FB3B3] focus:bg-white focus:ring-4 focus:ring-[#4FB3B3]/10 disabled:cursor-not-allowed disabled:bg-slate-100"
+                                disabled={!province || loading}
+                            >
+                                <option value="">Pilih Kota</option>
+                                {province &&
+                                    INDONESIA_LOCATIONS[province].map((c) => (
+                                        <option key={c} value={c}>
+                                            {c}
+                                        </option>
+                                    ))}
+                            </select>
+                        </label>
+                    </>
+                )}
 
                 <label className="space-y-2 md:col-span-2">
                     <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
@@ -248,7 +271,7 @@ export default function Upload({
                         </>
                     ) : (
                         <>
-                            Submit Analisis
+                            Unggah dan Analisis Dokumen
                             <ArrowRight className="size-4" />
                         </>
                     )}
