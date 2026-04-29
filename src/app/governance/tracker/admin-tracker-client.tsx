@@ -159,7 +159,7 @@ export default function AdminTrackerClient({
                   <select
                     className="text-xs p-2 border rounded-lg bg-white focus:ring-2 focus:ring-primary outline-none disabled:opacity-50 font-medium"
                     disabled={isPending && loadingId === item.id}
-                    value={item.status}
+                    value={item.status ?? undefined}
                     onChange={(e) =>
                       handleStatusChange(
                         item.id,
@@ -186,13 +186,13 @@ export default function AdminTrackerClient({
                     size="sm"
                     className="h-9 px-3 gap-2 border-slate-200 hover:bg-slate-100"
                   >
-                      <Link
-                        href={
-                          item.item_type === "PROPOSAL"
-                            ? `/governance/proposals/${item.id}`
-                            : `/governance/polis/${item.id}`
-                        }
-                      >
+                    <Link
+                      href={
+                        item.item_type === "PROPOSAL"
+                          ? `/governance/proposals/${item.id}`
+                          : `/governance/polis/${item.id}`
+                      }
+                    >
                       <Eye className="size-4" />
                       <span className="hidden sm:inline">Detail</span>
                     </Link>

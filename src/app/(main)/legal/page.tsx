@@ -3,5 +3,5 @@ import { getCurrentProfile } from "@/lib/profile";
 
 export default async function LegacyPolisPage() {
   const { userType } = await getCurrentProfile();
-  redirect(userType === "governance" ? "/governance/polis" : "/citizen/polis");
+  redirect(userType === "governance" ? "/governance/legal" : "/citizen/legal");
 }

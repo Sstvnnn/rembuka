@@ -51,8 +51,11 @@ export function Navbar({ user, roleScope }: NavbarProps) {
     pathname === "/forgot-password" ||
     pathname === "/reset-password";
   const isLandingPage = pathname === "/";
+  const isSidebarLayout =
+    pathname.startsWith("/admin") || pathname.startsWith("/governance");
 
   if (isAuthPage) return null;
+  if (isSidebarLayout) return null;
   if (!user && !isLandingPage) return null;
 
   const userLinks = getRoleNavLinks(roleScope);
@@ -70,7 +73,10 @@ export function Navbar({ user, roleScope }: NavbarProps) {
         )}
       >
         <div className="flex items-center justify-between gap-4">
-          <Link href={!user ? "/" : homeHref} className="flex shrink-0 items-center">
+          <Link
+            href={!user ? "/" : homeHref}
+            className="flex shrink-0 items-center"
+          >
             <div
               className={cn(
                 "flex items-center transition-all duration-500",
@@ -90,19 +96,7 @@ export function Navbar({ user, roleScope }: NavbarProps) {
 
           <div className="hidden items-center gap-2 lg:flex">
             {!user ? (
-              <div
-                className={cn(
-                  "flex items-center gap-2 rounded-full border px-2 py-2 text-sm font-medium",
-                  isScrolled
-                    ? "border-slate-200 bg-white text-slate-500"
-                    : "border-white/50 bg-white/70 text-slate-600 backdrop-blur",
-                )}
-              >
-                <span className="rounded-full bg-[#11538C] px-4 py-2 text-white">
-                  Platform
-                </span>
-                <span className="px-4 py-2">Musyawarah data publik</span>
-              </div>
+              <div></div>
             ) : (
               <div
                 className={cn(
@@ -114,7 +108,8 @@ export function Navbar({ user, roleScope }: NavbarProps) {
               >
                 {userLinks.map((link) => {
                   const active =
-                    pathname === link.href || pathname.startsWith(`${link.href}/`);
+                    pathname === link.href ||
+                    pathname.startsWith(`${link.href}/`);
 
                   return (
                     <Link
@@ -142,7 +137,7 @@ export function Navbar({ user, roleScope }: NavbarProps) {
                   href="/login"
                   className="hidden text-sm font-semibold text-slate-700 transition-colors hover:text-[#11538C] sm:block"
                 >
-                  Login
+                  Masuk
                 </Link>
                 <Button
                   asChild
@@ -157,7 +152,11 @@ export function Navbar({ user, roleScope }: NavbarProps) {
                   onClick={() => setIsMobileOpen((open) => !open)}
                   className="flex size-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-all hover:border-[#11538C]/30 hover:text-[#11538C] lg:hidden"
                 >
-                  {isMobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+                  {isMobileOpen ? (
+                    <X className="size-5" />
+                  ) : (
+                    <Menu className="size-5" />
+                  )}
                 </button>
 
                 <div className="relative">
@@ -204,32 +203,19 @@ export function Navbar({ user, roleScope }: NavbarProps) {
                         >
                           <div className="mb-1 border-b border-slate-50 px-4 py-3">
                             <p className="mb-1.5 text-[10px] font-bold uppercase leading-none tracking-widest text-slate-400">
-                              Workspace
+                              Halo,
                             </p>
                             <p className="truncate text-sm font-bold text-[#1A1F2B]">
                               {user.user_metadata.full_name}
                             </p>
                           </div>
-
-                          <div className="space-y-1">
-                            {userLinks.slice(0, 4).map((link) => (
-                              <Link
-                                key={link.href}
-                                href={link.href}
-                                onClick={() => setIsProfileOpen(false)}
-                                className="block rounded-xl px-4 py-2.5 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-50"
-                              >
-                                {link.label}
-                              </Link>
-                            ))}
-                          </div>
-
                           <Link
                             href={profileHref}
                             onClick={() => setIsProfileOpen(false)}
                             className="mt-1 flex items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-50"
                           >
-                            <User className="size-4 text-slate-400" /> Pengaturan Akun
+                            <User className="size-4 text-slate-400" />{" "}
+                            Pengaturan Akun
                           </Link>
 
                           <form action="/signout" method="post">
@@ -237,7 +223,7 @@ export function Navbar({ user, roleScope }: NavbarProps) {
                               type="submit"
                               className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-xs font-bold text-rose-500 transition-colors hover:bg-rose-50"
                             >
-                              <LogOut className="size-4 text-rose-400" /> Keluar Aman
+                              <LogOut className="size-4 text-rose-400" /> Keluar
                             </button>
                           </form>
                         </motion.div>
@@ -261,7 +247,8 @@ export function Navbar({ user, roleScope }: NavbarProps) {
               <div className="grid gap-2">
                 {userLinks.map((link) => {
                   const active =
-                    pathname === link.href || pathname.startsWith(`${link.href}/`);
+                    pathname === link.href ||
+                    pathname.startsWith(`${link.href}/`);
 
                   return (
                     <Link

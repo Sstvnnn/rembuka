@@ -126,9 +126,7 @@ function ActivityItem({
         <Icon className={cn("size-4", iconColor)} />
       </div>
       <div className="min-w-0 flex-grow">
-        <p className="text-[#1A1F2B] font-bold leading-relaxed">
-          {text}
-        </p>
+        <p className="text-[#1A1F2B] font-bold leading-relaxed">{text}</p>
         {statusInfo && (
           <p className="text-xs font-medium text-slate-500 mt-0.5">
             {statusInfo}
@@ -241,10 +239,12 @@ export function HomeClient({
     navLinks.find((link) => link.label === "Building Proposals")?.href ||
     "/citizen/proposals";
   const polisHref =
-    navLinks.find((link) => link.label === "POL.IS Vote" || link.label === "POL.IS Rules")?.href ||
-    "/citizen/polis";
+    navLinks.find(
+      (link) => link.label === "POL.IS Vote" || link.label === "POL.IS Rules",
+    )?.href || "/citizen/legal";
   const trackerHref =
-    navLinks.find((link) => link.label === "Tracker")?.href || "/citizen/tracker";
+    navLinks.find((link) => link.label === "Tracker")?.href ||
+    "/citizen/tracker";
   const typedProfile = profile as {
     full_name?: string;
     location?: string;
@@ -295,7 +295,7 @@ export function HomeClient({
             .from("legal_analysis")
             .select("id, final_summary, file_name, created_at")
             .order("created_at", { ascending: false })
-            .limit(5),
+            .limit(4),
           supabase
             .from("tracker_logs")
             .select(
@@ -303,7 +303,7 @@ export function HomeClient({
             )
             .order("created_at", { ascending: false })
             .limit(5),
-          proposalQuery.limit(3),
+          proposalQuery.limit(4),
         ]);
 
         if (logRes.error) console.error("Error Tracker Logs:", logRes.error);
@@ -388,10 +388,7 @@ export function HomeClient({
               <p className="mt-6 text-base md:text-lg text-blue-50/90 leading-relaxed max-w-lg drop-shadow-sm font-medium">
                 {isGovernance
                   ? `Panel Kontrol Pemerintah: Akses resmi untuk wilayah ${location}. Kelola proposal, pantau opini publik, dan tinjau partisipasi warga secara real-time.`
-                  : "Ruang Partisipasi Publik: Bersama Rembuka, mari wujudkan kebijakan yang transparan melalui musyawarah berbasis data dan voting prioritas."}
-              </p>
-              <p className="mt-4 text-xs font-bold uppercase tracking-[0.24em] text-blue-200">
-                Workspace aktif: {currentRole}
+                  : "Bersama Rembuka, mari wujudkan kebijakan yang transparan melalui musyawarah berbasis data dan voting prioritas."}
               </p>
             </div>
           </motion.section>

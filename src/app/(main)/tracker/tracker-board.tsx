@@ -36,7 +36,6 @@ type TrackerItem = {
   location: string | null;
 };
 
-// ✅ PINDAH KE LUAR
 function KanbanBoard({
   data,
   columns,
@@ -115,8 +114,6 @@ function KanbanBoard({
   );
 }
 
-// =========================
-
 export default function TrackerBoard({
   initialData,
 }: {
@@ -146,7 +143,7 @@ export default function TrackerBoard({
   ];
 
   return (
-    <div className="w-full max-w-9xl mx-auto">
+    <div className="w-full mx-auto">
       <Tabs defaultValue="legislation">
         <TabsList>
           <TabsTrigger value="legislation">

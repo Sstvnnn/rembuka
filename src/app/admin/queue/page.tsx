@@ -330,7 +330,7 @@ export default function AdminQueuePage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-4 pb-12 pt-32 sm:px-8">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 pb-12 pt-8 sm:px-8">
       <section className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm md:p-10">
         <div className="mb-2 flex items-center gap-3">
           <div className="flex size-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">

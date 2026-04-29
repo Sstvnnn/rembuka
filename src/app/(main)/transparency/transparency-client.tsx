@@ -5,7 +5,6 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { FileText, ShieldCheck, MapPin, Eye, Search } from "lucide-react";
-import { STATUS_LABELS } from "@/lib/constants/tracker";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,7 +28,7 @@ export default function TransparencyArchiveClient({
         <Search className="w-5 h-5 text-slate-400 ml-3" />
         <Input
           type="text"
-          placeholder="Cari arsip regulasi atau usulan..."
+          placeholder="Cari arsip regulasi atau proposal"
           className="border-none shadow-none focus-visible:ring-0 text-slate-700 font-medium"
           value={search}
           onChange={(e) => setSearch(e.target.value)}

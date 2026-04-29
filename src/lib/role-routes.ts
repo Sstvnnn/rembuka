@@ -11,10 +11,7 @@ type NavLink = {
   description: string;
 };
 
-export function getRoleScope({
-  userType,
-  role,
-}: ProfileRoleInput): RoleScope {
+export function getRoleScope({ userType, role }: ProfileRoleInput): RoleScope {
   if (role === "admin") {
     return "admin";
   }
@@ -103,39 +100,29 @@ export function getRoleNavLinks(scope: RoleScope): NavLink[] {
     default:
       return [
         {
-          label: "Homepage",
-          href: "/citizen/home",
-          description: "Ringkasan partisipasi warga",
-        },
-        {
-          label: "POL.IS Vote",
-          href: "/citizen/polis",
+          label: "Regulasi",
+          href: "/citizen/legal",
           description: "Beri opini dan suara pada regulasi",
         },
         {
-          label: "Building Proposals",
+          label: "Proposal Pembangunan",
           href: "/citizen/proposals",
           description: "Ajukan dan pilih prioritas pembangunan",
         },
         {
-          label: "Budget Visualizer",
+          label: "Anggaran Daerah",
           href: "/citizen/budget",
           description: "Lihat alokasi anggaran publik",
         },
         {
-          label: "Tracker",
+          label: "Lacak Proses",
           href: "/citizen/tracker",
           description: "Pantau progres kebijakan dan proyek",
         },
         {
-          label: "Transparency",
+          label: "Dokumen Transparansi",
           href: "/citizen/transparency",
           description: "Arsip keputusan final",
-        },
-        {
-          label: "Profile",
-          href: "/citizen/profile",
-          description: "Kelola identitas akun warga",
         },
       ];
   }

@@ -52,6 +52,7 @@ export async function middleware(request: NextRequest) {
     // Normalisasi string role agar aman dari case-sensitive (huruf besar/kecil)
     const userRole = govProfile?.role?.toLowerCase();
     const isGovUser = !!govProfile;
+    const isAdmin = userRole === "admin";
     const roleHomePath = getRoleHomePath({
       userType: isGovUser ? "governance" : "citizen",
       role: govProfile?.role || "citizen",
