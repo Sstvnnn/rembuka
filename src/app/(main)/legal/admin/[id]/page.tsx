@@ -244,7 +244,7 @@ export default function LegalStatementAdminPage() {
 
                         <div className="flex flex-wrap items-center gap-3">
                             <ButtonLikeLink
-                                href="/legal/admin"
+                                href="/governance/legal"
                                 label="Kembali"
                             />
                             <ViewPdfButton
