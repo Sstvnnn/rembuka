@@ -16,7 +16,10 @@ function isLocationScopedAccess(filters?: ProposalFilters) {
     return false;
   }
 
-  return filters.userType === "citizen" || (filters.userType === "governance" && filters.role === "governance");
+  return (
+    filters.userType === "citizen" ||
+    (filters.userType === "governance" && filters.role === "governance")
+  );
 }
 
 export async function getRelevantProposalPeriod(location: string) {
@@ -230,7 +233,9 @@ export async function getTopRankedProposals(periodId: string, limit = 3) {
 
     const winners = (rankedData || []) as Proposal[];
     const promotableIds = winners
-      .filter((proposal) => proposal.status === PROPOSAL_STATUS.PEMILIHAN_PRIORITAS)
+      .filter(
+        (proposal) => proposal.status === PROPOSAL_STATUS.PEMILIHAN_PRIORITAS,
+      )
       .map((proposal) => proposal.id);
 
     if (promotableIds.length > 0) {
