@@ -16,19 +16,28 @@ import {
   X,
   Globe,
   CalendarRange,
+  Info,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { createProposalAction } from "@/app/actions/musrenbang";
 import { getProvinceFromCity } from "@/lib/constants/locations";
-import { CATEGORY_MAPPING, REVERSE_CATEGORY_MAPPING } from "@/lib/constants/mappings";
+import {
+  CATEGORY_MAPPING,
+  REVERSE_CATEGORY_MAPPING,
+} from "@/lib/constants/mappings";
 import { ProposalPeriod } from "@/types/musrenbang";
-import { formatPeriodDateTime, ProposalPhase, getProposalPhaseDescription, getProposalPhaseLabel } from "@/lib/proposal-periods";
+import {
+  formatPeriodDateTime,
+  ProposalPhase,
+  getProposalPhaseDescription,
+  getProposalPhaseLabel,
+} from "@/lib/proposal-periods";
 
 const categories = Object.values(CATEGORY_MAPPING);
 
@@ -40,13 +49,22 @@ interface ProposalFormProps {
   activePeriod: ProposalPeriod | null;
 }
 
-export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPhase, activePeriod }: ProposalFormProps) {
+export function ProposalForm({
+  defaultLocation,
+  isVerified,
+  canSubmit,
+  currentPhase,
+  activePeriod,
+}: ProposalFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const province = useMemo(() => getProvinceFromCity(defaultLocation), [defaultLocation]);
+  const province = useMemo(
+    () => getProvinceFromCity(defaultLocation),
+    [defaultLocation],
+  );
 
   const [formData, setFormData] = useState({
     title: "",
@@ -58,13 +76,8 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const isProposalOpen = currentPhase === "proposal";
-  const isFormLocked = !canSubmit || !isVerified || !activePeriod || !isProposalOpen;
-  const phaseTone =
-    currentPhase === "proposal"
-      ? "border-emerald-100 bg-emerald-50 text-emerald-700"
-      : currentPhase === "voting"
-        ? "border-amber-100 bg-amber-50 text-amber-800"
-        : "border-slate-200 bg-slate-50 text-slate-700";
+  const isFormLocked =
+    !canSubmit || !isVerified || !activePeriod || !isProposalOpen;
 
   useEffect(() => {
     return () => previews.forEach((url) => URL.revokeObjectURL(url));
@@ -84,7 +97,9 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
   };
 
   const removeImage = (index: number) => {
-    const nextImages = images.filter((_, currentIndex) => currentIndex !== index);
+    const nextImages = images.filter(
+      (_, currentIndex) => currentIndex !== index,
+    );
     setImages(nextImages);
     setPreviews(nextImages.map((file) => URL.createObjectURL(file)));
   };
@@ -100,12 +115,16 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
     }
 
     if (!isVerified) {
-      setError("Hanya warga terverifikasi yang dapat mengajukan proposal pembangunan.");
+      setError(
+        "Hanya warga terverifikasi yang dapat mengajukan proposal pembangunan.",
+      );
       return;
     }
 
     if (currentPhase !== "proposal") {
-      setError("Masa pengajuan belum dibuka atau sudah berakhir untuk wilayah Anda.");
+      setError(
+        "Masa pengajuan belum dibuka atau sudah berakhir untuk wilayah Anda.",
+      );
       return;
     }
 
@@ -117,99 +136,137 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
     const data = new FormData();
     data.append("title", formData.title);
     data.append("description", formData.description);
-    data.append("category", REVERSE_CATEGORY_MAPPING[formData.category] || formData.category);
+    data.append(
+      "category",
+      REVERSE_CATEGORY_MAPPING[formData.category] || formData.category,
+    );
     data.append("estimated_cost", formData.estimated_cost.toString());
     images.forEach((image) => data.append("images", image));
 
     startTransition(async () => {
       try {
         await createProposalAction(data);
-        setSuccess("Proposal berhasil diajukan. Mengalihkan ke daftar wilayah...");
+        setSuccess(
+          "Proposal berhasil diajukan. Mengalihkan ke daftar wilayah...",
+        );
         setTimeout(() => router.push("/proposals"), 1500);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Terjadi kesalahan yang tidak terduga.");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Terjadi kesalahan yang tidak terduga.",
+        );
       }
     });
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
-      <div className="mb-6 flex items-center justify-between">
-        <Button asChild variant="ghost" className="rounded-xl text-slate-500 hover:text-[#1A1F2B]">
+    <div className="w-full">
+      <div className="mb-4 flex items-center justify-between">
+        <Button
+          asChild
+          variant="ghost"
+          className="h-9 px-3 text-slate-500 hover:text-slate-900"
+        >
           <Link href="/proposals" className="flex items-center gap-2">
-            <ArrowLeft className="size-4" /> Kembali ke Proposal Pembangunan
+            <ArrowLeft className="size-4" /> Kembali
           </Link>
         </Button>
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className="overflow-hidden rounded-[2.5rem] border border-white/70 bg-white/40 shadow-2xl backdrop-blur-xl">
-          <CardHeader className="space-y-4 border-b border-slate-100 bg-slate-50/50 p-8">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-[#3F5C73] text-white shadow-xl shadow-[#3F5C73]/20">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <Card className="overflow-hidden border-slate-200 bg-white shadow-sm">
+          {/* Header Status Bar */}
+          <div className="border-b border-slate-100 bg-slate-50/50 p-6 sm:p-8">
+            <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+              <div className="flex items-center gap-4">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
                   <FileText className="size-6" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4FB3B3]">Proposal Pembangunan</p>
-                  <CardTitle className="text-2xl font-black tracking-tight text-[#1A1F2B]">Proposal Baru</CardTitle>
+                  <h2 className="text-lg font-bold text-slate-900">
+                    Formulir Pengajuan Baru
+                  </h2>
+                  <p className="text-sm text-slate-500">
+                    Isi detail usulan pembangunan dengan jelas
+                  </p>
                 </div>
               </div>
-              {!isVerified ? (
-                <div className="flex items-center gap-2 rounded-full border border-rose-100 bg-rose-50 px-4 py-1.5 text-rose-500">
-                  <AlertCircle className="size-3" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Belum Terverifikasi</span>
+
+              {!isVerified && (
+                <div className="flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-sm font-medium text-rose-600">
+                  <AlertCircle className="size-4" />
+                  Belum Terverifikasi
                 </div>
-              ) : null}
+              )}
             </div>
-          </CardHeader>
+          </div>
 
-          <CardContent className="space-y-6 p-8">
-            {activePeriod ? (
-              <div className="rounded-[2rem] border border-slate-100 bg-white/80 p-6 shadow-sm">
-                <div className="mb-4 flex items-center gap-3 text-[#1A1F2B]">
-                  <CalendarRange className="size-5 text-[#4FB3B3]" />
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Status Jadwal</p>
-                    <p className="text-sm font-bold">{getProposalPhaseLabel(currentPhase)}</p>
+          <CardContent className="p-0">
+            {/* Status Alert Panels */}
+            <div className="border-b border-slate-100 px-6 py-6 sm:px-8">
+              <div className="space-y-4">
+                {activePeriod ? (
+                  <div className="flex flex-col gap-4 rounded-xl border border-blue-100 bg-blue-50/50 p-5 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex gap-3">
+                      <CalendarRange className="mt-0.5 size-5 text-blue-600" />
+                      <div>
+                        <p className="font-semibold text-blue-900">
+                          Jadwal Wilayah Aktif:{" "}
+                          {getProposalPhaseLabel(currentPhase)}
+                        </p>
+                        <p className="mt-1 text-sm text-blue-700/80">
+                          {getProposalPhaseDescription(currentPhase)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-left text-xs font-medium text-blue-800 sm:text-right">
+                      <p>
+                        Pengajuan:{" "}
+                        <span className="font-semibold">
+                          {formatPeriodDateTime(activePeriod.proposal_start_at)}
+                        </span>
+                      </p>
+                      <p>
+                        Voting:{" "}
+                        <span className="font-semibold">
+                          {formatPeriodDateTime(activePeriod.voting_start_at)}
+                        </span>
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <p className="mb-4 text-sm leading-relaxed text-slate-500">{getProposalPhaseDescription(currentPhase)}</p>
-                <div className="grid gap-4 text-sm text-slate-600 sm:grid-cols-2">
-                  <p>Pengajuan: {formatPeriodDateTime(activePeriod.proposal_start_at)} - {formatPeriodDateTime(activePeriod.proposal_end_at)}</p>
-                  <p>Voting: {formatPeriodDateTime(activePeriod.voting_start_at)} - {formatPeriodDateTime(activePeriod.voting_end_at)}</p>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4 text-sm text-amber-800">
-                Pemerintah wilayah Anda belum menetapkan jadwal pengajuan dan voting.
-              </div>
-            )}
+                ) : (
+                  <div className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                    <Info className="size-5 shrink-0 text-amber-600" />
+                    <p>
+                      Pemerintah wilayah Anda belum menetapkan jadwal pengajuan
+                      dan voting.
+                    </p>
+                  </div>
+                )}
 
-            {!canSubmit ? (
-              <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4 text-sm text-amber-800">
-                Halaman ini khusus untuk warga. Akun pemerintah dan admin tidak dapat mengajukan proposal.
+                {!canSubmit && (
+                  <div className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                    <AlertCircle className="size-5 shrink-0" />
+                    <p>
+                      Halaman ini khusus untuk warga. Akun pemerintah dan admin
+                      tidak dapat mengajukan proposal.
+                    </p>
+                  </div>
+                )}
               </div>
-            ) : null}
+            </div>
 
-            {canSubmit ? (
-              <div className={`rounded-2xl border p-4 text-sm ${phaseTone}`}>
-                <p className="font-bold uppercase tracking-wide">
-                  {isProposalOpen ? "Masa Pengajuan Aktif" : currentPhase === "voting" ? "Masa Pengajuan Ditutup" : "Form Pengajuan Ditutup"}
-                </p>
-                <p className="mt-2 leading-relaxed">
-                  {isProposalOpen
-                    ? "Form pengajuan terbuka. Setiap warga hanya dapat mengirim satu proposal pada periode ini."
-                    : currentPhase === "voting"
-                      ? "Saat ini wilayah Anda sedang memasuki sesi voting. Form pengajuan ditutup sampai pemerintah membuat periode berikutnya."
-                      : getProposalPhaseDescription(currentPhase)}
-                </p>
-              </div>
-            ) : null}
-
+            {/* Main Form Area */}
             {isFormLocked ? (
-              <div className="rounded-[2rem] border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center">
-                <h3 className="text-lg font-bold text-[#1A1F2B]">
+              <div className="flex flex-col items-center justify-center px-6 py-16 text-center sm:px-8">
+                <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-slate-100">
+                  <LayoutDashboard className="size-8 text-slate-400" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">
                   {currentPhase === "upcoming"
                     ? "Pengajuan Belum Dimulai"
                     : currentPhase === "voting"
@@ -220,7 +277,7 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
                           ? "Periode Ini Sudah Selesai"
                           : "Form Belum Tersedia"}
                 </h3>
-                <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-500">
+                <p className="mt-2 max-w-md text-sm text-slate-500">
                   {!activePeriod
                     ? "Tunggu sampai pemerintah wilayah menetapkan jadwal pengajuan dan voting."
                     : currentPhase === "upcoming"
@@ -235,124 +292,223 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
                 </p>
               </div>
             ) : (
-            <form onSubmit={onSubmit} className="space-y-6">
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label className="ml-1 text-xs font-bold uppercase tracking-wider text-slate-500">Provinsi</Label>
-                  <div className="relative">
-                    <Globe className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                    <Input value={province} readOnly className="h-12 cursor-default rounded-2xl border-slate-200 bg-slate-100/50 pl-11 font-medium text-slate-500" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label className="ml-1 text-xs font-bold uppercase tracking-wider text-slate-500">Kota / Kabupaten</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                    <Input value={defaultLocation} readOnly className="h-12 cursor-default rounded-2xl border-slate-200 bg-slate-100/50 pl-11 font-medium text-slate-500" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label className="ml-1 text-xs font-bold uppercase tracking-wider text-slate-500">Kategori</Label>
-                  <div className="relative">
-                    <Tag className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                    <select
-                      value={formData.category}
-                      onChange={(event) => setFormData({ ...formData, category: event.target.value })}
-                      className="flex h-12 w-full appearance-none rounded-2xl border border-slate-200 bg-white/50 pl-11 pr-4 text-sm transition-all focus:bg-white"
-                    >
-                      {categories.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label className="ml-1 text-xs font-bold uppercase tracking-wider text-slate-500">Estimasi Biaya (Rp)</Label>
-                  <div className="relative">
-                    <Wallet className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                    <Input
-                      type="number"
-                      min={1}
-                      value={formData.estimated_cost || ""}
-                      onChange={(event) => setFormData({ ...formData, estimated_cost: Number(event.target.value) })}
-                      placeholder="Masukkan anggaran"
-                      className="h-12 rounded-2xl border-slate-200 bg-white/50 pl-11"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="ml-1 text-xs font-bold uppercase tracking-wider text-slate-500">Judul Proposal</Label>
-                <div className="relative">
-                  <LayoutDashboard className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                  <Input
-                    value={formData.title}
-                    onChange={(event) => setFormData({ ...formData, title: event.target.value })}
-                    placeholder="Misal: Perbaikan lampu jalan lingkungan"
-                    className="h-12 rounded-2xl border-slate-200 bg-white/50 pl-11 transition-all focus:bg-white"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="ml-1 text-xs font-bold uppercase tracking-wider text-slate-500">Dokumentasi (1-4 Foto)</Label>
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                  {previews.map((url, index) => (
-                    <div key={index} className="group relative aspect-square overflow-hidden rounded-2xl border border-slate-200">
-                      <Image src={url} alt="preview" fill className="object-cover" unoptimized />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute right-1 top-1 flex size-6 items-center justify-center rounded-full bg-rose-500 text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100"
-                      >
-                        <X className="size-3" />
-                      </button>
+              <form onSubmit={onSubmit} className="divide-y divide-slate-100">
+                {/* 1. Informasi Lokasi */}
+                <div className="px-6 py-6 sm:px-8">
+                  <h3 className="mb-4 text-sm font-bold text-slate-900">
+                    1. Informasi Wilayah (Otomatis)
+                  </h3>
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-600">
+                        Provinsi
+                      </Label>
+                      <div className="relative">
+                        <Globe className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                        <Input
+                          value={province}
+                          readOnly
+                          className="h-11 cursor-not-allowed bg-slate-50 pl-10 text-slate-600 focus-visible:ring-0"
+                        />
+                      </div>
                     </div>
-                  ))}
-                  {images.length < 4 ? (
-                    <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 transition-all hover:border-[#4FB3B3] hover:bg-white">
-                      <Upload className="size-5 text-slate-400" />
-                      <span className="mt-2 text-[10px] font-bold uppercase text-slate-400">Tambah Foto</span>
-                      <input type="file" accept="image/*" multiple onChange={handleImageChange} className="hidden" />
-                    </label>
-                  ) : null}
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-600">
+                        Kota / Kabupaten
+                      </Label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                        <Input
+                          value={defaultLocation}
+                          readOnly
+                          className="h-11 cursor-not-allowed bg-slate-50 pl-10 text-slate-600 focus-visible:ring-0"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label className="ml-1 text-xs font-bold uppercase tracking-wider text-slate-500">Deskripsi</Label>
-                <textarea
-                  rows={5}
-                  value={formData.description}
-                  onChange={(event) => setFormData({ ...formData, description: event.target.value })}
-                  placeholder="Jelaskan masalah, manfaat, dan kebutuhan warga di lingkungan Anda."
-                  className="w-full rounded-2xl border border-slate-200 bg-white/50 p-4 text-sm transition-all focus:bg-white focus:outline-none"
-                />
-              </div>
+                {/* 2. Detail Proposal */}
+                <div className="px-6 py-6 sm:px-8">
+                  <h3 className="mb-4 text-sm font-bold text-slate-900">
+                    2. Detail Proposal
+                  </h3>
+                  <div className="space-y-6">
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-slate-600">
+                          Kategori
+                        </Label>
+                        <div className="relative">
+                          <Tag className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                          <select
+                            value={formData.category}
+                            onChange={(event) =>
+                              setFormData({
+                                ...formData,
+                                category: event.target.value,
+                              })
+                            }
+                            className="flex h-11 w-full appearance-none rounded-md border border-slate-200 bg-white pl-10 pr-4 text-sm transition-colors focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                          >
+                            {categories.map((category) => (
+                              <option key={category} value={category}>
+                                {category}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-slate-600">
+                          Estimasi Biaya (Rp)
+                        </Label>
+                        <div className="relative">
+                          <Wallet className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                          <Input
+                            type="number"
+                            min={1}
+                            value={formData.estimated_cost || ""}
+                            onChange={(event) =>
+                              setFormData({
+                                ...formData,
+                                estimated_cost: Number(event.target.value),
+                              })
+                            }
+                            placeholder="Contoh: 15000000"
+                            className="h-11 pl-10"
+                          />
+                        </div>
+                      </div>
+                    </div>
 
-              <AnimatePresence mode="wait">
-                {error ? (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="flex items-center gap-2 rounded-2xl border border-rose-100 bg-rose-50 p-4 text-xs font-bold text-rose-600">
-                    <AlertCircle className="size-4" /> {error}
-                  </motion.div>
-                ) : null}
-                {success ? (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="flex items-center gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-xs font-bold text-emerald-600">
-                    <CheckCircle2 className="size-4" /> {success}
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-600">
+                        Judul Singkat Usulan
+                      </Label>
+                      <Input
+                        value={formData.title}
+                        onChange={(event) =>
+                          setFormData({
+                            ...formData,
+                            title: event.target.value,
+                          })
+                        }
+                        placeholder="Misal: Perbaikan lampu jalan di Jalan Melati"
+                        className="h-11"
+                      />
+                    </div>
 
-              <Button disabled={isPending || !canSubmit || currentPhase !== "proposal"} className="h-14 w-full rounded-2xl bg-[#3F5C73] text-base font-bold text-white shadow-xl hover:bg-[#314b60]">
-                {isPending ? <LoadingSpinner className="mr-2" /> : "Ajukan Aspirasi"}
-              </Button>
-            </form>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-600">
+                        Deskripsi & Argumentasi
+                      </Label>
+                      <textarea
+                        rows={5}
+                        value={formData.description}
+                        onChange={(event) =>
+                          setFormData({
+                            ...formData,
+                            description: event.target.value,
+                          })
+                        }
+                        placeholder="Jelaskan alasan pengajuan, kondisi saat ini, dan manfaat bagi warga..."
+                        className="w-full rounded-md border border-slate-200 bg-white p-3 text-sm transition-colors focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Dokumentasi */}
+                <div className="px-6 py-6 sm:px-8">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-slate-900">
+                      3. Dokumentasi Visual
+                    </h3>
+                    <span className="text-xs text-slate-500">
+                      1 - 4 Foto Pendukung
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                    {previews.map((url, index) => (
+                      <div
+                        key={index}
+                        className="group relative aspect-square overflow-hidden rounded-xl border border-slate-200"
+                      >
+                        <Image
+                          src={url}
+                          alt="preview"
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute right-2 top-2 flex size-6 items-center justify-center rounded-full bg-rose-500/90 text-white shadow-sm backdrop-blur-sm transition-all hover:bg-rose-600"
+                        >
+                          <X className="size-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                    {images.length < 4 && (
+                      <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 transition-all hover:border-blue-500 hover:bg-blue-50/50">
+                        <Upload className="size-6 text-slate-400" />
+                        <span className="mt-2 text-xs font-medium text-slate-500">
+                          Unggah Foto
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+
+                {/* Submit Section */}
+                <div className="bg-slate-50 px-6 py-6 sm:px-8">
+                  <AnimatePresence mode="wait">
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        className="mb-4 flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700"
+                      >
+                        <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                        <p>{error}</p>
+                      </motion.div>
+                    )}
+                    {success && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        className="mb-4 flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700"
+                      >
+                        <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
+                        <p>{success}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <Button
+                    type="submit"
+                    disabled={
+                      isPending || !canSubmit || currentPhase !== "proposal"
+                    }
+                    className="h-12 w-full bg-blue-600 text-sm font-semibold text-white transition-all hover:bg-blue-700 sm:w-auto sm:px-8"
+                  >
+                    {isPending ? (
+                      <LoadingSpinner className="mr-2" />
+                    ) : (
+                      "Kirim Aspirasi"
+                    )}
+                  </Button>
+                </div>
+              </form>
             )}
           </CardContent>
         </Card>

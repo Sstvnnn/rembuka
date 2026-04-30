@@ -8,10 +8,8 @@ export default async function BudgetPage() {
   const taxProfile = await getUserTaxProfile(user.id);
 
   return (
-    <main className="min-h-screen bg-[#F4F6FA] px-4 pb-12 pt-32 sm:px-8">
+    <main className="min-h-screen bg-[#F4F6FA] px-4 pb-12 pt-50 sm:px-8">
       <div className="mx-auto max-w-7xl space-y-8">
-
-
         <BudgetVisualizer
           budgetItems={budgetItems}
           initialTaxProfile={taxProfile}
