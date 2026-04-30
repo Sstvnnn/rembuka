@@ -96,7 +96,7 @@ export function getProposalPhaseDescription(phase: ProposalPhase) {
     case "upcoming":
       return "Jadwal sudah dibuat, tetapi masa pengajuan belum dimulai.";
     case "proposal":
-      return "Warga dapat mengajukan satu aspirasi untuk wilayahnya.";
+      return "Warga dapat mengajukan satu proposal untuk wilayahnya.";
     case "review":
       return "Masa pengajuan selesai. Pemerintah wilayah meninjau proposal sebelum voting dimulai.";
     case "voting":

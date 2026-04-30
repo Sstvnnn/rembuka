@@ -100,7 +100,7 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
     }
 
     if (!isVerified) {
-      setError("Hanya warga terverifikasi yang dapat mengajukan aspirasi daerah.");
+      setError("Hanya warga terverifikasi yang dapat mengajukan proposal pembangunan.");
       return;
     }
 
@@ -124,7 +124,7 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
     startTransition(async () => {
       try {
         await createProposalAction(data);
-        setSuccess("Aspirasi berhasil diajukan. Mengalihkan ke daftar wilayah...");
+        setSuccess("Proposal berhasil diajukan. Mengalihkan ke daftar wilayah...");
         setTimeout(() => router.push("/proposals"), 1500);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Terjadi kesalahan yang tidak terduga.");
@@ -137,7 +137,7 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
       <div className="mb-6 flex items-center justify-between">
         <Button asChild variant="ghost" className="rounded-xl text-slate-500 hover:text-[#1A1F2B]">
           <Link href="/proposals" className="flex items-center gap-2">
-            <ArrowLeft className="size-4" /> Kembali ke Ruang Aspirasi Daerah
+            <ArrowLeft className="size-4" /> Kembali ke Proposal Pembangunan
           </Link>
         </Button>
       </div>
@@ -151,8 +151,8 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
                   <FileText className="size-6" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4FB3B3]">Ruang Aspirasi Daerah</p>
-                  <CardTitle className="text-2xl font-black tracking-tight text-[#1A1F2B]">Aspirasi Baru</CardTitle>
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#4FB3B3]">Proposal Pembangunan</p>
+                  <CardTitle className="text-2xl font-black tracking-tight text-[#1A1F2B]">Proposal Baru</CardTitle>
                 </div>
               </div>
               {!isVerified ? (
@@ -188,7 +188,7 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
 
             {!canSubmit ? (
               <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4 text-sm text-amber-800">
-                Halaman ini khusus untuk warga. Akun pemerintah dan admin tidak dapat mengajukan aspirasi.
+                Halaman ini khusus untuk warga. Akun pemerintah dan admin tidak dapat mengajukan proposal.
               </div>
             ) : null}
 
@@ -199,7 +199,7 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
                 </p>
                 <p className="mt-2 leading-relaxed">
                   {isProposalOpen
-                    ? "Form pengajuan terbuka. Setiap warga hanya dapat mengirim satu aspirasi pada periode ini."
+                    ? "Form pengajuan terbuka. Setiap warga hanya dapat mengirim satu proposal pada periode ini."
                     : currentPhase === "voting"
                       ? "Saat ini wilayah Anda sedang memasuki sesi voting. Form pengajuan ditutup sampai pemerintah membuat periode berikutnya."
                       : getProposalPhaseDescription(currentPhase)}
@@ -226,7 +226,7 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
                     : currentPhase === "upcoming"
                       ? `Form akan dibuka pada ${formatPeriodDateTime(activePeriod.proposal_start_at)}.`
                       : currentPhase === "voting"
-                        ? "Fokus wilayah sekarang adalah pemungutan suara. Anda tidak dapat membuat aspirasi baru sampai periode berikutnya."
+                        ? "Fokus wilayah sekarang adalah pemungutan suara. Anda tidak dapat membuat proposal baru sampai periode berikutnya."
                         : currentPhase === "review"
                           ? "Masa pengajuan sudah berakhir dan proposal sedang ditinjau pemerintah wilayah."
                           : currentPhase === "results"
@@ -288,7 +288,7 @@ export function ProposalForm({ defaultLocation, isVerified, canSubmit, currentPh
               </div>
 
               <div className="space-y-2">
-                <Label className="ml-1 text-xs font-bold uppercase tracking-wider text-slate-500">Judul Aspirasi</Label>
+                <Label className="ml-1 text-xs font-bold uppercase tracking-wider text-slate-500">Judul Proposal</Label>
                 <div className="relative">
                   <LayoutDashboard className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                   <Input

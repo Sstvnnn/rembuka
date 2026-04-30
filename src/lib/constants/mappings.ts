@@ -13,11 +13,12 @@ export const REVERSE_CATEGORY_MAPPING: Record<string, string> = Object.entries(C
 );
 
 export const STATUS_MAPPING: Record<string, string> = {
-  pending: "Menunggu Tinjauan",
-  approved: "Disetujui",
+  PEMERIKSAAN_DATA: "Pemeriksaan Data",
+  PEMILIHAN_PRIORITAS: "Pemilihan Prioritas",
+  ALOKASI_DANA: "Alokasi Dana",
+  SEDANG_DIBANGUN: "Sedang Dibangun",
+  PROYEK_SELESAI: "Proyek Selesai",
   rejected: "Ditolak",
-  voting: "Pemungutan Suara",
-  results: "Hasil Tersedia",
 };
 
 export const ROLE_MAPPING: Record<string, string> = {

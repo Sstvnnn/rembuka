@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -49,6 +50,7 @@ export default function LegalDetailPage() {
     const router = useRouter();
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/immutability
         init();
     }, []);
 
@@ -200,10 +202,6 @@ export default function LegalDetailPage() {
                         <div className="absolute inset-0 bg-gradient-to-r from-[#0a3d6b]/95 via-[#11538C]/75 to-[#0a2540]/35" />
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.24),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(99,102,241,0.2),transparent_30%)]" />
                         <div className="relative z-10 p-8 md:p-12 lg:p-14 max-w-4xl">
-                            <span className="inline-flex w-fit items-center gap-1 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-100 backdrop-blur-sm">
-                                <Gavel className="size-3" />
-                                Detail Regulasi
-                            </span>
                             <h1 className="mt-4 text-3xl md:text-4xl lg:text-5xl font-black leading-tight drop-shadow-lg">
                                 {loading
                                     ? "Memuat regulasi..."

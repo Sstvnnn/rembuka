@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { PROPOSAL_STATUS } from "@/lib/constants/tracker";
 import { Proposal, ProposalPeriod } from "@/types/musrenbang";
 
 type ProposalFilters = {
@@ -206,11 +207,17 @@ export async function getProposalVotes(userId: string, periodId?: string) {
 export async function getTopRankedProposals(periodId: string, limit = 3) {
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase
+
+    const { data: rankedData, error } = await supabase
       .from("proposal_rankings")
       .select("*")
       .eq("period_id", periodId)
-      .eq("status", "approved")
+      .in("status", [
+        PROPOSAL_STATUS.PEMILIHAN_PRIORITAS,
+        PROPOSAL_STATUS.ALOKASI_DANA,
+        PROPOSAL_STATUS.SEDANG_DIBANGUN,
+        PROPOSAL_STATUS.PROYEK_SELESAI,
+      ])
       .order("total_points", { ascending: false })
       .order("total_votes", { ascending: false })
       .order("created_at", { ascending: true })
@@ -221,7 +228,32 @@ export async function getTopRankedProposals(periodId: string, limit = 3) {
       return [];
     }
 
-    return (data || []) as Proposal[];
+    const winners = (rankedData || []) as Proposal[];
+    const promotableIds = winners
+      .filter((proposal) => proposal.status === PROPOSAL_STATUS.PEMILIHAN_PRIORITAS)
+      .map((proposal) => proposal.id);
+
+    if (promotableIds.length > 0) {
+      const { error: promoteError } = await supabase
+        .from("proposals")
+        .update({
+          status: PROPOSAL_STATUS.ALOKASI_DANA,
+          updated_at: new Date().toISOString(),
+        })
+        .in("id", promotableIds);
+
+      if (promoteError) {
+        console.error("Error promoting winning proposals:", promoteError);
+      } else {
+        return winners.map((proposal) =>
+          promotableIds.includes(proposal.id)
+            ? { ...proposal, status: PROPOSAL_STATUS.ALOKASI_DANA }
+            : proposal,
+        );
+      }
+    }
+
+    return winners;
   } catch (err) {
     console.error("Unexpected error in getTopRankedProposals:", err);
     return [];

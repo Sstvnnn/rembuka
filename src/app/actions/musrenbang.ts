@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { PROPOSAL_STATUS } from "@/lib/constants/tracker";
 
 type GovernanceProfile = {
   id: string;
@@ -62,7 +63,7 @@ export async function createProposalAction(formData: FormData) {
 
   const governanceProfile = await getGovernanceProfile(user.id);
   if (governanceProfile) {
-    throw new Error("Hanya warga yang dapat mengajukan aspirasi daerah.");
+    throw new Error("Hanya warga yang dapat mengajukan proposal daerah.");
   }
 
   const profile = await getCitizenProfile(user.id);
@@ -72,7 +73,7 @@ export async function createProposalAction(formData: FormData) {
   }
 
   if (profile.verification_status !== "verified") {
-    throw new Error("Hanya warga terverifikasi yang dapat mengajukan aspirasi daerah.");
+    throw new Error("Hanya warga terverifikasi yang dapat mengajukan proposal daerah.");
   }
 
   const now = new Date().toISOString();
@@ -101,7 +102,7 @@ export async function createProposalAction(formData: FormData) {
   }
 
   if ((count ?? 0) > 0) {
-    throw new Error("Setiap warga hanya dapat mengajukan satu aspirasi pada satu jadwal pengajuan.");
+    throw new Error("Setiap warga hanya dapat mengajukan satu proposal pada satu jadwal pengajuan.");
   }
 
   const title = formData.get("title") as string;
@@ -120,7 +121,7 @@ export async function createProposalAction(formData: FormData) {
       category,
       location: profile.location,
       estimated_cost: estimatedCost,
-      status: "pending",
+      status: PROPOSAL_STATUS.PEMERIKSAAN_DATA,
     })
     .select()
     .single();
@@ -202,7 +203,7 @@ export async function castVoteAction(proposalId: string, rank: 1 | 2 | 3) {
     throw new Error("Anda hanya dapat memilih proposal dari wilayah Anda sendiri.");
   }
 
-  if (proposal.status !== "approved") {
+  if (proposal.status !== PROPOSAL_STATUS.PEMILIHAN_PRIORITAS) {
     throw new Error("Hanya proposal yang sudah disetujui pemerintah yang dapat dipilih.");
   }
 
@@ -300,7 +301,7 @@ export async function scheduleProposalPeriodAction(input: {
 
   const governanceProfile = await getGovernanceProfile(user.id);
   if (!governanceProfile || governanceProfile.role === "admin") {
-    throw new Error("Hanya akun pemerintah wilayah yang dapat mengatur jadwal aspirasi daerah.");
+    throw new Error("Hanya akun pemerintah wilayah yang dapat mengatur jadwal proposal daerah.");
   }
 
   const proposalStartAt = parseDateTimeInput(input.proposalStart);
@@ -371,7 +372,10 @@ export async function scheduleProposalPeriodAction(input: {
   revalidatePath("/proposals");
 }
 
-export async function reviewProposalAction(proposalId: string, status: "approved" | "rejected") {
+export async function reviewProposalAction(
+  proposalId: string,
+  status: typeof PROPOSAL_STATUS.PEMILIHAN_PRIORITAS | "rejected",
+) {
   const supabase = await createClient();
   const {
     data: { user },

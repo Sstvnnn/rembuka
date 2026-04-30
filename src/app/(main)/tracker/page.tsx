@@ -54,7 +54,7 @@ export default async function TrackPage() {
                 Lacak Proses
               </h1>
               <p className="mt-4 max-w-2xl text-sm md:text-base text-blue-100/90 leading-relaxed">
-                Lacak seluruh proses kebijakan publik dan aspirasi daerah secara
+                Lacak seluruh proses kebijakan publik dan proposal daerah secara
                 real-time. Transparansi penuh dari awal hingga akhir.
               </p>
             </div>

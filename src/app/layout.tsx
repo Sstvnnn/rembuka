@@ -15,7 +15,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Rembuka",
   description:
-    "Civic-tech super app for Ruang Aspirasi Daerah and Ruang Wacana Publik.",
+    "Civic-tech super app for Building Proposal and Drafted Law Discussion.",
 };
 
 export default async function RootLayout({

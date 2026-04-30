@@ -415,10 +415,10 @@ export function HomeClient({
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-lg font-black text-slate-800">
-                  Aspirasi Daerah
+                  Proposal Daerah
                 </h2>
                 <p className="text-sm text-slate-500">
-                  Sampaikan aspirasi dan ikut tentukan prioritas pembangunan
+                  Ajukan proposal dan ikut tentukan prioritas pembangunan
                   daerahmu.
                 </p>
               </div>

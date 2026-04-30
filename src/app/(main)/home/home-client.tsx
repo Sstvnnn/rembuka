@@ -504,7 +504,7 @@ export function HomeClient({
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-black text-[#1A1F2B]">
-                  Aspirasi Daerah Terbaru
+                  Proposal Daerah Terbaru
                 </h2>
                 <Link
                   href={proposalsHref}
@@ -520,7 +520,7 @@ export function HomeClient({
                 </div>
               ) : proposals.length === 0 ? (
                 <div className="text-center py-12 text-sm text-slate-400">
-                  Belum ada aspirasi daerah.
+                  Belum ada Proposal daerah.
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -533,7 +533,7 @@ export function HomeClient({
                       <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4 hover:border-blue-200 hover:bg-blue-50/30 transition-all group">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wide">
-                            {p.category || "Aspirasi"}
+                            {p.category || "Proposal"}
                           </span>
                           <span
                             className={cn(

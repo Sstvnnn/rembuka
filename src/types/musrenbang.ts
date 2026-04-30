@@ -1,4 +1,10 @@
-export type ProposalStatus = "pending" | "approved" | "rejected";
+export type ProposalStatus =
+  | "PEMERIKSAAN_DATA"
+  | "PEMILIHAN_PRIORITAS"
+  | "ALOKASI_DANA"
+  | "SEDANG_DIBANGUN"
+  | "PROYEK_SELESAI"
+  | "rejected";
 
 export type Proposal = {
   id: string;
